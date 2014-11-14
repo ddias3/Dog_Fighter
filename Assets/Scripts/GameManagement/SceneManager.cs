@@ -65,13 +65,6 @@ namespace DogFighter
 					break;
 				}
 				break;
-//			case "load":
-//			{
-//				Action newAction = ActionFactory.CreateAction(messageTokens[1]);
-//				newAction.ActionStart();
-//				instance.m_actionList.AddLast(newAction);
-//			}
-//				break;
 			case "run":
 			{
 				Action newAction = ActionFactory.FindAction(messageTokens[1]);
