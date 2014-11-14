@@ -3,17 +3,17 @@ using System.Collections;
 
 namespace DogFighter
 {
-	public abstract class Action : ScriptableObject
+	public abstract class Action : MonoBehaviour
 	{
-		private float m_time;
-		private string m_name;
+		protected float m_time;
+		protected string m_name;
 		
 		public string Name
 		{
 			set { m_name = value; }
 			get { return m_name; }
 		}
-		
+
 		public abstract void ActionStart();
 		public abstract void ActionUpdate();
 		public abstract void ActionFixedUpdate();

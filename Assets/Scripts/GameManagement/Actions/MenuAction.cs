@@ -12,14 +12,14 @@ namespace DogFighter
 			testWords = "Run the Game";
 
 			Debug.Log("MenuAction started");
+			DataManager.GetNumberPlayers();
 		}
 
 		public override void ActionUpdate()
 		{
 			if (Input.GetKeyDown(KeyCode.Return))
 			{
-				GameManager.SendMessage(this, "start SingleShipAction");
-				GameManager.SendMessage(this, "remove from_action_list");
+				Application.LoadLevel("Map1Scene");
 			}
 		}
 
@@ -32,8 +32,7 @@ namespace DogFighter
 		{
 			if (GUI.Button(new Rect(40, 40, Screen.width - 80, Screen.height - 80), testWords))
 			{
-				GameManager.SendMessage(this, "start SingleShipAction");
-				GameManager.SendMessage(this, "remove from_action_list");
+				Application.LoadLevel("Map1Scene");
 			}
 		}
 		
