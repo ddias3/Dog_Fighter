@@ -17,10 +17,20 @@ namespace DogFighter
 			shipGameObject = Instantiate(shipPrefab, Vector3.zero, Quaternion.identity) as GameObject;
 			playerShip = shipGameObject.GetComponent<PlayerShip>();
 		}
-		
+
+		float throttle = 0f;
 		public override void ActionUpdate()
 		{
+			float pitch = -Input.GetAxis("Pitch");
+			float yaw = Input.GetAxis("Yaw");
+			float roll = Input.GetAxis("Roll");
 
+			throttle += Input.GetAxis("Mouse ScrollWheel");
+
+			playerShip.Throttle = throttle;
+			playerShip.Pitch = pitch;
+			playerShip.Yaw = yaw;
+			playerShip.Roll = roll;
 		}
 		
 		public override void ActionFixedUpdate()
