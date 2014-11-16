@@ -21,11 +21,15 @@ namespace DogFighter
 		float throttle = 0f;
 		public override void ActionUpdate()
 		{
-			float pitch = -Input.GetAxis("Pitch");
-			float yaw = Input.GetAxis("Yaw");
-			float roll = Input.GetAxis("Roll");
+			float pitch = Input.GetAxis("Right_Vertical");
+			float yaw = Input.GetAxis("Right_Horizontal");
+			float roll = -Input.GetAxis("Left_Horizontal");
 
-			throttle += Input.GetAxis("Mouse ScrollWheel");
+			throttle -= 2f * Input.GetAxis("Left_Vertical") * TimeStack.deltaTime;
+			if (throttle > 1f)
+				throttle = 1f;
+			if (throttle < -0.2f)
+				throttle = -0.2f;
 
 			playerShip.Throttle = throttle;
 			playerShip.Pitch = pitch;

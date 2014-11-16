@@ -86,6 +86,10 @@ namespace DogFighter
 			shipRigidbody.AddTorque(transform.rotation * angularAcceleration, ForceMode.Acceleration);
 		}
 
+		private float MAX_PITCH = 3f;
+		private float MAX_YAW = 1f;
+		private float MAX_ROLL = 6f;
+
 		public float Throttle
 		{
 			set 
@@ -107,7 +111,7 @@ namespace DogFighter
 					value = 1f;
 				if (value < -1f)
 					value = -1f;
-				pitchYawRoll.x = value * 3f;
+				pitchYawRoll.x = value * MAX_PITCH;
 			}
 			get { return pitchYawRoll.x; }
 		}
@@ -120,7 +124,7 @@ namespace DogFighter
 					value = 1f;
 				if (value < -1f)
 					value = -1f;
-				pitchYawRoll.y = value * 3f;
+				pitchYawRoll.y = value * MAX_YAW;
 			}
 			get { return pitchYawRoll.y; }
 		}
@@ -133,7 +137,7 @@ namespace DogFighter
 					value = 1f;
 				if (value < -1f)
 					value = -1f;
-				pitchYawRoll.z = value * 6f;
+				pitchYawRoll.z = value * MAX_ROLL;
 			}
 			get { return pitchYawRoll.z; }
 		}
