@@ -8,7 +8,8 @@ namespace DogFighter
 		private Rigidbody shipRigidbody;
 
 		private float throttle;
-		private Vector3 pitchYawRoll;		
+		private Vector3 pitchYawRoll;
+		private Vector3 pitchYawRollAssist;
 
 		void Start()
 		{
@@ -22,6 +23,7 @@ namespace DogFighter
 
 			throttle = 0f;
 			pitchYawRoll = new Vector3(0f, 0f, 0f);
+			pitchYawRoll = new Vector3 (0f, 0f, 0f);
 
 			SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT = new Vector3(SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_PITCH,
 			                                                         SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_YAW,
@@ -30,12 +32,23 @@ namespace DogFighter
 			VELOCITY_DAMPENING_CONSTANT = new Vector3(VELOCITY_DAMPENING_CONSTANT_RIGHT,
 			                                          VELOCITY_DAMPENING_CONSTANT_UP,
 			                                          VELOCITY_DAMPENING_CONSTANT_FORWARD);
+
+			PITCH_YAW_ROLL_DEADZONE = new Vector3(PITCH_YAW_ROLL_DEADZONE_PITCH,
+			                                      PITCH_YAW_ROLL_DEADZONE_YAW,
+			                                      PITCH_YAW_ROLL_DEADZONE_ROLL);
 		}
 		
 		void Update()
 		{
 			if (Input.GetKeyDown(KeyCode.Alpha1))
 				shipRigidbody.velocity = Vector3.zero;
+
+			if (Mathf.Abs(pitchYawRoll.x) < PITCH_YAW_ROLL_DEADZONE_PITCH)
+				;
+			if (Mathf.Abs(pitchYawRoll.y) < PITCH_YAW_ROLL_DEADZONE_YAW)
+				;
+			if (Mathf.Abs(pitchYawRoll.z) < PITCH_YAW_ROLL_DEADZONE_ROLL)
+				;
 		}
 
 		void OnGUI()
@@ -51,22 +64,40 @@ namespace DogFighter
 			GUI.Label(new Rect(0, 160, Screen.width, 20), "Throttle: " + throttle.ToString());
 		}
 
+		//----------------------------------------------
+		// These are to control the ship with physics.
+		//----------------------------------------------
+
+		private float MAX_PITCH = 3f;
+		private float MAX_YAW = 1f;
+		private float MAX_ROLL = 6f;
+
+		private Vector3 PITCH_YAW_ROLL_DEADZONE;
+		private float PITCH_YAW_ROLL_DEADZONE_PITCH = 0.15f;
+		private float PITCH_YAW_ROLL_DEADZONE_YAW = 0.15f;
+		private float PITCH_YAW_ROLL_DEADZONE_ROLL = 0.05f;
+
 		private Vector3 VELOCITY_DAMPENING_CONSTANT;
 		private const float VELOCITY_DAMPENING_CONSTANT_RIGHT = -2f;
 		private const float VELOCITY_DAMPENING_CONSTANT_UP = -4f;
 		private const float VELOCITY_DAMPENING_CONSTANT_FORWARD = -0.1f;
-		private const float SPIN_DAMPENING_CONSTANT = -1.5f;
-		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_PITCH = 3.6f;
-		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_YAW = 3f;
-		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_ROLL = 2f;
+
+		private const float SPIN_DAMPENING_CONSTANT = -0.75f;//-1.5f;
+
+		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_PITCH = 1.8f;//3.6f;
+		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_YAW = 1.5f;//3f;
+		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_ROLL = 1f;//2f;
 		private Vector3 SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT;
+
 		private const float MAX_FORWARD_ACCELERATION = 20f;
 		private const float INVERSE_MAX_SPEED = 0.005f;
+		
 		private Vector3 localRigidbodyVelocity;
 		private Vector3 localRigidbodyAngularVelocity;
 		private Vector3 finalAcceleration;
 		private Vector3 angularAcceleration;
 		private float speed;
+
 		void FixedUpdate()
 		{
 			speed = shipRigidbody.velocity.magnitude;
@@ -76,8 +107,11 @@ namespace DogFighter
 			localRigidbodyAngularVelocity = transform.InverseTransformDirection(shipRigidbody.angularVelocity);
 
 			Vector3 forwardAcceleration = Vector3.forward * MAX_FORWARD_ACCELERATION * throttle;
-			angularAcceleration = pitchYawRoll + Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
+
+			angularAcceleration = pitchYawRoll + pitchYawRollAssist;
+				Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
 				                               (SPIN_DAMPENING_CONSTANT * localRigidbodyAngularVelocity));
+
 			Vector3 sudoDragAcceleration = Vector3PointWiseMultiplication(VELOCITY_DAMPENING_CONSTANT, localRigidbodyVelocity);
 
 			finalAcceleration = forwardAcceleration + sudoDragAcceleration;
@@ -85,10 +119,6 @@ namespace DogFighter
 			shipRigidbody.AddForce(transform.rotation * finalAcceleration, ForceMode.Acceleration);
 			shipRigidbody.AddTorque(transform.rotation * angularAcceleration, ForceMode.Acceleration);
 		}
-
-		private float MAX_PITCH = 3f;
-		private float MAX_YAW = 1f;
-		private float MAX_ROLL = 6f;
 
 		public float Throttle
 		{

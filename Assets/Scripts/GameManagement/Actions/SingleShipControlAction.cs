@@ -18,14 +18,32 @@ namespace DogFighter
 			playerShip = shipGameObject.GetComponent<PlayerShip>();
 		}
 
-		float throttle = 0f;
+		private float throttle = 0f;
+		private bool controller = true;
 		public override void ActionUpdate()
 		{
-			float pitch = Input.GetAxis("Right_Vertical");
-			float yaw = Input.GetAxis("Right_Horizontal");
-			float roll = -Input.GetAxis("Left_Horizontal");
+			if (Input.GetKeyDown(KeyCode.Return))
+				controller = !controller;
 
-			throttle -= 2f * Input.GetAxis("Left_Vertical") * TimeStack.deltaTime;
+			float pitch;
+			float yaw;
+			float roll;
+
+			if (controller)
+			{
+				pitch = Input.GetAxis("Right_Vertical");
+				yaw = Input.GetAxis("Right_Horizontal");
+				roll = -Input.GetAxis("Left_Horizontal");
+				throttle -= 2f * Input.GetAxis("Left_Vertical") * TimeStack.deltaTime;
+			}
+			else
+			{
+				pitch = -Input.GetAxis("Pitch");
+				yaw = Input.GetAxis("Yaw");
+				roll = Input.GetAxis("Roll");
+				throttle += Input.GetAxis("Throttle") * TimeStack.deltaTime;
+			}
+
 			if (throttle > 1f)
 				throttle = 1f;
 			if (throttle < -0.2f)
