@@ -11,6 +11,10 @@ namespace DogFighter
 		private Vector3 pitchYawRoll;
 		private Vector3 pitchYawRollAssist;
 
+		public AnimationCurve pitchAssistCurve;
+		public AnimationCurve yawAssistCurve;
+		public AnimationCurve rollAssistCurve;
+
 		void Start()
 		{
 			shipRigidbody = gameObject.GetComponent<Rigidbody>();
@@ -23,7 +27,7 @@ namespace DogFighter
 
 			throttle = 0f;
 			pitchYawRoll = new Vector3(0f, 0f, 0f);
-			pitchYawRoll = new Vector3 (0f, 0f, 0f);
+			pitchYawRollAssist = new Vector3(0f, 0f, 0f);
 
 			SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT = new Vector3(SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_PITCH,
 			                                                         SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_YAW,
@@ -36,6 +40,20 @@ namespace DogFighter
 			PITCH_YAW_ROLL_DEADZONE = new Vector3(PITCH_YAW_ROLL_DEADZONE_PITCH,
 			                                      PITCH_YAW_ROLL_DEADZONE_YAW,
 			                                      PITCH_YAW_ROLL_DEADZONE_ROLL);
+
+			ANGULAR_VELOCITY_ASSIST_THRESHOLD = new Vector3(ANGULAR_VELOCITY_ASSIST_THRESHOLD_PITCH,
+			                                                ANGULAR_VELOCITY_ASSIST_THRESHOLD_YAW,
+			                                                ANGULAR_VELOCITY_ASSIST_THRESHOLD_ROLL);
+
+			MAX_ANGULAR_VELOCITY_PITCH = -MAX_PITCH / SPIN_DAMPENING_CONSTANT;
+			MAX_ANGULAR_VELOCITY_YAW = -MAX_YAW / SPIN_DAMPENING_CONSTANT;
+			MAX_ANGULAR_VELOCITY_ROLL = -MAX_ROLL / SPIN_DAMPENING_CONSTANT;
+			MAX_ANGULAR_VELOCITY = new Vector3(MAX_ANGULAR_VELOCITY_PITCH,
+			                                   MAX_ANGULAR_VELOCITY_YAW,
+			                                   MAX_ANGULAR_VELOCITY_ROLL);
+			INVERSE_MAX_ANGULAR_VELOCITY = new Vector3(1f / MAX_ANGULAR_VELOCITY.x,
+			                                           1f / MAX_ANGULAR_VELOCITY.y,
+			                                           1f / MAX_ANGULAR_VELOCITY.z);
 		}
 		
 		void Update()
@@ -43,12 +61,23 @@ namespace DogFighter
 			if (Input.GetKeyDown(KeyCode.Alpha1))
 				shipRigidbody.velocity = Vector3.zero;
 
-			if (Mathf.Abs(pitchYawRoll.x) < PITCH_YAW_ROLL_DEADZONE_PITCH)
-				;
-			if (Mathf.Abs(pitchYawRoll.y) < PITCH_YAW_ROLL_DEADZONE_YAW)
-				;
-			if (Mathf.Abs(pitchYawRoll.z) < PITCH_YAW_ROLL_DEADZONE_ROLL)
-				;
+			if (Mathf.Abs(pitchYawRoll.x) < PITCH_YAW_ROLL_DEADZONE_PITCH &&
+				Mathf.Abs(localRigidbodyAngularVelocity.x) > ANGULAR_VELOCITY_ASSIST_THRESHOLD_PITCH)
+				pitchYawRollAssist.x = -Mathf.Sign(localRigidbodyAngularVelocity.x) * MAX_PITCH * pitchAssistCurve.Evaluate(Mathf.Abs(localRigidbodyAngularVelocity.x) * INVERSE_MAX_ANGULAR_VELOCITY.x);
+			else
+				pitchYawRollAssist.x = 0f;
+
+			if (Mathf.Abs(pitchYawRoll.y) < PITCH_YAW_ROLL_DEADZONE_YAW &&
+			    Mathf.Abs(localRigidbodyAngularVelocity.y) > ANGULAR_VELOCITY_ASSIST_THRESHOLD_YAW)
+				pitchYawRollAssist.y = -Mathf.Sign(localRigidbodyAngularVelocity.y) * MAX_YAW * yawAssistCurve.Evaluate(Mathf.Abs(localRigidbodyAngularVelocity.y) * INVERSE_MAX_ANGULAR_VELOCITY.y);
+			else
+				pitchYawRollAssist.y = 0f;
+
+			if (Mathf.Abs(pitchYawRoll.z) < PITCH_YAW_ROLL_DEADZONE_ROLL &&
+			    Mathf.Abs(localRigidbodyAngularVelocity.z) > ANGULAR_VELOCITY_ASSIST_THRESHOLD_ROLL)
+				pitchYawRollAssist.z = -Mathf.Sign(localRigidbodyAngularVelocity.z) * MAX_ROLL * rollAssistCurve.Evaluate(Mathf.Abs(localRigidbodyAngularVelocity.z) * INVERSE_MAX_ANGULAR_VELOCITY.z);
+			else
+				pitchYawRollAssist.z = 0f;
 		}
 
 		void OnGUI()
@@ -62,20 +91,32 @@ namespace DogFighter
 			GUI.Label(new Rect(0, 120, Screen.width, 20), "Speed: " + speed.ToString() + " m/s");
 			GUI.Label(new Rect(0, 140, Screen.width, 20), "PYR: " + pitchYawRoll.ToString());
 			GUI.Label(new Rect(0, 160, Screen.width, 20), "Throttle: " + throttle.ToString());
+			GUI.Label(new Rect(0, 180, Screen.width, 20), "PYR Assist: " + pitchYawRollAssist.ToString());
 		}
 
 		//----------------------------------------------
 		// These are to control the ship with physics.
 		//----------------------------------------------
 
-		private float MAX_PITCH = 3f;
-		private float MAX_YAW = 1f;
-		private float MAX_ROLL = 6f;
+		private const float MAX_PITCH = 3f;
+		private const float MAX_YAW = 1f;
+		private const float MAX_ROLL = 6f;
 
 		private Vector3 PITCH_YAW_ROLL_DEADZONE;
-		private float PITCH_YAW_ROLL_DEADZONE_PITCH = 0.15f;
-		private float PITCH_YAW_ROLL_DEADZONE_YAW = 0.15f;
-		private float PITCH_YAW_ROLL_DEADZONE_ROLL = 0.05f;
+		private const float PITCH_YAW_ROLL_DEADZONE_PITCH = 0.15f;
+		private const float PITCH_YAW_ROLL_DEADZONE_YAW = 0.15f;
+		private const float PITCH_YAW_ROLL_DEADZONE_ROLL = 0.05f;
+
+		private Vector3 ANGULAR_VELOCITY_ASSIST_THRESHOLD;
+		private const float ANGULAR_VELOCITY_ASSIST_THRESHOLD_PITCH = 0.01f;
+		private const float ANGULAR_VELOCITY_ASSIST_THRESHOLD_YAW = 0.01f;
+		private const float ANGULAR_VELOCITY_ASSIST_THRESHOLD_ROLL = 0.01f;
+
+		private Vector3 MAX_ANGULAR_VELOCITY;
+		private float MAX_ANGULAR_VELOCITY_PITCH;
+		private float MAX_ANGULAR_VELOCITY_YAW;
+		private float MAX_ANGULAR_VELOCITY_ROLL;
+		private Vector3 INVERSE_MAX_ANGULAR_VELOCITY;
 
 		private Vector3 VELOCITY_DAMPENING_CONSTANT;
 		private const float VELOCITY_DAMPENING_CONSTANT_RIGHT = -2f;
@@ -108,7 +149,7 @@ namespace DogFighter
 
 			Vector3 forwardAcceleration = Vector3.forward * MAX_FORWARD_ACCELERATION * throttle;
 
-			angularAcceleration = pitchYawRoll + pitchYawRollAssist;
+			angularAcceleration = pitchYawRoll + pitchYawRollAssist +
 				Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
 				                               (SPIN_DAMPENING_CONSTANT * localRigidbodyAngularVelocity));
 

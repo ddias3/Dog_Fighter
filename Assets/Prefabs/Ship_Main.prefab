@@ -531,6 +531,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90fc81ba9f94d524a902db7da6cbef7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pitchAssistCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: -.00705888122
+      inSlope: 6.61290169
+      outSlope: 6.61290169
+      tangentMode: 0
+    - time: .5
+      value: 1
+      inSlope: .0169216339
+      outSlope: .0169216339
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+  yawAssistCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 0
+      inSlope: 6.30414724
+      outSlope: 6.30414724
+      tangentMode: 0
+    - time: .5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+  rollAssistCurve:
+    serializedVersion: 2
+    m_Curve:
+    - time: 0
+      value: 0
+      inSlope: 6.56563616
+      outSlope: 6.56563616
+      tangentMode: 0
+    - time: .5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
 --- !u!124 &12400000
 Behaviour:
   m_ObjectHideFlags: 1
