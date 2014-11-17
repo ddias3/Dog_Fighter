@@ -7,7 +7,8 @@ namespace DogFighter
 	{
 		public override void ActionStart()
 		{
-
+			SceneManager.SendMessage(this, "run_named SingleShipControlAction SingleShipControlActionP1");
+			SceneManager.SendMessageToAction(this, "SingleShipControlActionP1", "set player_number 1");
 		}
 		
 		public override void ActionUpdate()

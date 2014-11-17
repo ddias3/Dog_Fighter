@@ -297,6 +297,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 599773373}
+  - {fileID: 1786185223}
   m_Father: {fileID: 0}
   m_RootOrder: 3
 --- !u!1 &1035560918
@@ -769,7 +770,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cb67d6fb67b1e248970c9676983a405, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstMessageReceived: run SingleShipAction
+  firstMessageReceived: run DeathMatchAction
 --- !u!4 &1774532888
 Transform:
   m_ObjectHideFlags: 0
@@ -782,6 +783,45 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
+--- !u!1 &1786185222
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 1786185223}
+  - 114: {fileID: 1786185224}
+  m_Layer: 0
+  m_Name: DeathMatchAction
+  m_TagString: Action
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1786185223
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1786185222}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 947657864}
+  m_RootOrder: 1
+--- !u!114 &1786185224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1786185222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2589f31133c84b469ad2e5361edf69d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1943149535
 Prefab:
   m_ObjectHideFlags: 0

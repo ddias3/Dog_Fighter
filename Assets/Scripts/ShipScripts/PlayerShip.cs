@@ -11,6 +11,9 @@ namespace DogFighter
 		private Vector3 pitchYawRoll;
 		private Vector3 pitchYawRollAssist;
 
+		private float shipHealth;
+		private float shieldHealth;
+
 		public AnimationCurve pitchAssistCurve;
 		public AnimationCurve yawAssistCurve;
 		public AnimationCurve rollAssistCurve;
@@ -26,8 +29,12 @@ namespace DogFighter
 			shipRigidbody.angularVelocity = new Vector3(0, 0, 0);
 
 			throttle = 0f;
+
 			pitchYawRoll = new Vector3(0f, 0f, 0f);
 			pitchYawRollAssist = new Vector3(0f, 0f, 0f);
+
+			shipHealth = 100f;
+			shieldHealth = 100f;
 
 			SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT = new Vector3(SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_PITCH,
 			                                                         SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_YAW,
@@ -213,6 +220,20 @@ namespace DogFighter
 			get { return pitchYawRoll.z; }
 		}
 
+		public float Speed
+		{
+			get { return speed; }
+		}
+
+		public float ShipHealth
+		{
+			get { return shipHealth; }
+		}
+
+		public float ShieldHealth
+		{
+			get { return shieldHealth; }
+		}
 
 		private Vector3 Vector3PointWiseMultiplication(Vector3 a, Vector3 b)
 		{

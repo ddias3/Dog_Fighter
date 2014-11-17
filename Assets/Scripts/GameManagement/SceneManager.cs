@@ -73,6 +73,15 @@ namespace DogFighter
 				instance.m_actionDictionary.Add(newAction.Name, newAction);
 			}
 				break;
+			case "run_named":
+			{
+				Action newAction = ActionFactory.FindAction(messageTokens[1]);
+				newAction.Name = messageTokens[2];
+				newAction.ActionStart();
+				instance.m_actionList.AddLast(newAction);
+				instance.m_actionDictionary.Add(newAction.Name, newAction);
+			}
+				break;
 			default:
 				Debug.LogError("ERROR IN GameManager.cs:SendMessage(Action, string) | Message, \"" + message + "\" does not have associated code; check spelling.");
 				break;

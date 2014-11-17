@@ -14,8 +14,11 @@ namespace DogFighter
 			case "MenuAction":
 				action = MonoBehaviour.FindObjectOfType<MenuAction>();
 				break;
-			case "SingleShipAction":
+			case "SingleShipControlAction":
 				action = MonoBehaviour.FindObjectOfType<SingleShipControlAction>();
+				break;
+			case "DeathMatchAction":
+				action = MonoBehaviour.FindObjectOfType<DeathMatchAction>();
 				break;
 			default:
 				Debug.LogError(actionName + " does not exist");
