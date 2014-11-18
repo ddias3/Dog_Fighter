@@ -38,9 +38,9 @@ namespace DogFighter
 			}
 			else
 			{
-				pitch = -Input.GetAxis("Pitch");
-				yaw = Input.GetAxis("Yaw");
-				roll = Input.GetAxis("Roll");
+				pitch = Input.GetAxis("Pitch");
+				roll = -Input.GetAxis("Yaw");
+				yaw = -Input.GetAxis("Roll");
 				throttle += Input.GetAxis("Throttle") * TimeStack.deltaTime;
 			}
 
