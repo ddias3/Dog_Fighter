@@ -39,15 +39,15 @@ namespace DogFighter
 			else
 			{
 				pitch = Input.GetAxis("Pitch");
-				roll = -Input.GetAxis("Yaw");
-				yaw = -Input.GetAxis("Roll");
-				throttle += Input.GetAxis("Throttle") * TimeStack.deltaTime;
+				roll = -0.75f * Input.GetAxis("Yaw");
+				yaw = -2*Input.GetAxis("Roll");
+				throttle += 2f * Input.GetAxis("Throttle") * TimeStack.deltaTime;
 			}
 
-			if (throttle > 1f)
-				throttle = 1f;
-			if (throttle < -0.2f)
-				throttle = -0.2f;
+			if (throttle > 4f)
+				throttle = 4f;
+			if (throttle < -1f)
+				throttle = -1f;
 
 			playerShip.Throttle = throttle;
 			playerShip.Pitch = pitch;
