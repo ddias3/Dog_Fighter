@@ -172,10 +172,10 @@ namespace DogFighter
 		{
 			set 
 			{
-				if (value > 1f)
-					value = 1f;
-				if (value < -0.2f)
-					value = -0.2f;
+				if (value > 4f)
+					value = 4f;
+				if (value < -1f)
+					value = -1f;
 				throttle = value;
 			}
 			get { return throttle; }

@@ -12,7 +12,7 @@ public class AsteroidScript : MonoBehaviour {
 		rigidbody.AddForce(force*10000000);
 		rotate = new Vector3(Random.value-.5f,Random.value-.5f,Random.value-.5f);
 		rotate.Normalize();
-		rotate = rotate/10f;
+		rotate = rotate/5f;
 		rigidbody.angularVelocity = rotate;
 	}
 }
