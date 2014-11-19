@@ -60,6 +60,9 @@ namespace DogFighter
 			playerShip.Pitch = pitch;
 			playerShip.Yaw = yaw;
 			playerShip.Roll = roll;
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+                Application.LoadLevel("MenuScene");
 		}
 		
 		public override void ActionFixedUpdate()
