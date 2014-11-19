@@ -9,7 +9,7 @@ public class AsteroidScript : MonoBehaviour {
 	void Start () {
 		Vector3 force = new Vector3(Random.value-.5f,Random.value-.5f,Random.value-.5f);
 		force.Normalize();
-		rigidbody.AddForce(force*50000000/((Random.value*9f)+1));
+		rigidbody.AddForce(force*100000000/((Random.value*9f)+1));
 		rotate = new Vector3(Random.value-.5f,Random.value-.5f,Random.value-.5f);
 		rotate.Normalize();
 		rotate = rotate/(2.5f*((Random.value*3f)+1f));
