@@ -120,7 +120,7 @@ namespace DogFighter
 		//----------------------------------------------
 
 		private const float MAX_PITCH = 3f;
-		private const float MAX_YAW = 1f;
+		private const float MAX_YAW = 1.5f;
 		private const float MAX_ROLL = 6f;
 
 		private Vector3 PITCH_YAW_ROLL_DEADZONE;
@@ -146,12 +146,12 @@ namespace DogFighter
 
 		private const float SPIN_DAMPENING_CONSTANT = -0.75f;//-1.5f;
 
-		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_PITCH = 1.8f;//3.6f;
-		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_YAW = 1.5f;//3f;
-		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_ROLL = 1f;//2f;
+		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_PITCH = 2.5f;
+		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_YAW = 3f;
+		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_ROLL = 2.5f;
 		private Vector3 SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT;
 
-		private const float MAX_FORWARD_ACCELERATION = 20f;
+		private const float MAX_FORWARD_ACCELERATION = 70f;
 		private const float INVERSE_MAX_SPEED = 0.005f;
 		
 		private Vector3 localRigidbodyVelocity;
