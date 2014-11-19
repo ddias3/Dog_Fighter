@@ -14,9 +14,16 @@ namespace DogFighter
 		private float shipHealth;
 		private float shieldHealth;
 
+		private float barHeight = 80;
+		private float barWidth = 10;
+		private float barSpace = 14;
+		private float pinch = 0;
+
 		public AnimationCurve pitchAssistCurve;
 		public AnimationCurve yawAssistCurve;
 		public AnimationCurve rollAssistCurve;
+
+		public Texture image;
 
 		void Start()
 		{
@@ -99,6 +106,13 @@ namespace DogFighter
 			GUI.Label(new Rect(0, 140, Screen.width, 20), "PYR: " + pitchYawRoll.ToString());
 			GUI.Label(new Rect(0, 160, Screen.width, 20), "Throttle: " + throttle.ToString());
 			GUI.Label(new Rect(0, 180, Screen.width, 20), "PYR Assist: " + pitchYawRollAssist.ToString());
+
+			for (float i=0; i<Speed/25; i++) {
+				if (i > 0 && i < 4) { pinch = 30; }
+				else if (i > 4) { pinch -= 5; }
+				else { pinch = 15; }
+				GUI.Box (new Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
+			}
 		}
 
 		//----------------------------------------------
