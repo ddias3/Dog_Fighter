@@ -576,6 +576,8 @@ MonoBehaviour:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
+  stationaryFieldOfView: 65
+  maxSpeedFieldOfView: 85
 --- !u!124 &12400000
 Behaviour:
   m_ObjectHideFlags: 1

@@ -18,6 +18,9 @@ namespace DogFighter
 		public AnimationCurve yawAssistCurve;
 		public AnimationCurve rollAssistCurve;
 
+		public float stationaryFieldOfView;
+		public float maxSpeedFieldOfView;
+
 		private Camera shipCamera;
 
 		void Start()
@@ -100,7 +103,7 @@ namespace DogFighter
 
 		void LateUpdate()
 		{
-			shipCamera.fieldOfView = 65f * (1 - speedInterpolation) + 80f * (speedInterpolation);
+			shipCamera.fieldOfView = stationaryFieldOfView * (1 - speedInterpolation) + maxSpeedFieldOfView * (speedInterpolation);
 		}
 
 		void OnGUI()
