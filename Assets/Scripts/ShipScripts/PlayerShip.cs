@@ -18,9 +18,12 @@ namespace DogFighter
 		public AnimationCurve yawAssistCurve;
 		public AnimationCurve rollAssistCurve;
 
+		private Camera shipCamera;
+
 		void Start()
 		{
 			shipRigidbody = gameObject.GetComponent<Rigidbody>();
+			shipCamera = gameObject.GetComponentInChildren<Camera>();
 
 			shipRigidbody.angularDrag = 0f;
 			shipRigidbody.drag = 0f;
@@ -61,12 +64,20 @@ namespace DogFighter
 			INVERSE_MAX_ANGULAR_VELOCITY = new Vector3(1f / MAX_ANGULAR_VELOCITY.x,
 			                                           1f / MAX_ANGULAR_VELOCITY.y,
 			                                           1f / MAX_ANGULAR_VELOCITY.z);
+			ROTATION_VELOCITY_PRESERVATION = new Vector3(ROTATION_VELOCITY_PRESERVATION_PITCH,
+			                                             ROTATION_VELOCITY_PRESERVATION_YAW,
+			                                             ROTATION_VELOCITY_PRESERVATION_ROLL);
+
+			MAX_SPEED = -MAX_FORWARD_ACCELERATION / VELOCITY_DAMPENING_CONSTANT_FORWARD;
+			INVERSE_MAX_SPEED = 1f / MAX_SPEED;
 		}
 		
 		void Update()
 		{
-			if (Input.GetKeyDown(KeyCode.Alpha1))
+			if (Input.GetKeyDown(KeyCode.Alpha2))
 				shipRigidbody.velocity = Vector3.zero;
+			if (Input.GetKeyDown(KeyCode.Alpha3))
+				shipRigidbody.velocity = new Vector3(0, 0, 3);
 
 			if (Mathf.Abs(pitchYawRoll.x) < PITCH_YAW_ROLL_DEADZONE_PITCH &&
 				Mathf.Abs(localRigidbodyAngularVelocity.x) > ANGULAR_VELOCITY_ASSIST_THRESHOLD_PITCH)
@@ -85,6 +96,11 @@ namespace DogFighter
 				pitchYawRollAssist.z = -Mathf.Sign(localRigidbodyAngularVelocity.z) * MAX_ROLL * rollAssistCurve.Evaluate(Mathf.Abs(localRigidbodyAngularVelocity.z) * INVERSE_MAX_ANGULAR_VELOCITY.z);
 			else
 				pitchYawRollAssist.z = 0f;
+		}
+
+		void LateUpdate()
+		{
+			shipCamera.fieldOfView = 65f * (1 - speedInterpolation) + 80f * (speedInterpolation);
 		}
 
 		void OnGUI()
@@ -128,7 +144,7 @@ namespace DogFighter
 		private Vector3 VELOCITY_DAMPENING_CONSTANT;
 		private const float VELOCITY_DAMPENING_CONSTANT_RIGHT = -2f;
 		private const float VELOCITY_DAMPENING_CONSTANT_UP = -4f;
-		private const float VELOCITY_DAMPENING_CONSTANT_FORWARD = -0.1f;
+		private const float VELOCITY_DAMPENING_CONSTANT_FORWARD = -(90f/700f);//-0.1f;
 
 		private const float SPIN_DAMPENING_CONSTANT = -0.75f;//-1.5f;
 
@@ -137,19 +153,26 @@ namespace DogFighter
 		private const float SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_ROLL = 2.5f;
 		private Vector3 SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT;
 
-		private const float MAX_FORWARD_ACCELERATION = 70f;
-		private const float INVERSE_MAX_SPEED = 0.005f;
+		private const float MAX_FORWARD_ACCELERATION = 90f;//70f;
+		private float MAX_SPEED;
+		private float INVERSE_MAX_SPEED;
+
+		private Vector3 ROTATION_VELOCITY_PRESERVATION;
+		private const float ROTATION_VELOCITY_PRESERVATION_PITCH = 0.9f;
+		private const float ROTATION_VELOCITY_PRESERVATION_YAW = 0.9f;
+		private const float ROTATION_VELOCITY_PRESERVATION_ROLL = 0.99f;
 		
 		private Vector3 localRigidbodyVelocity;
 		private Vector3 localRigidbodyAngularVelocity;
 		private Vector3 finalAcceleration;
 		private Vector3 angularAcceleration;
 		private float speed;
+		private float speedInterpolation;
 
 		void FixedUpdate()
 		{
 			speed = shipRigidbody.velocity.magnitude;
-			float speedInterpolation = speed * INVERSE_MAX_SPEED;
+			speedInterpolation = speed * INVERSE_MAX_SPEED;
 
 			localRigidbodyVelocity = transform.InverseTransformDirection(shipRigidbody.velocity);
 			localRigidbodyAngularVelocity = transform.InverseTransformDirection(shipRigidbody.angularVelocity);
@@ -162,7 +185,11 @@ namespace DogFighter
 
 			Vector3 sudoDragAcceleration = Vector3PointWiseMultiplication(VELOCITY_DAMPENING_CONSTANT, localRigidbodyVelocity);
 
-			finalAcceleration = forwardAcceleration + sudoDragAcceleration;
+			Vector3 localRotationInTimeStep = Vector3PointWiseMultiplication(localRigidbodyAngularVelocity * Time.fixedDeltaTime, ROTATION_VELOCITY_PRESERVATION); // in radians
+			Vector3 localRigidbodyVelocityPrime = Quaternion.Euler(localRotationInTimeStep * 57.2957795f) * localRigidbodyVelocity; // in m/s, 57.295... = 180/pi
+			Vector3 turningAccelerationChange = (localRigidbodyVelocityPrime - localRigidbodyVelocity) / Time.fixedDeltaTime; // in m/s^2
+
+			finalAcceleration = forwardAcceleration + sudoDragAcceleration + turningAccelerationChange;
 
 			shipRigidbody.AddForce(transform.rotation * finalAcceleration, ForceMode.Acceleration);
 			shipRigidbody.AddTorque(transform.rotation * angularAcceleration, ForceMode.Acceleration);
