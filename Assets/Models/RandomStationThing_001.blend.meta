@@ -6,15 +6,35 @@ ModelImporter:
     100000: Asteroid_002
     100002: //RootNode
     100004: StationThing
+    100006: Asteroid_003
+    100008: Plane
+    100010: StationThing_001
+    100012: StationThing_002
     400000: Asteroid_002
     400002: //RootNode
     400004: StationThing
+    400006: Asteroid_003
+    400008: Plane
+    400010: StationThing_001
+    400012: StationThing_002
     2300000: Asteroid_002
     2300002: StationThing
+    2300004: Asteroid_003
+    2300006: Plane
+    2300008: StationThing_001
+    2300010: StationThing_002
     3300000: Asteroid_002
     3300002: StationThing
+    3300004: Asteroid_003
+    3300006: Plane
+    3300008: StationThing_001
+    3300010: StationThing_002
     4300000: StationThing
     4300002: Asteroid_002
+    4300004: Plane
+    4300006: Asteroid_003
+    4300008: StationThing_002
+    4300010: StationThing_001
     7400000: Default Take
     9500000: //RootNode
   materials:
