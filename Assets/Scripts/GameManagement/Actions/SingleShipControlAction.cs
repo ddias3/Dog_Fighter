@@ -19,58 +19,109 @@ namespace DogFighter
 
         public Texture image;
 
+		public AnimationCurve throttleAdjustCurve;
+
 		public override void ActionStart()
 		{
 			shipGameObject = Instantiate(shipPrefab, Vector3.zero, Quaternion.identity) as GameObject;
 			playerShip = shipGameObject.GetComponent<PlayerShip>();
 		}
 
-		private float throttle = 0f;
+		private float throttleOutput = 0f;
+		private float throttlePrecise = 0f;
+		private float throttleAdjustInput = 0f;
+		private float throttleAdjustInputMagnitude = 0f;
+
+		private const float THROTTLE_ADJUST_CONSTANT = 1.75f;
+//		private const float THROTTLE_ADJUST_DAMPENING_CONSTANT = 0.5f;
+		private const float THROTTLE_DEAD_ZONE = 0.15f;
+		private const float MAX_THROTTLE_DEAD_ZONE = 0.04f;
+		private const float THROTTLE_DEAD_ZONE_DECREASE_SCALAR = 24f;
+		private const float MAX_THROTTLE_DEAD_ZONE_INCREASE_SCALAR = 30f;
+
 		private bool controller = true;
+
 		public override void ActionUpdate()
 		{
 			if (Input.GetKeyDown(KeyCode.Return))
 				controller = !controller;
+			if (Input.GetKeyDown(KeyCode.Escape))
+				Application.LoadLevel("MenuScene");
+			if (Input.GetKeyDown(KeyCode.Alpha4))
+				playerShip.AfterburnerFuel = 1f;
 
 			float pitch;
 			float yaw;
 			float roll;
+			float afterburnerInput;
 
 			if (controller)
 			{
 				pitch = Input.GetAxis("Right_Vertical");
 				yaw = Input.GetAxis("Right_Horizontal");
 				roll = -Input.GetAxis("Left_Horizontal");
-				throttle -= 2f * Input.GetAxis("Left_Vertical") * Time.deltaTime;
+
+				throttleAdjustInput = -Input.GetAxis("Left_Vertical");
+				afterburnerInput = Input.GetAxis("Left_Trigger");
 			}
 			else
 			{
 				pitch = Input.GetAxis("Pitch");
 				roll = -Input.GetAxis("Yaw");
 				yaw = -Input.GetAxis("Roll");
-				throttle += Input.GetAxis("Throttle") * Time.deltaTime;
+
+				throttleAdjustInput = Input.GetAxis("Throttle");
+				afterburnerInput = Input.GetAxis("Afterburner");
 			}
 
-			if (throttle > 1f)
-				throttle = 1f;
-			if (throttle < -0.2f)
-				throttle = -0.2f;
+			throttleAdjustInputMagnitude = Mathf.Abs(throttleAdjustInput);
+			throttlePrecise += THROTTLE_ADJUST_CONSTANT * Mathf.Sign(throttleAdjustInput) * throttleAdjustCurve.Evaluate(Mathf.Abs(throttleAdjustInput)) * Time.deltaTime;
+
+			if (throttlePrecise > 1f)
+				throttlePrecise = 1f;
+			else if (throttlePrecise < -0.3f)
+				throttlePrecise = -0.3f;
+
+			if (Mathf.Abs(throttlePrecise) < THROTTLE_DEAD_ZONE)
+			{
+				if (throttleAdjustInputMagnitude < 0.01f)
+					throttlePrecise -= (throttlePrecise * THROTTLE_DEAD_ZONE_DECREASE_SCALAR) * Time.deltaTime;
+				throttleOutput = 0f;
+			}
+			else if (Mathf.Abs(throttlePrecise) > 1f - MAX_THROTTLE_DEAD_ZONE)
+			{
+				if (throttleAdjustInputMagnitude < 0.01f)
+					throttlePrecise += ((1f - throttlePrecise) * MAX_THROTTLE_DEAD_ZONE_INCREASE_SCALAR) * Time.deltaTime;
+				throttleOutput = 1f;
+			}
+			else
+				throttleOutput = throttlePrecise;
 
 			if (Input.GetKeyDown(KeyCode.Alpha1))
-				throttle = 0f;
+				throttleOutput = throttlePrecise = 0f;
 
-			playerShip.Throttle = throttle;
+			if (afterburnerInput > 0.5f)
+			{
+				playerShip.Afterburner = true;
+				if (Mathf.Abs(throttlePrecise) > Mathf.Abs(throttleAdjustInput))
+					playerShip.DirectThrottleSet = throttlePrecise;
+				else
+					playerShip.DirectThrottleSet = throttleAdjustInput;
+			}
+			else
+			{
+				playerShip.Afterburner = false;
+			}
+
+			playerShip.Throttle = throttleOutput;
 			playerShip.Pitch = pitch;
 			playerShip.Yaw = yaw;
 			playerShip.Roll = roll;
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-                Application.LoadLevel("MenuScene");
 		}
 		
 		public override void ActionFixedUpdate()
 		{
-		
+			// do nothing
 		}
 
 		public override void ActionOnGUI()

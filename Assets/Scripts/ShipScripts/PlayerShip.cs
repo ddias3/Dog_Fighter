@@ -74,11 +74,17 @@ namespace DogFighter
 			MAX_SPEED = -MAX_FORWARD_ACCELERATION / VELOCITY_DAMPENING_CONSTANT_FORWARD;
 			INVERSE_MAX_SPEED = 1f / MAX_SPEED;
 		}
+
+		private bool afterburner = false;
+		private bool afterburnerAvailable = true;
+		private float afterburnerFuel = 1f;
+		private float directThrottleSet = 0f;
 		
 		void Update()
 		{
 			if (Input.GetKeyDown(KeyCode.Alpha2))
 				shipRigidbody.velocity = Vector3.zero;
+
 			if (Input.GetKeyDown(KeyCode.Alpha3))
 				shipRigidbody.velocity = new Vector3(0, 0, 3);
 
@@ -99,6 +105,16 @@ namespace DogFighter
 				pitchYawRollAssist.z = -Mathf.Sign(localRigidbodyAngularVelocity.z) * MAX_ROLL * rollAssistCurve.Evaluate(Mathf.Abs(localRigidbodyAngularVelocity.z) * INVERSE_MAX_ANGULAR_VELOCITY.z);
 			else
 				pitchYawRollAssist.z = 0f;
+
+			if (afterburner)
+				afterburnerFuel -= AFTERBURNER_BURN_RATE * Time.deltaTime;
+
+			if (afterburnerFuel < 0f)
+			{
+				afterburnerFuel = 0f;
+				afterburnerAvailable = false;
+				afterburner = false;
+			}
 		}
 
 		void LateUpdate()
@@ -118,6 +134,9 @@ namespace DogFighter
 			GUI.Label(new Rect(0, 140, Screen.width, 20), "PYR: " + pitchYawRoll.ToString());
 			GUI.Label(new Rect(0, 160, Screen.width, 20), "Throttle: " + throttle.ToString());
 			GUI.Label(new Rect(0, 180, Screen.width, 20), "PYR Assist: " + pitchYawRollAssist.ToString());
+			GUI.Label(new Rect(0, 200, Screen.width, 20), "Afterburner: " + afterburner.ToString());
+			GUI.Label(new Rect(0, 220, Screen.width, 20), "AfterburnerFuel: " + afterburnerFuel.ToString());
+			GUI.Label(new Rect(0, 240, Screen.width, 20), "AfterburnerAvailable: " + afterburnerAvailable.ToString());
 		}
 
 		//----------------------------------------------
@@ -159,6 +178,8 @@ namespace DogFighter
 		private const float MAX_FORWARD_ACCELERATION = 90f;//70f;
 		private float MAX_SPEED;
 		private float INVERSE_MAX_SPEED;
+		private const float AFTERBURNER_SPEED_BOOST = 2f;
+		private const float AFTERBURNER_BURN_RATE = 0.8f;
 
 		private Vector3 ROTATION_VELOCITY_PRESERVATION;
 		private const float ROTATION_VELOCITY_PRESERVATION_PITCH = 0.9f;
@@ -180,7 +201,16 @@ namespace DogFighter
 			localRigidbodyVelocity = transform.InverseTransformDirection(shipRigidbody.velocity);
 			localRigidbodyAngularVelocity = transform.InverseTransformDirection(shipRigidbody.angularVelocity);
 
-			Vector3 forwardAcceleration = Vector3.forward * MAX_FORWARD_ACCELERATION * throttle;
+			Vector3 forwardAcceleration;
+			if (afterburner)
+			{
+				forwardAcceleration = Vector3.forward * MAX_FORWARD_ACCELERATION * AFTERBURNER_SPEED_BOOST * directThrottleSet;
+			}
+			else
+			{
+				forwardAcceleration = Vector3.forward * MAX_FORWARD_ACCELERATION * throttle;
+			}
+			Vector3 brakingAcceleration = -Vector3.forward * 0f;
 
 			angularAcceleration = pitchYawRoll + pitchYawRollAssist +
 				Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
@@ -192,7 +222,7 @@ namespace DogFighter
 			Vector3 localRigidbodyVelocityPrime = Quaternion.Euler(localRotationInTimeStep * 57.2957795f) * localRigidbodyVelocity; // in m/s, 57.295... = 180/pi
 			Vector3 turningAccelerationChange = (localRigidbodyVelocityPrime - localRigidbodyVelocity) / Time.fixedDeltaTime; // in m/s^2
 
-			finalAcceleration = forwardAcceleration + sudoDragAcceleration + turningAccelerationChange;
+			finalAcceleration = forwardAcceleration + sudoDragAcceleration + turningAccelerationChange + brakingAcceleration;
 
 			shipRigidbody.AddForce(transform.rotation * finalAcceleration, ForceMode.Acceleration);
 			shipRigidbody.AddTorque(transform.rotation * angularAcceleration, ForceMode.Acceleration);
@@ -202,10 +232,10 @@ namespace DogFighter
 		{
 			set 
 			{
-				if (value > 4f)
-					value = 4f;
-				if (value < -1f)
-					value = -1f;
+				if (value > 1f)
+					value = 1f;
+				else if (value < -0.3f)
+					value = -0.3f;
 				throttle = value;
 			}
 			get { return throttle; }
@@ -217,7 +247,7 @@ namespace DogFighter
 			{
 				if (value > 1f)
 					value = 1f;
-				if (value < -1f)
+				else if (value < -1f)
 					value = -1f;
 				pitchYawRoll.x = value * MAX_PITCH;
 			}
@@ -230,7 +260,7 @@ namespace DogFighter
 			{
 				if (value > 1f)
 					value = 1f;
-				if (value < -1f)
+				else if (value < -1f)
 					value = -1f;
 				pitchYawRoll.y = value * MAX_YAW;
 			}
@@ -243,11 +273,58 @@ namespace DogFighter
 			{
 				if (value > 1f)
 					value = 1f;
-				if (value < -1f)
+				else if (value < -1f)
 					value = -1f;
 				pitchYawRoll.z = value * MAX_ROLL;
 			}
 			get { return pitchYawRoll.z; }
+		}
+
+		public bool Afterburner
+		{
+			set
+			{
+				if (afterburnerAvailable)
+					afterburner = value;
+			}
+			get { return afterburner; }
+		}
+
+		public float AfterburnerFuel
+		{
+			set
+			{
+				afterburnerFuel = value;
+				afterburnerAvailable = true;
+				if (afterburnerFuel > 1f)
+				{
+					afterburnerFuel = 1f;
+				}
+				else if (afterburnerFuel < 0f)
+				{
+					afterburnerFuel = 0f;
+					afterburnerAvailable = false;
+				}
+			}
+			get { return afterburnerFuel; }
+		}
+
+		public bool AfterburnerAvailable
+		{
+			get { return afterburnerAvailable; }
+		}
+
+		public float DirectThrottleSet
+		{
+			set
+			{
+				directThrottleSet = value;
+				if (directThrottleSet > 1f)
+					directThrottleSet = 1f;
+				else if (directThrottleSet < -0.3f)
+					directThrottleSet = -0.3f;
+			}
+			get { return directThrottleSet; }
 		}
 
 		public float Speed
