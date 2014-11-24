@@ -82,12 +82,6 @@ namespace DogFighter
 		
 		void Update()
 		{
-			if (Input.GetKeyDown(KeyCode.Alpha2))
-				shipRigidbody.velocity = Vector3.zero;
-
-			if (Input.GetKeyDown(KeyCode.Alpha3))
-				shipRigidbody.velocity = new Vector3(0, 0, 3);
-
 			if (Mathf.Abs(pitchYawRoll.x) < PITCH_YAW_ROLL_DEADZONE_PITCH &&
 				Mathf.Abs(localRigidbodyAngularVelocity.x) > ANGULAR_VELOCITY_ASSIST_THRESHOLD_PITCH)
 				pitchYawRollAssist.x = -Mathf.Sign(localRigidbodyAngularVelocity.x) * MAX_PITCH * pitchAssistCurve.Evaluate(Mathf.Abs(localRigidbodyAngularVelocity.x) * INVERSE_MAX_ANGULAR_VELOCITY.x);
