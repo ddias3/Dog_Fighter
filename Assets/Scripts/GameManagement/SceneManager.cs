@@ -44,13 +44,13 @@ namespace DogFighter
 				currentNode.Value.ActionOnGUI();
 		}
 		
-		public static void SendMessageToAction(Action action, string actionName, string actionMessage)
+		public static void SendMessageToAction(Action actionSending, string actionName, string actionMessage)
 		{
 			Action receivingAction = instance.m_actionDictionary[actionName] as Action;
-			receivingAction.ReceiveMessage(action, actionMessage);
+			receivingAction.ReceiveMessage(actionSending, actionMessage);
 		}
 
-		public static void SendMessage(Action action, string message)
+		public static void SendMessage(Action actionSending, string message)
 		{
 			string[] messageTokens = message.Split(' ');
 
@@ -60,8 +60,8 @@ namespace DogFighter
 				switch (messageTokens[1])
 				{
 				case "from_action_list":
-					instance.m_actionList.Remove(action);
-					instance.m_actionDictionary.Remove(action.Name);
+					instance.m_actionList.Remove(actionSending);
+					instance.m_actionDictionary.Remove(actionSending.Name);
 					break;
 				}
 				break;

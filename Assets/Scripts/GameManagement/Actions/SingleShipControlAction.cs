@@ -57,12 +57,12 @@ namespace DogFighter
 
 			if (controller)
 			{
-				pitch = Input.GetAxis("Right_Vertical");
-				yaw = Input.GetAxis("Right_Horizontal");
-				roll = -Input.GetAxis("Left_Horizontal");
+				pitch = Input.GetAxis("Right_Vertical_P1");
+				yaw = Input.GetAxis("Right_Horizontal_P1");
+				roll = -Input.GetAxis("Left_Horizontal_P1");
 
-				throttleAdjustInput = -Input.GetAxis("Left_Vertical");
-				afterburnerInput = Input.GetAxis("Left_Trigger");
+				throttleAdjustInput = -Input.GetAxis("Left_Vertical_P1");
+				afterburnerInput = Input.GetAxis("Left_Trigger_P1");
 			}
 			else
 			{

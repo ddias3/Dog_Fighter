@@ -7,6 +7,9 @@ namespace DogFighter
 	{
 		public override void ActionStart()
 		{
+			int numberPlayers = DataManager.GetNumberPlayers();
+			Debug.Log("Players Playing: " + numberPlayers);
+
 			SceneManager.SendMessage(this, "run_named SingleShipControlAction SingleShipControlActionP1");
 			SceneManager.SendMessageToAction(this, "SingleShipControlActionP1", "set player_number 1");
 		}

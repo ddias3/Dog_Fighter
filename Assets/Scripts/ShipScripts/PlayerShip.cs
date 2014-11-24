@@ -124,19 +124,19 @@ namespace DogFighter
 
 		void OnGUI()
 		{
-			GUI.Label(new Rect(0, 0, Screen.width, 20), "Glo Vel: " + shipRigidbody.velocity.ToString() + " m/s");
-			GUI.Label(new Rect(0, 20, Screen.width, 20), "Glo Spin: " + shipRigidbody.angularVelocity.ToString() + " rad/s");
-			GUI.Label(new Rect(0, 40, Screen.width, 20), "Loc Vel: " + localRigidbodyVelocity.ToString() + " m/s");
-			GUI.Label(new Rect(0, 60, Screen.width, 20), "Loc AngVel: " + localRigidbodyAngularVelocity.ToString() + " rad/s");
-			GUI.Label(new Rect(0, 80, Screen.width, 20), "Loc Acc: " + finalAcceleration.ToString() + " m/s^2");
-			GUI.Label(new Rect(0, 100, Screen.width, 20), "Loc AngAcc: " + angularAcceleration.ToString() + " rad/s^2");
-			GUI.Label(new Rect(0, 120, Screen.width, 20), "Speed: " + speed.ToString() + " m/s");
-			GUI.Label(new Rect(0, 140, Screen.width, 20), "PYR: " + pitchYawRoll.ToString());
-			GUI.Label(new Rect(0, 160, Screen.width, 20), "Throttle: " + throttle.ToString());
-			GUI.Label(new Rect(0, 180, Screen.width, 20), "PYR Assist: " + pitchYawRollAssist.ToString());
-			GUI.Label(new Rect(0, 200, Screen.width, 20), "Afterburner: " + afterburner.ToString());
-			GUI.Label(new Rect(0, 220, Screen.width, 20), "AfterburnerFuel: " + afterburnerFuel.ToString());
-			GUI.Label(new Rect(0, 240, Screen.width, 20), "AfterburnerAvailable: " + afterburnerAvailable.ToString());
+//			GUI.Label(new Rect(0, 0, Screen.width, 20), "Glo Vel: " + shipRigidbody.velocity.ToString() + " m/s");
+//			GUI.Label(new Rect(0, 20, Screen.width, 20), "Glo Spin: " + shipRigidbody.angularVelocity.ToString() + " rad/s");
+//			GUI.Label(new Rect(0, 40, Screen.width, 20), "Loc Vel: " + localRigidbodyVelocity.ToString() + " m/s");
+//			GUI.Label(new Rect(0, 60, Screen.width, 20), "Loc AngVel: " + localRigidbodyAngularVelocity.ToString() + " rad/s");
+//			GUI.Label(new Rect(0, 80, Screen.width, 20), "Loc Acc: " + finalAcceleration.ToString() + " m/s^2");
+//			GUI.Label(new Rect(0, 100, Screen.width, 20), "Loc AngAcc: " + angularAcceleration.ToString() + " rad/s^2");
+//			GUI.Label(new Rect(0, 120, Screen.width, 20), "Speed: " + speed.ToString() + " m/s");
+//			GUI.Label(new Rect(0, 140, Screen.width, 20), "PYR: " + pitchYawRoll.ToString());
+//			GUI.Label(new Rect(0, 160, Screen.width, 20), "Throttle: " + throttle.ToString());
+//			GUI.Label(new Rect(0, 180, Screen.width, 20), "PYR Assist: " + pitchYawRollAssist.ToString());
+//			GUI.Label(new Rect(0, 200, Screen.width, 20), "Afterburner: " + afterburner.ToString());
+//			GUI.Label(new Rect(0, 220, Screen.width, 20), "AfterburnerFuel: " + afterburnerFuel.ToString());
+//			GUI.Label(new Rect(0, 240, Screen.width, 20), "AfterburnerAvailable: " + afterburnerAvailable.ToString());
 		}
 
 		//----------------------------------------------

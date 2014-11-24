@@ -11,8 +11,11 @@ namespace DogFighter
 
 			switch (actionName)
 			{
-			case "MenuAction":
-				action = MonoBehaviour.FindObjectOfType<MenuAction>();
+			case "MainMenuAction":
+				action = MonoBehaviour.FindObjectOfType<MainMenuAction>();
+				break;
+			case "SelectNumberMenuAction":
+				action = MonoBehaviour.FindObjectOfType<SelectNumberMenuAction>();
 				break;
 			case "SingleShipControlAction":
 				action = MonoBehaviour.FindObjectOfType<SingleShipControlAction>();
