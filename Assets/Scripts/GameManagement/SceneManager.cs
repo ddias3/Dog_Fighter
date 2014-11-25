@@ -68,27 +68,33 @@ namespace DogFighter
 			case "run":
 			{
 				Action newAction = ActionFactory.FindAction(messageTokens[1]);
-				newAction.ActionStart();
+
 				instance.m_actionList.AddLast(newAction);
 				instance.m_actionDictionary.Add(newAction.Name, newAction);
+
+				newAction.ActionStart();
 			}
 				break;
 			case "run_named":
 			{
 				Action newAction = ActionFactory.FindAction(messageTokens[1]);
 				newAction.Name = messageTokens[2];
-				newAction.ActionStart();
+
 				instance.m_actionList.AddLast(newAction);
 				instance.m_actionDictionary.Add(newAction.Name, newAction);
+
+				newAction.ActionStart();
 			}
 				break;
 			case "instantiate_named":
 			{
 				Action newAction = ActionFactory.CreateAction(messageTokens[1], messageTokens[2]);
 				newAction.Name = messageTokens[2];
-				newAction.ActionStart();
+
 				instance.m_actionList.AddLast(newAction);
 				instance.m_actionDictionary.Add(newAction.Name, newAction);
+
+				newAction.ActionStart();
 			}
 				break;
 			case "instantiate_named_from_prefab":
@@ -96,9 +102,11 @@ namespace DogFighter
 				GameObject prefab = ((IPassPrefab)actionSending).GetPrefab(messageTokens[1]);
 				Action newAction = ActionFactory.CreateActionFromPrefab(messageTokens[1], messageTokens[2], prefab);
 				newAction.Name = messageTokens[2];
-				newAction.ActionStart();
+
 				instance.m_actionList.AddLast(newAction);
 				instance.m_actionDictionary.Add(newAction.Name, newAction);
+
+				newAction.ActionStart();
 			}
 				break;
 			default:

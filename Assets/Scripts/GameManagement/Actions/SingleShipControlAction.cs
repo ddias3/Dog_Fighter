@@ -22,10 +22,14 @@ namespace DogFighter
 		public AnimationCurve throttleAdjustCurve;
 
 		private bool controlsEnabled = false;
+		private Vector3 spawnLocation = Vector3.zero;
+		private Quaternion spawnDirection = Quaternion.identity;
 
 		public override void ActionStart()
 		{
-			shipGameObject = Instantiate(shipPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get player_number");
+			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
+			shipGameObject = Instantiate(shipPrefab, spawnLocation, spawnDirection) as GameObject;
 			playerShip = shipGameObject.GetComponent<PlayerShip>();
 		}
 
@@ -157,6 +161,19 @@ namespace DogFighter
 				controlsEnabled = false;
 				break;
 			}
+		}
+
+		public int PlayerNumber
+		{
+			get { return playerNumber; }
+			set { playerNumber = value; }
+		}
+
+		public void PassSpawnPoint(Vector3 location, Quaternion direction)
+		{
+			spawnLocation = location;
+			spawnDirection = direction;
+			Debug.Log(spawnLocation + " | " + spawnDirection);
 		}
 	}
 }
