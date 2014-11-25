@@ -17,9 +17,6 @@ namespace DogFighter
 			case "SelectNumberMenuAction":
 				action = MonoBehaviour.FindObjectOfType<SelectNumberMenuAction>();
 				break;
-			case "SingleShipControlAction":
-				action = MonoBehaviour.FindObjectOfType<SingleShipControlAction>();
-				break;
 			case "DeathMatchAction":
 				action = MonoBehaviour.FindObjectOfType<DeathMatchAction>();
 				break;
@@ -28,6 +25,49 @@ namespace DogFighter
 				throw new MissingComponentException();
 			}
 
+			action.Name = actionName;
+			return action;
+		}
+
+		public static Action CreateAction(string actionName, string gameObjectName)
+		{
+			Action action = null;
+			
+			switch (actionName)
+			{
+			case "SingleShipControlAction":
+			{
+				GameObject newGameObject = new GameObject(gameObjectName);
+				action = newGameObject.AddComponent<SingleShipControlAction>();
+			}
+				break;
+			default:
+				Debug.LogError(actionName + " does not exist");
+				throw new MissingComponentException();
+			}
+			
+			action.Name = actionName;
+			return action;
+		}
+
+		public static Action CreateActionFromPrefab(string actionName, string gameObjectName, GameObject prefab)
+		{
+			Action action = null;
+			
+			switch (actionName)
+			{
+			case "SingleShipControlAction":
+			{
+				GameObject newGameObject = GameObject.Instantiate(prefab) as GameObject;
+				newGameObject.name = gameObjectName;
+				action = newGameObject.GetComponent<SingleShipControlAction>();
+			}
+				break;
+			default:
+				Debug.LogError(actionName + " does not exist");
+				throw new MissingComponentException();
+			}
+			
 			action.Name = actionName;
 			return action;
 		}

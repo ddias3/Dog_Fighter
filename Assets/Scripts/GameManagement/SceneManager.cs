@@ -82,6 +82,25 @@ namespace DogFighter
 				instance.m_actionDictionary.Add(newAction.Name, newAction);
 			}
 				break;
+			case "instantiate_named":
+			{
+				Action newAction = ActionFactory.CreateAction(messageTokens[1], messageTokens[2]);
+				newAction.Name = messageTokens[2];
+				newAction.ActionStart();
+				instance.m_actionList.AddLast(newAction);
+				instance.m_actionDictionary.Add(newAction.Name, newAction);
+			}
+				break;
+			case "instantiate_named_from_prefab":
+			{
+				GameObject prefab = ((IPassPrefab)actionSending).GetPrefab(messageTokens[1]);
+				Action newAction = ActionFactory.CreateActionFromPrefab(messageTokens[1], messageTokens[2], prefab);
+				newAction.Name = messageTokens[2];
+				newAction.ActionStart();
+				instance.m_actionList.AddLast(newAction);
+				instance.m_actionDictionary.Add(newAction.Name, newAction);
+			}
+				break;
 			default:
 				Debug.LogError("ERROR IN GameManager.cs:SendMessage(Action, string) | Message, \"" + message + "\" does not have associated code; check spelling.");
 				break;
