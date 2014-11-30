@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace DogFighter
 {
-	public class SelectNumberMenuAction : Action, IReceiveControllerMenuInputHandler
+	public class SetupGameMenuAction : Action
 	{
 		private int numberPlayers;
 		
@@ -17,12 +17,10 @@ namespace DogFighter
 		public Quaternion forwardRotatedDirection;
 		public Quaternion backwardRotatedDirection;
 
-		private int playersPlaying;
-		
 		public override void ActionStart()
 		{
 			numberPlayers = DataManager.GetNumberPlayers();
-
+			
 			if (null == inputHandlers && null == menuCursors)
 			{
 				inputHandlers = InputHandlerHolder.GetMenuInputHandlers();
@@ -37,19 +35,35 @@ namespace DogFighter
 			
 			originalDirection = cameraPivot.rotation;
 			forwardRotatedDirection = Quaternion.Euler(0, 30, 0) * originalDirection;
-			backwardRotatedDirection = Quaternion.Euler(0, -5, 0) * originalDirection;
+			backwardRotatedDirection = Quaternion.Euler(0, 135, 0) * originalDirection;
 
-			playersPlaying = DataManager.GetNumberPlayers();
+			for (int n = 0; n < gameLengthMinutes.Length; ++n)
+				if (gameLengthMinutes[n] == DataManager.GetGameLengthMinutes())
+					gameLengthMinutesIndex = n;
+
+			gameMode = DataManager.GetGameMode();
+			mapId = DataManager.GetMapId();
 
 			time = 0f;
 			switchingMenu = 0;
 		}
 		
+		private enum JOIN_STATES
+		{
+			NOT_JOINED,
+			JOINED,
+			READY,
+		};
+		
 		private int switchingMenu = 0;
+		private int internalState = 0;
 		private int playerSelected = 0;
 		private float time = 0f;
 		private const float TIME_ANIMATING = 0.5f;
-		
+		private int[] gameLengthMinutes = { 2, 3, 5, 7, 10, 15, 20 };
+		private int gameLengthMinutesIndex;
+		private int mapId;
+		private int gameMode;
 		public override void ActionUpdate()
 		{
 			switch (switchingMenu)
@@ -61,78 +75,77 @@ namespace DogFighter
 					{
 						if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Left"))
 						{
-							if (menuCursors[n].menuItemSelected == 0)
+							switch (menuCursors[n].menuItemSelected)
 							{
-								playersPlaying -= 1;
-								if (playersPlaying < 2)
-									playersPlaying = 4;
+							case 2:
+								--gameLengthMinutesIndex;
+								if (gameLengthMinutesIndex < 0)
+									gameLengthMinutesIndex += gameLengthMinutes.Length;
+								DataManager.SetGameLengthMinutes(gameLengthMinutes[gameLengthMinutesIndex]);
+								break;
 							}
 						}
 						
 						if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Right"))
 						{
-							if (menuCursors[n].menuItemSelected == 0)
+							switch (menuCursors[n].menuItemSelected)
 							{
-								playersPlaying += 1;
-								if (playersPlaying > 4)
-									playersPlaying = 2;
+							case 2:
+								++gameLengthMinutesIndex;
+								gameLengthMinutesIndex %= gameLengthMinutes.Length;
+								DataManager.SetGameLengthMinutes(gameLengthMinutes[gameLengthMinutesIndex]);
+								break;
 							}
 						}
-
+						
 						if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Down"))
 						{
 							menuCursors[n].menuItemSelected += 1;
-							menuCursors[n].menuItemSelected %= 3;
+							menuCursors[n].menuItemSelected %= 5;
 						}
 						
 						if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Up"))
 						{
 							menuCursors[n].menuItemSelected -= 1;
 							if (menuCursors[n].menuItemSelected < 0)
-								menuCursors[n].menuItemSelected += 3;
+								menuCursors[n].menuItemSelected += 5;
 						}
 						
 						if (inputHandlers[n].GetButtonDown("Confirm_Button") ||
 						    inputHandlers[n].GetButtonDown("Start_Button"))
 						{
-							if (menuCursors[n].menuItemSelected == 1)
+							if (menuCursors[n].menuItemSelected == 0)
 							{
 								switchingMenu = 1;
-								DataManager.SetNumberPlayers(playersPlaying);
 							}
-							else if (menuCursors[n].menuItemSelected == 2)
+							else if (menuCursors[n].menuItemSelected == 4)
 							{
 								switchingMenu = -1;
-								DataManager.SetNumberPlayers(playersPlaying);
 							}
 						}
 						
 						if (inputHandlers[n].GetButtonDown("Cancel_Button"))
 						{
-							if (menuCursors[n].menuItemSelected == 2)
+							if (menuCursors[n].menuItemSelected == 4)
 							{
 								switchingMenu = -1;
-								DataManager.SetNumberPlayers(playersPlaying);
 
 								menuCursors[n].menuItemSelected = 0;
 							}
 							else
 							{
-								menuCursors[n].menuItemSelected = 2;
+								menuCursors[n].menuItemSelected = 4;
 							}
 						}
 					}
 					else
 					{
-						if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Down") ||
-						    inputHandlers[n].GetAxisKeyDown("Left_Vertical_Up") ||
-						    inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Left") ||
-						    inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Right") ||
-						    inputHandlers[n].GetButtonDown("Confirm_Button") ||
+						if (inputHandlers[n].GetButtonDown("Confirm_Button") ||
 						    inputHandlers[n].GetButtonDown("Cancel_Button") ||
 						    inputHandlers[n].GetButtonDown("Start_Button"))
 						{
 							DataManager.SetPlayerActive(n+1, true);
+							switchingMenu = -1;
 						}
 					}
 				}
@@ -144,9 +157,8 @@ namespace DogFighter
 				if (time > TIME_ANIMATING)
 				{
 					cameraPivot.rotation = forwardRotatedDirection;
-
-					SceneManager.SendMessage(this, "run JoinMenuAction");
-					SceneManager.SendMessage(this, "remove from_action_list");
+					
+					Application.LoadLevel("Map1Scene");
 				}
 				break;
 			case -1:
@@ -156,8 +168,8 @@ namespace DogFighter
 				if (time > TIME_ANIMATING)
 				{
 					cameraPivot.rotation = backwardRotatedDirection;
-
-					SceneManager.SendMessage(this, "run MainMenuAction");
+					
+					SceneManager.SendMessage(this, "run JoinMenuAction");
 					SceneManager.SendMessage(this, "remove from_action_list");
 				}
 				break;
@@ -173,34 +185,46 @@ namespace DogFighter
 		{
 			if (switchingMenu == 0)
 			{
-				GUI.Label(new Rect(screenMidHorizontal, screenMidVertical + -1 * screenVerticalDistance, Screen.width, 100), "Players: < " + playersPlaying + " >", guiStyle);
-				GUI.Label(new Rect(screenMidHorizontal, screenMidVertical + 0 * screenVerticalDistance, Screen.width, 100), "Continue", guiStyle);
-				GUI.Label(new Rect(screenMidHorizontal, screenMidVertical + 1 * screenVerticalDistance, Screen.width, 100), "Back", guiStyle);
+				GUI.Label(new Rect(screenHorizontalDistance * 2, 2 * screenVerticalDistance, Screen.width, 100), "Start Match", guiStyle);
+				GUI.Label(new Rect(screenHorizontalDistance * 2, 3 * screenVerticalDistance, Screen.width, 100), "Game:", guiStyle);
+				GUI.Label(new Rect(screenHorizontalDistance * 2, 4 * screenVerticalDistance, Screen.width, 100), "Time:", guiStyle);
+				GUI.Label(new Rect(screenHorizontalDistance * 2, 5 * screenVerticalDistance, Screen.width, 100), "Map:", guiStyle);
+				GUI.Label(new Rect(screenHorizontalDistance * 2, 6 * screenVerticalDistance, Screen.width, 100), "Back", guiStyle);
+
+				GUI.Label(new Rect(screenHorizontalDistance * 6, 3 * screenVerticalDistance, Screen.width, 100), "Death Match", guiStyle);
+				GUI.Label(new Rect(screenHorizontalDistance * 6, 4 * screenVerticalDistance, Screen.width, 100), gameLengthMinutes[gameLengthMinutesIndex].ToString() + " min.", guiStyle);
+				GUI.Label(new Rect(screenHorizontalDistance * 6, 5 * screenVerticalDistance, Screen.width, 100), "Asteroid Field", guiStyle);
 
 				for (int n = 0; n < 4; ++n)
-					if (DataManager.GetPlayerActive(n+1))
-						GUI.Label(new Rect(screenMidHorizontal - (2 + n) * Screen.width / 36, screenMidVertical + (menuCursors[n].menuItemSelected - 1) * screenVerticalDistance, Screen.width, 100), ">", guiStyle);
+					if (DataManager.GetPlayerActive(n + 1))
+						GUI.Label(new Rect(screenHorizontalDistance * 2 - (2 + n) * Screen.width / 36, (menuCursors[n].menuItemSelected + 2) * screenVerticalDistance, Screen.width, 100), " >", guiStyle);
+			}
+			else if (switchingMenu == 1)
+			{
+				GUI.Label(new Rect(screenHorizontalDistance, Screen.height - 2 * screenVerticalDistance, Screen.width, Screen.height), "Loading", guiStyle);
 			}
 		}
 		
 		private int screenMidHorizontal;
 		private int screenMidVertical;
 		private int screenVerticalDistance;
+		private int screenHorizontalDistance;
 		private int fontSize;
 		private void CalculateGUIValues()
 		{
-			fontSize = (int)(Screen.width / 1280f * 104);
+			fontSize = (int)(Screen.width / 1280f * 84);
 			guiStyle.fontSize = fontSize;
 			screenMidHorizontal = Screen.width / 2;
 			screenMidVertical = Screen.height / 2;
-			screenVerticalDistance = Screen.height / 7;
+			screenVerticalDistance = Screen.height / 10;
+			screenHorizontalDistance = Screen.width / 16;
 		}
 		
 		public override void ReceiveMessage(Action action, string message)
 		{
 			
 		}
-
+		
 		public void PassControllerMenuInputHandlers(ControllerMenuInputHandler[] inputHandlers)
 		{
 			this.inputHandlers = inputHandlers;

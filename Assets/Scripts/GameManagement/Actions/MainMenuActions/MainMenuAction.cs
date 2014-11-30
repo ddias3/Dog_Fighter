@@ -67,16 +67,30 @@ namespace DogFighter
 
 						if (inputHandlers[n].GetButtonDown("Confirm_Button"))
 						{
-							if (menuCursors[n].menuItemSelected == 0)
+							if (menuCursors[n].menuItemSelected != 3)
 							{
 								switchingMenu = true;
 								playerThatSelected = n;
+
+								switch (menuCursors[n].menuItemSelected)
+								{
+								case 0:
+									rotatedDirection = Quaternion.Euler(0, 35, 0) * originalDirection;
+									break;
+								default:
+									rotatedDirection = Quaternion.Euler(0, 5, 0) * originalDirection;
+									break;
+								}
+							}
+							else
+							{
+								Application.Quit();
 							}
 						}
 
 						if (inputHandlers[n].GetButtonDown("Cancel_Button"))
 						{
-							Debug.Log("Player " + inputHandlers[n].PlayerNumber + " pressed B");
+							menuCursors[n].menuItemSelected = 3;
 						}
 
 						if (inputHandlers[n].GetButtonDown("Start_Button"))
@@ -115,7 +129,15 @@ namespace DogFighter
 					switch (menuCursors[playerThatSelected].menuItemSelected)
 					{
 					case 0:
-						SceneManager.SendMessage(this, "run SelectNumberMenuAction");
+						SceneManager.SendMessage(this, "run JoinMenuAction");
+						SceneManager.SendMessage(this, "remove from_action_list");
+						break;
+					case 1:
+						SceneManager.SendMessage(this, "run OptionsMenuAction");
+						SceneManager.SendMessage(this, "remove from_action_list");
+						break;
+					case 2:
+						SceneManager.SendMessage(this, "run CreditsMenuAction");
 						SceneManager.SendMessage(this, "remove from_action_list");
 						break;
 					}

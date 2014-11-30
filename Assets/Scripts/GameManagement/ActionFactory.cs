@@ -20,6 +20,15 @@ namespace DogFighter
 			case "DeathMatchAction":
 				action = MonoBehaviour.FindObjectOfType<DeathMatchAction>();
 				break;
+			case "OptionsMenuAction":
+				action = MonoBehaviour.FindObjectOfType<OptionsMenuAction>();
+				break;
+			case "JoinMenuAction":
+				action = MonoBehaviour.FindObjectOfType<JoinMenuAction>();
+				break;
+			case "SetupGameMenuAction":
+				action = MonoBehaviour.FindObjectOfType<SetupGameMenuAction>();
+				break;
 			default:
 				Debug.LogError(actionName + " does not exist");
 				throw new MissingComponentException();

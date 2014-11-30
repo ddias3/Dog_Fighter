@@ -47,14 +47,16 @@ namespace DogFighter
 
 			if (axisData.rawAxis)
 			{
-				if (axisData.direction > 0)
+				if ((axisData.direction > 0 && axisData.invertScalar > 0) ||
+				    (axisData.direction < 0 && axisData.invertScalar < 0))
 				{
 					float currentCallValue = Input.GetAxisRaw(axisData.axisName);
 					if (currentCallValue > 0.5f && axisData.previousCallValue < 0.5f)
 						returnValue = true;
 					axisData.previousCallValue = currentCallValue;
 				}
-				else if (axisData.direction < 0)
+				else if ((axisData.direction < 0 && axisData.invertScalar > 0) ||
+				         (axisData.direction > 0 && axisData.invertScalar < 0))
 				{
 					float currentCallValue = Input.GetAxisRaw(axisData.axisName);
 					if (currentCallValue < -0.5f && axisData.previousCallValue > -0.5f)
@@ -95,6 +97,19 @@ namespace DogFighter
 			return returnValue;
 		}
 
+		public void SetInvertAxis(bool invert, string axisName)
+		{
+			if (invert)
+				(axisDictionary[axisName] as AxisDataWrapper).invertScalar = -1;
+			else
+				(axisDictionary[axisName] as AxisDataWrapper).invertScalar = 1;
+		}
+
+		public bool GetInvertAxis(string axisName)
+		{
+			return ((axisDictionary[axisName] as AxisDataWrapper).invertScalar < 0) ? true : false;
+		}
+
 		private sealed class KeyDataWrapper
 		{
 			public string buttonName;
@@ -111,6 +126,7 @@ namespace DogFighter
 			public string axisName;
 			public int direction;
 			public bool rawAxis;
+			public float invertScalar;
 			public float previousCallValue;
 			public AxisDataWrapper(string axisName, int direction, bool rawAxis)
 			{
@@ -118,6 +134,10 @@ namespace DogFighter
 				this.direction = direction;
 				this.rawAxis = rawAxis;
 				this.previousCallValue = 0f;
+				if (DataManager.GetWhetherAxisInverted(axisName))
+					this.invertScalar = -1f;
+				else
+					this.invertScalar = 1f;
 			}
 		}
 	}
