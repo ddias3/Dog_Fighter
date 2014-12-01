@@ -59,8 +59,15 @@ namespace DogFighter
 				inputMap.Add("Pitch", "Left_Vertical");
 				inputMap.Add("Yaw", "Left_Horizontal");
 				break;
+            
+            case 2:
+                inputMap.Add("Throttle", "Right_Vertical");
+                inputMap.Add("Roll", "Left_Horizontal");
+                inputMap.Add("Pitch", "Left_Vertical");
+                inputMap.Add("Yaw", "Right_Horizontal");
+                break;
 
-			case 2:
+			case 3:
 				inputMap.Add("Throttle", "Left_Vertical");
 				inputMap.Add("Roll", "Right_Horizontal");
 				inputMap.Add("Pitch", "Right_Vertical");

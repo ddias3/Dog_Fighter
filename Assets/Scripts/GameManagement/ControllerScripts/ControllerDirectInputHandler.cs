@@ -27,6 +27,7 @@ namespace DogFighter
 			keyDictionary.Add("Left_Bumper", new KeyDataWrapper("Left_Bumper_P" + playerNumber));
 			keyDictionary.Add("Right_Bumper", new KeyDataWrapper("Right_Bumper_P" + playerNumber));
 			keyDictionary.Add("Back_Button", new KeyDataWrapper("Back_Button_P" + playerNumber));
+            keyDictionary.Add("Start_Button", new KeyDataWrapper("Start_Button_P" + playerNumber));
 		}
 
 		public float GetAxis(string abstractedAxisName)

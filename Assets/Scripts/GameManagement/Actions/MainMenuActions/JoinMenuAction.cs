@@ -64,7 +64,8 @@ namespace DogFighter
 		{
 			"Aim on Right",
 			"Aim on Left",
-			"Control Stick",
+            "L - Control Stick",
+			"R - Control Stick",
 		};
 
 		public override void ActionUpdate()
