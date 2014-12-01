@@ -37,6 +37,9 @@ namespace DogFighter
 
 			time = 0f;
 			switchingMenu = false;
+
+//			PlayerPrefs.DeleteAll();
+//			PlayerPrefs.Save();
 		}
 
 		private bool switchingMenu = false;
@@ -44,10 +47,23 @@ namespace DogFighter
 		private float time = 0f;
 		private const float TIME_ANIMATING = 0.5f;
 
+		private float[] rTriggers = {0f, 0f, 0f, 0f};
+		private float[] lTriggers = {0f, 0f, 0f, 0f};
+
 		public override void ActionUpdate()
 		{
 			if (!switchingMenu)
 			{
+				lTriggers[0] = Input.GetAxisRaw("Left_Trigger_P1");
+				lTriggers[1] = Input.GetAxisRaw("Left_Trigger_P2");
+				lTriggers[2] = Input.GetAxisRaw("Left_Trigger_P3");
+				lTriggers[3] = Input.GetAxisRaw("Left_Trigger_P3");
+				
+				rTriggers[0] = Input.GetAxisRaw("Right_Trigger_P1");
+				rTriggers[1] = Input.GetAxisRaw("Right_Trigger_P2");
+				rTriggers[2] = Input.GetAxisRaw("Right_Trigger_P3");
+				rTriggers[3] = Input.GetAxisRaw("Right_Trigger_P4");
+
 				for (int n = 0; n < 4; ++n)
 				{
 					if (DataManager.GetPlayerActive(n+1))
@@ -154,6 +170,14 @@ namespace DogFighter
 		{
 			if (!switchingMenu)
 			{
+				GUI.Label(new Rect(0, 0, Screen.width, 100), "P1L: " + lTriggers[0].ToString());
+				GUI.Label(new Rect(0, 20, Screen.width, 100), "P2L: " + lTriggers[1].ToString());
+				GUI.Label(new Rect(0, 40, Screen.width, 100), "P3L: " + lTriggers[2].ToString());
+				GUI.Label(new Rect(0, 60, Screen.width, 100), "P4L: " + lTriggers[3].ToString());
+				GUI.Label(new Rect(0, 80, Screen.width, 100), "P1R: " + rTriggers[0].ToString());
+				GUI.Label(new Rect(0, 100, Screen.width, 100), "P2R: " + rTriggers[1].ToString());
+				GUI.Label(new Rect(0, 120, Screen.width, 100), "P3R: " + rTriggers[2].ToString());
+				GUI.Label(new Rect(0, 140, Screen.width, 100), "P4R: " + rTriggers[3].ToString());
 				GUI.Label(new Rect(screenMidHorizontal, screenMidVertical + -1 * screenVerticalDistance, Screen.width, 100), "Play", guiStyle);
 				GUI.Label(new Rect(screenMidHorizontal, screenMidVertical + 0 * screenVerticalDistance, Screen.width, 100), "Options", guiStyle);
 				GUI.Label(new Rect(screenMidHorizontal, screenMidVertical + 1 * screenVerticalDistance, Screen.width, 100), "Credits", guiStyle);

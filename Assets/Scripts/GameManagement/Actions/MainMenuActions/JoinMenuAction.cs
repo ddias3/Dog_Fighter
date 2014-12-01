@@ -93,7 +93,8 @@ namespace DogFighter
 					case JoinStates.JOINED:
 						if (DataManager.GetPlayerActive(n+1))
 						{
-							if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Left"))
+							if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Left") ||
+							    inputHandlers[n].GetAxisKeyDown("Right_Horizontal_Left"))
 							{
 								switch (menuCursors[n].menuItemSelected)
 								{
@@ -123,7 +124,8 @@ namespace DogFighter
 								}
 							}
 							
-							if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Right"))
+							if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Right") ||
+							    inputHandlers[n].GetAxisKeyDown("Right_Horizontal_Right"))
 							{
 								switch (menuCursors[n].menuItemSelected)
 								{
@@ -152,13 +154,15 @@ namespace DogFighter
 								}
 							}
 							
-							if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Down"))
+							if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Down") ||
+							    inputHandlers[n].GetAxisKeyDown("Right_Vertical_Down"))
 							{
 								menuCursors[n].menuItemSelected += 1;
 								menuCursors[n].menuItemSelected %= menuItems.Length;
 							}
 							
-							if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Up"))
+							if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Up") ||
+							    inputHandlers[n].GetAxisKeyDown("Right_Vertical_Up"))
 							{
 								menuCursors[n].menuItemSelected -= 1;
 								if (menuCursors[n].menuItemSelected < 0)
@@ -220,6 +224,8 @@ namespace DogFighter
 									++activePlayers;
 								if (menuCursors[m].localState == JoinStates.JOINED)
 									everyoneReady = false;
+								if (menuCursors[m].localState == JoinStates.NOT_JOINED)
+									DataManager.SetPlayerActive(m + 1, false);
 							}
 
 							if (everyoneReady && activePlayers >= 1)//2)

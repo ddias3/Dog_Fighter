@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Specialized;
 
 namespace DogFighter
 {
@@ -25,12 +25,54 @@ namespace DogFighter
 		private Vector3 spawnLocation = Vector3.zero;
 		private Quaternion spawnDirection = Quaternion.identity;
 
+		private Camera playerCamera;
+		private Vector3 localCameraPosition;
+
+		private ListDictionary inputMap;
+		private ControllerDirectInputHandler inputHandler;
+
 		public override void ActionStart()
 		{
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get player_number");
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
 			shipGameObject = Instantiate(shipPrefab, spawnLocation, spawnDirection) as GameObject;
 			playerShip = shipGameObject.GetComponent<PlayerShip>();
+			playerCamera = playerShip.GetComponentInChildren<Camera>();
+			localCameraPosition = new Vector3(playerCamera.transform.localPosition.x,
+			                                  playerCamera.transform.localPosition.y,
+			                                  playerCamera.transform.localPosition.z);
+
+			inputHandler = InputHandlerHolder.GetDirectInputHandler(playerNumber);
+			inputMap = new ListDictionary();
+			switch (DataManager.GetControllerSetup(playerNumber))
+			{
+			case 0:
+				inputMap.Add("Throttle", "Left_Vertical");
+				inputMap.Add("Roll", "Left_Horizontal");
+				inputMap.Add("Pitch", "Right_Vertical");
+				inputMap.Add("Yaw", "Right_Horizontal");
+				break;
+
+			case 1:
+				inputMap.Add("Throttle", "Right_Vertical");
+				inputMap.Add("Roll", "Right_Horizontal");
+				inputMap.Add("Pitch", "Left_Vertical");
+				inputMap.Add("Yaw", "Left_Horizontal");
+				break;
+
+			case 2:
+				inputMap.Add("Throttle", "Left_Vertical");
+				inputMap.Add("Roll", "Right_Horizontal");
+				inputMap.Add("Pitch", "Right_Vertical");
+				inputMap.Add("Yaw", "Left_Horizontal");
+				break;
+			}
+
+			invertPitchScalar = (DataManager.GetInvertPitch(playerNumber) > 0) ? -1 : 1;
+			invertYawScalar = (DataManager.GetInvertYaw(playerNumber) > 0) ? -1 : 1;
+			invertRollScalar = (DataManager.GetInvertRoll(playerNumber) > 0) ? -1 : 1;
+
+			SetupScreenValues(DataManager.GetNumberPlayers());
 		}
 
 		private float throttleOutput = 0f;
@@ -46,11 +88,14 @@ namespace DogFighter
 		private const float MAX_THROTTLE_DEAD_ZONE_INCREASE_SCALAR = 30f;
 
 		private bool controller = true;
+		private float invertPitchScalar = 0f;
+		private float invertYawScalar = 0f;
+		private float invertRollScalar = 0f;
 
 		public override void ActionUpdate()
 		{
-			if (Input.GetKeyDown(KeyCode.Escape))
-				Application.LoadLevel("MenuScene");
+			if (Input.GetKeyDown(KeyCode.Alpha0))
+				controller = false;
 
 			if (controlsEnabled)
 			{
@@ -61,12 +106,12 @@ namespace DogFighter
 
 				if (controller)
 				{
-					pitch = Input.GetAxis("Right_Vertical_P1");
-					yaw = Input.GetAxis("Right_Horizontal_P1");
-					roll = -Input.GetAxis("Left_Horizontal_P1");
+					pitch = invertPitchScalar * inputHandler.GetAxis(inputMap["Pitch"] as string);
+					yaw = invertYawScalar * inputHandler.GetAxis(inputMap["Yaw"] as string);
+					roll = invertRollScalar * inputHandler.GetAxis(inputMap["Roll"] as string);
 
-					throttleAdjustInput = -Input.GetAxis("Left_Vertical_P1");
-					afterburnerInput = Input.GetAxis("Left_Trigger_P1");
+					throttleAdjustInput = inputHandler.GetAxis(inputMap["Throttle"] as string);
+					afterburnerInput = inputHandler.GetAxis("Left_Trigger");
 				}
 				else
 				{
@@ -101,9 +146,6 @@ namespace DogFighter
 				else
 					throttleOutput = throttlePrecise;
 
-				if (Input.GetKeyDown(KeyCode.Alpha1))
-					throttleOutput = throttlePrecise = 0f;
-
 				if (afterburnerInput > 0.5f)
 				{
 					playerShip.Afterburner = true;
@@ -118,9 +160,9 @@ namespace DogFighter
 				}
 
 				playerShip.Throttle = throttleOutput;
-				playerShip.Pitch = pitch;
+				playerShip.Pitch = -pitch;
 				playerShip.Yaw = yaw;
-				playerShip.Roll = roll;
+				playerShip.Roll = -roll;
 			}
 		}
 		
@@ -159,6 +201,22 @@ namespace DogFighter
 				break;
 			case "disable_controls":
 				controlsEnabled = false;
+				playerShip.Throttle = throttleOutput = 0;
+				playerShip.Pitch = 0;
+				playerShip.Yaw = 0;
+				playerShip.Roll = 0;
+				break;
+			case "get":
+				switch (messageTokens[1])
+				{
+				case "camera_transform":
+					((DeathMatchAction)action).PassCameraTransform(playerNumber, playerCamera.transform);
+					break;
+				}
+				break;
+			case "reset_camera":
+				playerCamera.transform.parent = shipGameObject.transform;
+				playerCamera.transform.localPosition = localCameraPosition;
 				break;
 			}
 		}
@@ -173,7 +231,104 @@ namespace DogFighter
 		{
 			spawnLocation = location;
 			spawnDirection = direction;
-			Debug.Log(spawnLocation + " | " + spawnDirection);
+//			Debug.Log(spawnLocation + " | " + spawnDirection);
+		}
+
+		private int screenWidth;
+		private int screenHeight;
+		private int screenLeftStart;
+		private int screenTopStart;
+		private int screenHorizontalStep;
+		private int screenVerticalStep;
+
+		private void SetupScreenValues(int numberPlayers)
+		{
+			switch (numberPlayers)
+			{
+			case 1:
+				screenWidth = Screen.width;
+				screenHeight = Screen.height;
+				screenLeftStart = 0;
+				screenTopStart = 0;
+				screenHorizontalStep = Screen.width / 32;
+				screenVerticalStep = Screen.height / 24;
+				break;
+			case 2:
+				screenWidth = Screen.width;
+				screenHeight = Screen.height / 2;
+				screenHorizontalStep = Screen.width / 32;
+				screenVerticalStep = Screen.height / 16;
+				screenLeftStart = 0;
+				switch (playerNumber)
+				{
+				case 1:
+					playerCamera.rect = new Rect(0, 0.5f, 1, 0.5f);
+					playerShip.stationaryFieldOfView = 55;
+					playerShip.maxSpeedFieldOfView = 70;
+					screenTopStart = 0;
+					break;
+				case 2:
+					playerCamera.rect = new Rect(0, 0, 1, 0.5f);
+					playerShip.stationaryFieldOfView = 55;
+					playerShip.maxSpeedFieldOfView = 70;
+					screenTopStart = screenHeight;
+					break;
+				}
+				break;
+			case 3:
+				screenWidth = Screen.width / 2;
+				screenHeight = Screen.height / 2;
+				screenHorizontalStep = Screen.width / 24;
+				screenVerticalStep = Screen.height / 16;
+				switch (playerNumber)
+				{
+				case 1:
+					playerCamera.rect = new Rect(0, 0.5f, 0.5f, 0.5f);
+					screenTopStart = 0;
+					screenLeftStart = 0;
+					break;
+				case 2:
+					playerCamera.rect = new Rect(0.5f, 0.5f, 0.5f, 0.5f);
+					screenTopStart = 0;
+					screenLeftStart = screenWidth;
+					break;
+				case 3:
+					playerCamera.rect = new Rect(0, 0, 0.5f, 0.5f);
+					screenTopStart = screenHeight;
+					screenLeftStart = 0;
+					break;
+				}
+				break;
+			case 4:
+				screenWidth = Screen.width / 2;
+				screenHeight = Screen.height / 2;
+				screenHorizontalStep = Screen.width / 24;
+				screenVerticalStep = Screen.height / 16;
+				switch (playerNumber)
+				{
+				case 1:
+					playerCamera.rect = new Rect(0, 0.5f, 0.5f, 0.5f);
+					screenTopStart = 0;
+					screenLeftStart = 0;
+					break;
+				case 2:
+					playerCamera.rect = new Rect(0.5f, 0.5f, 0.5f, 0.5f);
+					screenTopStart = 0;
+					screenLeftStart = screenWidth;
+					break;
+				case 3:
+					playerCamera.rect = new Rect(0, 0, 0.5f, 0.5f);
+					screenTopStart = screenHeight;
+					screenLeftStart = 0;
+					break;
+				case 4:
+					playerCamera.rect = new Rect(0.5f, 0, 0.5f, 0.5f);
+					screenTopStart = screenHeight;
+					screenLeftStart = screenWidth;
+					break;
+				}
+				break;
+			}
 		}
 	}
 }

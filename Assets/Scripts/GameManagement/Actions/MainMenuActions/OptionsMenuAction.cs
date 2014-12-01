@@ -55,7 +55,8 @@ namespace DogFighter
 				{
 					if (DataManager.GetPlayerActive(n+1))
 					{
-						if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Down"))
+						if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Down") ||
+						    inputHandlers[n].GetAxisKeyDown("Right_Vertical_Down"))
 						{
 							menuCursors[n].menuItemSelectedY += 1;
 							if (menuCursors[n].menuItemSelectedY == 8)
@@ -63,7 +64,8 @@ namespace DogFighter
 							menuCursors[n].menuItemSelectedY %= 9;
 						}
 						
-						if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Up"))
+						if (inputHandlers[n].GetAxisKeyDown("Left_Vertical_Up") ||
+						    inputHandlers[n].GetAxisKeyDown("Right_Vertical_Up"))
 						{
 							menuCursors[n].menuItemSelectedY -= 1;
 							if (menuCursors[n].menuItemSelectedY < 0)
@@ -73,7 +75,8 @@ namespace DogFighter
 							}
 						}
 
-						if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Left"))
+						if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Left") ||
+						    inputHandlers[n].GetAxisKeyDown("Right_Horizontal_Left"))
 						{
 							if (menuCursors[n].menuItemSelectedY != 8)
 							{
@@ -83,7 +86,8 @@ namespace DogFighter
 							}
 						}
 						
-						if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Right"))
+						if (inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Right") ||
+						    inputHandlers[n].GetAxisKeyDown("Right_Horizontal_Right"))
 						{
 							if (menuCursors[n].menuItemSelectedY != 8)
 							{
@@ -138,6 +142,10 @@ namespace DogFighter
 						    inputHandlers[n].GetAxisKeyDown("Left_Vertical_Up") ||
 						    inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Left") ||
 						    inputHandlers[n].GetAxisKeyDown("Left_Horizontal_Right") ||
+						    inputHandlers[n].GetAxisKeyDown("Right_Vertical_Down") ||
+						    inputHandlers[n].GetAxisKeyDown("Right_Vertical_Up") ||
+						    inputHandlers[n].GetAxisKeyDown("Right_Horizontal_Left") ||
+						    inputHandlers[n].GetAxisKeyDown("Right_Horizontal_Right") ||
 						    inputHandlers[n].GetButtonDown("Confirm_Button") ||
 						    inputHandlers[n].GetButtonDown("Cancel_Button") ||
 						    inputHandlers[n].GetButtonDown("Start_Button"))

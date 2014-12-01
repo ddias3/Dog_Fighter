@@ -113,7 +113,10 @@ namespace DogFighter
 
 		void LateUpdate()
 		{
-			shipCamera.fieldOfView = stationaryFieldOfView * (1 - speedInterpolation) + maxSpeedFieldOfView * (speedInterpolation);
+			if (null != shipCamera)
+			{
+				shipCamera.fieldOfView = stationaryFieldOfView * (1 - speedInterpolation) + maxSpeedFieldOfView * (speedInterpolation);
+			}
 		}
 
 		void OnGUI()
