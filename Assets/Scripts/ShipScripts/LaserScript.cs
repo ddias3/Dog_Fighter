@@ -16,5 +16,8 @@ public class LaserScript : MonoBehaviour {
 			//also actually fire
 			return lastFired;
 		}
+		else{
+			return -1f;
+		}
 	}
 }

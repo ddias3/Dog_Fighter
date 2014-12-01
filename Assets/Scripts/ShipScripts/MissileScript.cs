@@ -16,5 +16,8 @@ public class MissileScript : MonoBehaviour {
 			//also actually fire
 			return lastFired;
 		}
+		else{
+			return -1f;
+		}
 	}
 }

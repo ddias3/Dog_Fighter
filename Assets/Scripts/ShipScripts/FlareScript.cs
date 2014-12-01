@@ -16,5 +16,8 @@ public class FlareScript : MonoBehaviour {
 			//also actually fire
 			return lastFired;
 		}
+		else{
+			return -1f;
+		}
 	}
 }
