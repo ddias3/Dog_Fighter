@@ -60,7 +60,7 @@ namespace DogFighter
 		private int playerSelected = 0;
 		private float time = 0f;
 		private const float TIME_ANIMATING = 0.5f;
-		private int[] gameLengthMinutes = { 2, 3, 5, 7, 10, 15, 20 };
+		private int[] gameLengthMinutes = { 1, 2, 3, 5, 7, 10, 15, 20 };
 		private int gameLengthMinutesIndex;
 		private int mapId;
 		private int gameMode;

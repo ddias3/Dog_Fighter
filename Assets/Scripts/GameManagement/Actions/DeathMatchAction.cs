@@ -15,7 +15,7 @@ namespace DogFighter
 		private int numberPlayers;
 
 		private int gameModeState = 0;
-		private float time;
+		public float time;
 		private const float INTRO_LENGTH = 7f;
 		private float inverseIntroLength;
 		private Transform[] cameraTransforms;
@@ -28,8 +28,12 @@ namespace DogFighter
 		public AnimationCurve revolvingDistance;
 
 		public Camera extraCamera;
+		public Texture timeBackgroundTexture;
+		public Texture scoreboardBackgroundTexture;
 		private bool showScoreboardInExtraScreen = false;
 		private bool showScoreboard = false;
+		private bool showScoreboardOverWholeScreen = false;
+		private int endingState = 0;
 
 		public override void ActionStart()
 		{
@@ -100,7 +104,14 @@ namespace DogFighter
 				secondsDisplay = secondsLeft.ToString();
 
 			timeGuiStyle.fontSize = (int)(Screen.width / 1280f * 48);
+			continueGuiStyle.fontSize = (int)(Screen.width / 1280f * 32);
 			scoreboardGuiStyle.fontSize = (int)(Screen.width / 1280f * 32);
+			endingGuiStyle.fontSize = (int)(Screen.width / 1280f * 156);
+
+			showScoreboardInExtraScreen = false;
+			showScoreboard = false;
+			showScoreboardOverWholeScreen = false;
+			endingState = 0;
 		}
 
 		private int gameModeLength;
@@ -151,11 +162,25 @@ namespace DogFighter
 
 					for (int n = 0; n < numberPlayers; ++n)
 						SceneManager.SendMessageToAction(this, "SingleShipControlAction_P" + (n+1), "disable_controls");
+
+					time = 0f;
 				}
 			}
 				break;
 			case 3:
-
+				if (time < 5)
+				{
+					endingState = 1;
+				}
+				else if (time < 8)
+				{
+					endingState = 2;
+					showScoreboardOverWholeScreen = true;
+				}
+				else
+				{
+					endingState = 3;
+				}
 				break;
 			}
 
@@ -169,9 +194,16 @@ namespace DogFighter
 		
 		public GUIStyle timeGuiStyle;
 		public GUIStyle scoreboardGuiStyle;
+		public GUIStyle endingGuiStyle;
+		public GUIStyle continueGuiStyle;
 
 		public override void ActionOnGUI()
 		{
+			if (showScoreboardOverWholeScreen)
+			{
+				GUI.DrawTexture(new Rect(Screen.width / 24, Screen.height / 20, Screen.width - Screen.width / 12, Screen.height - Screen.height / 10), scoreboardBackgroundTexture);
+			}
+
 			switch (gameModeState)
 			{
 			case 1:
@@ -179,14 +211,29 @@ namespace DogFighter
 				switch (numberPlayers)
 				{
 				case 1:
-					GUI.Label(new Rect(0, Screen.height / 36, Screen.width, Screen.height / 36), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
+					GUI.DrawTexture(new Rect(Screen.width / 2 - Screen.width / 20, 0, Screen.width / 10, Screen.height / 16), timeBackgroundTexture, ScaleMode.StretchToFill);
+					GUI.Label(new Rect(0, Screen.height / 72, Screen.width, Screen.height / 36), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
 					break;
 				case 2:
 				case 4:
-					GUI.Label(new Rect(0, Screen.height / 2 + Screen.height / 36, Screen.width, Screen.height / 36), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
+					GUI.DrawTexture(new Rect(Screen.width / 2 - Screen.width / 20, Screen.height / 2 - Screen.height / 32, Screen.width / 10, Screen.height / 16), timeBackgroundTexture, ScaleMode.StretchToFill);
+					GUI.Label(new Rect(0, 0, Screen.width, Screen.height), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
 					break;
 				case 3:
+					GUI.DrawTexture(new Rect(Screen.width / 4 - Screen.width / 20, Screen.height / 2, Screen.width / 10, Screen.height / 16), timeBackgroundTexture, ScaleMode.StretchToFill);
 					GUI.Label(new Rect(Screen.width / 2, Screen.height / 36 + Screen.height / 2, Screen.width / 2, Screen.height / 36), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
+					break;
+				}
+				break;
+			case 3:
+				switch (endingState)
+				{
+				case 1:
+					GUI.DrawTexture(new Rect(Screen.width / 4, Screen.height / 2 - Screen.height / 12, Screen.width / 2, Screen.height / 6), timeBackgroundTexture, ScaleMode.StretchToFill);
+					GUI.Label(new Rect(0, 0, Screen.width, Screen.height), "End Match", endingGuiStyle);
+					break;
+				case 3:
+					GUI.Label(new Rect(0, Screen.height - Screen.height / 36, Screen.width / 2, Screen.height / 36), "Press Confirm to continue", continueGuiStyle);
 					break;
 				}
 				break;
