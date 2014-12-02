@@ -5,10 +5,10 @@ namespace DogFighter
 {
 	public class LaserScript : MonoBehaviour {
 
-		public float coolDown = .5f;
+		public float coolDown = .75f;
 		public float timeVisible = .5f;
-		public float shotCost = 10f;
-		public float chargeRate = 5f;
+		public float shotCost = 30f;
+		public float chargeRate = 4f;
 		public LineRenderer laser;
 		private float lastFired;
 		private float ownTime;
@@ -34,7 +34,9 @@ namespace DogFighter
 		}
 		
 		void FixedUpdate(){
-			charge += chargeRate/10f;
+			if(charge<100f){
+				charge += chargeRate/10f;
+			}
 		}
 
 		public float Fire(Transform t) {
