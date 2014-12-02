@@ -1,23 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class LaserScript : MonoBehaviour {
+namespace DogFighter
+{
+	public class LaserScript : MonoBehaviour {
 
-	public float coolDown=.5f;
-	private float lastFired;
+		public float coolDown=.5f;
+		private float lastFired;
 
-	void Start () {
-		lastFired = -999f;
-	}
-
-	float Fire() {
-		if(Time.time-lastFired<coolDown){
-			lastFired = Time.time;
-			//also actually fire
-			return lastFired;
+		void Start () {
+			lastFired = -999f;
 		}
-		else{
-			return -1f;
+
+		float Fire() {
+			if(Time.time-lastFired<coolDown){
+				lastFired = Time.time;
+				//also actually fire
+				return lastFired;
+			}
+			else{
+				return -1f;
+			}
 		}
 	}
 }

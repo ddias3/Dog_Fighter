@@ -43,6 +43,9 @@ namespace DogFighter
 		private ControllerMenuInputHandler[] inputHandlers;
 		private int[] controllerMap;
 
+		private PlayerShipPosition[] allShipPositions;
+		private Transform[] allShipTransforms;
+
 		public override void ActionStart()
 		{
 			showScoreboardInExtraScreen = false;
@@ -105,6 +108,25 @@ namespace DogFighter
 			for (int n = 0; n < numberPlayers; ++n)
 			{
 				SceneManager.SendMessage(this, "instantiate_named_from_prefab SingleShipControlAction SingleShipControlAction_P" + (n + 1));
+			}
+
+			allShipPositions = new PlayerShipPosition[numberPlayers];
+			allShipTransforms = new Transform[numberPlayers];
+			PlayerShip[] allShips = FindObjectsOfType<PlayerShip>();
+			for (int n = 0; n < numberPlayers; ++n)
+				allShipTransforms[n] = allShips[n].gameObject.GetComponent<Transform>();
+
+			for (int n = 0; n < numberPlayers; ++n)
+			{
+				allShipPositions[n] = ScriptableObject.CreateInstance<PlayerShipPosition>();
+				allShipPositions[n].shipNumber = allShips[n].PlayerNumber;
+				allShipPositions[n].active = true;
+				allShipPositions[n].position = allShipTransforms[n].position;
+			}
+
+			for (int n = 0; n < numberPlayers; ++n)
+			{
+				SceneManager.SendMessageToAction(this, "SingleShipControlAction_P" + (n + 1), "pass other_ships");
 			}
 
 			cameraTransforms = new Transform[numberPlayers];
@@ -192,6 +214,7 @@ namespace DogFighter
 						cameraPivotTransforms[n].rotation = Quaternion.Slerp(farCameraRotations[n], originalCameraRotations[n], revolvingDistance.Evaluate(time * inverseIntroLength));
 					}
 				}
+				UpdateShipPositionReferences();
 				break;
 			case 2:
 			{
@@ -215,6 +238,7 @@ namespace DogFighter
 
 					time = 0f;
 				}
+				UpdateShipPositionReferences();
 			}
 				break;
 			case 3:
@@ -243,6 +267,17 @@ namespace DogFighter
 			}
 
 			time += Time.deltaTime;
+		}
+
+		private void UpdateShipPositionReferences()
+		{
+			for (int n = 0; n < allShipPositions.Length; ++n)
+			{
+				if (allShipPositions[n].active)
+				{
+					allShipPositions[n].position = allShipTransforms[n].position;
+				}
+			}
 		}
 		
 		public override void ActionFixedUpdate()
@@ -483,7 +518,32 @@ namespace DogFighter
                 {
     				int playerNumber = int.Parse(messageTokens[1]);
                     playerStats[playerNumber - 1].IncrementDeaths();
+
+					int allShipIndex = -1;
+					for (int n = 0; n < allShipPositions.Length; ++n)
+						if (allShipPositions[n].shipNumber == playerNumber)
+							allShipIndex = n;
+
+					allShipPositions[allShipIndex].active = false;
+					allShipTransforms[allShipIndex] = null;
                 }
+			}
+				break;
+			case "spawn":
+			{
+				if (gameModeState == 2)
+				{
+					int playerNumber = int.Parse(messageTokens[1]);
+
+					int allShipIndex = -1;
+					for (int n = 0; n < allShipPositions.Length; ++n)
+						if (allShipPositions[n].shipNumber == playerNumber)
+							allShipIndex = n;
+					
+					allShipPositions[allShipIndex].active = true;
+					allShipTransforms[allShipIndex] = ((SingleShipControlAction)action).GetShipTransform();
+					allShipPositions[allShipIndex].position = allShipTransforms[allShipIndex].position;
+				}
 			}
 				break;
 			}
@@ -497,6 +557,25 @@ namespace DogFighter
 		public void PassCameraTransform(int playerNumber, Transform cameraTransform)
 		{
 			cameraTransforms[playerNumber - 1] = cameraTransform;
+		}
+
+		public PlayerShipPosition[] GetOtherShipPositionReferences(int playerNumber)
+		{
+			if (numberPlayers == 1)
+				return new PlayerShipPosition[0];
+			else
+			{
+				PlayerShipPosition[] otherShips = new PlayerShipPosition[allShipPositions.Length - 1];
+				for (int n = 0, m = 0; n < allShipPositions.Length; ++n)
+				{
+					if (allShipPositions[n].shipNumber != playerNumber)
+					{
+						otherShips[m] = allShipPositions[n];
+						++m;
+					}
+				}
+				return otherShips;
+			}
 		}
 
 		private sealed class PlayerStatistics

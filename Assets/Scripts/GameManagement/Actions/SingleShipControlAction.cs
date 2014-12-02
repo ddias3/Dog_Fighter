@@ -17,6 +17,8 @@ namespace DogFighter
 		public Texture2D laserLockOnCircleTexture;
 		public Texture2D missileLockOnCircleTexture;
 
+		public Texture2D playerIconTexture;
+
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
 
@@ -46,6 +48,9 @@ namespace DogFighter
         public GUIStyle speedometerGuiStyle;
 
 		public FlareScript flares;
+
+		private PlayerShipPosition[] otherShipPositions;
+		private Vector3[] otherShipScreenSpacePositions;
 
 		public override void ActionStart()
 		{
@@ -96,7 +101,7 @@ namespace DogFighter
 
 			invertPitchScalar = (DataManager.GetInvertPitch(playerNumber) > 0) ? -1 : 1;
 			invertYawScalar = (DataManager.GetInvertYaw(playerNumber) > 0) ? -1 : 1;
-			invertRollScalar = (DataManager.GetInvertRoll(playerNumber) > 0) ? -1 : 1;           
+			invertRollScalar = (DataManager.GetInvertRoll(playerNumber) > 0) ? -1 : 1;
 		}
 
         private void SpawnShip()
@@ -108,7 +113,11 @@ namespace DogFighter
 
             playerCamera = playerShip.GetComponentInChildren<Camera>();
 
+			playerShip.PlayerNumber = playerNumber;
+
             SetupScreenValues(DataManager.GetNumberPlayers());
+
+			SceneManager.SendMessageToAction(this, "DeathMatchAction", "spawn " + playerNumber);
         }
 
 		private float throttleOutput = 0f;
@@ -252,6 +261,11 @@ namespace DogFighter
 			if (inputHandler.GetButtonDown ("Left_Bumper")) {
 				flares.Fire(playerShip.transform, playerShip.rigidbody.velocity);
 			}
+
+			for (int n = 0; n < otherShipPositions.Length; ++n)
+			{
+				otherShipScreenSpacePositions[n] = playerCamera.WorldToScreenPoint(otherShipPositions[n].position);
+			}
 		}
 		
 		public override void ActionFixedUpdate()
@@ -310,6 +324,15 @@ namespace DogFighter
 				                         missileLockOnTextureWidth,
 				                         missileLockOnTextureHeight),
 				                missileLockOnCircleTexture, ScaleMode.StretchToFill);
+
+				for (int n = 0; n < otherShipScreenSpacePositions.Length; ++n)
+				{
+					GUI.DrawTexture(new Rect(/*screenLeftStart + */otherShipScreenSpacePositions[n].x - playerIconTexture.width / 2,
+					                         /*screenTopStart + */Screen.height - otherShipScreenSpacePositions[n].y - playerIconTexture.height / 2,
+					                         playerIconTexture.width / 2,
+					                         playerIconTexture.height / 2),
+					                playerIconTexture, ScaleMode.StretchToFill);
+				}
 			}
 		}
 		
@@ -360,6 +383,15 @@ namespace DogFighter
                     break;
                 }
                 break;
+			case "pass":
+				switch (messageTokens[1])
+				{
+				case "other_ships":
+					otherShipPositions = ((DeathMatchAction)action).GetOtherShipPositionReferences(playerNumber);
+					otherShipScreenSpacePositions = new Vector3[otherShipPositions.Length];
+					break;
+				}
+				break;
 			}
 		}
 
@@ -380,6 +412,11 @@ namespace DogFighter
 			spawnLocation = location;
 			spawnDirection = direction;
 //			Debug.Log(spawnLocation + " | " + spawnDirection);
+		}
+
+		public Transform GetShipTransform()
+		{
+			return playerShip.transform;
 		}
 
         public void SetupDeathAnimation()
@@ -411,6 +448,11 @@ namespace DogFighter
 		private int laserLockOnTextureHeight;
 		private int missileLockOnTextureWidth;
 		private int missileLockOnTextureHeight;
+		private int playerIconTextureWidth;
+		private int playerIconTextureHeight;
+
+		private float screenPixelWidth;
+		private float screenPixelHeight;
 
 		private void SetupScreenValues(int numberPlayers)
 		{
@@ -507,6 +549,9 @@ namespace DogFighter
 				break;
 			}
 
+			screenPixelWidth = playerCamera.pixelWidth;
+			screenPixelHeight = playerCamera.pixelHeight;
+
             throttleGuiStyle.fontSize = (int)(screenHeight / 720f * 28);
             speedometerGuiStyle.fontSize = (int)(screenHeight / 720f * 72);
 
@@ -518,6 +563,9 @@ namespace DogFighter
 
 			missileLockOnTextureWidth = (int)(hudScreenWidth / 1280f * 256);
 			missileLockOnTextureHeight = (int)(hudScreenHeight / 720f * 256);
+
+			playerIconTextureWidth = (int)(hudScreenWidth / 1280f * 16);
+			playerIconTextureHeight = (int)(hudScreenHeight / 720f * 16);;
 		}
 	}
 }

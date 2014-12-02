@@ -25,6 +25,8 @@ namespace DogFighter
 
         public GameObject explosionPrefab;
 
+		private int playerNumber;
+
 		void Start()
 		{
 			shipRigidbody = gameObject.GetComponent<Rigidbody>();
@@ -352,5 +354,11 @@ namespace DogFighter
         {
             return collisionNormal;
         }
+
+		public int PlayerNumber
+		{
+			get { return playerNumber; }
+			set { playerNumber = value; }
+		}
 	}
 }
