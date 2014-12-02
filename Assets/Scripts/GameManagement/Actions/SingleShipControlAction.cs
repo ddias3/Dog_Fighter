@@ -257,7 +257,7 @@ namespace DogFighter
 			if (inputHandler.GetButtonDown ("Right_Bumper")) {
 				missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
 			}
-			if (inputHandler.GetButtonDown ("Right_Trigger")) {
+			if (inputHandler.GetAxis("Right_Trigger")==1f) {
 				lasers.Fire(playerShip.transform);
 			}
 		}
