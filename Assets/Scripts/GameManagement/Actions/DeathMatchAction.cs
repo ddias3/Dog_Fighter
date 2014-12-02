@@ -16,7 +16,7 @@ namespace DogFighter
 
 		private int gameModeState = 0;
 		public float time;
-		private const float INTRO_LENGTH = 7f;
+		private const float INTRO_LENGTH = 1f;
 		private float inverseIntroLength;
 		private Transform[] cameraTransforms;
 		private Transform[] cameraPivotTransforms;
@@ -31,18 +31,30 @@ namespace DogFighter
 		public Texture timeBackgroundTexture;
 		public Texture scoreboardBackgroundTexture;
 		private bool showScoreboardInExtraScreen = false;
-		private bool showScoreboard = false;
+		private ScoreboardDisplayDataWrapper extraScoreboardData;
+		private bool[] showScoreboard;
 		private bool showScoreboardOverWholeScreen = false;
 		private int endingState = 0;
 
+		private PlayerStatistics[] playerStats;
+		private int[] scoreboardDisplayOrder;
+		private ScoreboardDisplayDataWrapper[] scoreboardDisplayDataWrappers;
+
+		private ControllerMenuInputHandler[] inputHandlers;
+
 		public override void ActionStart()
 		{
+			showScoreboardInExtraScreen = false;
+
+//			DataManager.SetNumberPlayers(4);
+
 			numberPlayers = DataManager.GetNumberPlayers();
 			if (numberPlayers == 3)
 			{
 				extraCamera.enabled = true;
 				extraCamera.rect = new Rect(0.5f, 0f, 0.5f, 0.5f);
-				showScoreboardInExtraScreen = true;
+//				showScoreboardInExtraScreen = true;
+				extraScoreboardData = new ScoreboardDisplayDataWrapper(4, 4);
 			}
 
 			spawnPointOutput = new Transform[numberPlayers];
@@ -57,6 +69,22 @@ namespace DogFighter
 				} while (spawnPointUsed[spawnPointIndex]);
 				spawnPointUsed[spawnPointIndex] = true;
 				spawnPointOutput[n] = spawnPoints[spawnPointIndex];
+			}
+
+			showScoreboard = new bool[numberPlayers];
+			for (int n = 0; n < numberPlayers; ++n)
+			{
+				showScoreboard[n] = false;
+			}
+
+			playerStats = new PlayerStatistics[numberPlayers];
+			scoreboardDisplayOrder = new int[numberPlayers];
+			scoreboardDisplayDataWrappers = new ScoreboardDisplayDataWrapper[numberPlayers];
+			for (int n = 0; n < numberPlayers; ++n)
+			{
+				playerStats[n] = new PlayerStatistics("P" + (n+1));
+				scoreboardDisplayOrder[n] = n;
+				scoreboardDisplayDataWrappers[n] = new ScoreboardDisplayDataWrapper(numberPlayers, n + 1);
 			}
 
 			for (int n = 0; n < numberPlayers; ++n)
@@ -105,13 +133,17 @@ namespace DogFighter
 
 			timeGuiStyle.fontSize = (int)(Screen.width / 1280f * 48);
 			continueGuiStyle.fontSize = (int)(Screen.width / 1280f * 32);
-			scoreboardGuiStyle.fontSize = (int)(Screen.width / 1280f * 32);
+			scoreboardGuiStyle.fontSize = (int)(Screen.width / 1280f * 64);
+			if (numberPlayers > 1)
+				smallerScoreboardGuiStyle.fontSize = (int)(Screen.width / 1280f * 32);
+			else
+				smallerScoreboardGuiStyle.fontSize = (int)(Screen.width / 1280f * 64);
 			endingGuiStyle.fontSize = (int)(Screen.width / 1280f * 156);
 
-			showScoreboardInExtraScreen = false;
-			showScoreboard = false;
 			showScoreboardOverWholeScreen = false;
 			endingState = 0;
+
+			inputHandlers = InputHandlerHolder.GetMenuInputHandlers();
 		}
 
 		private int gameModeLength;
@@ -161,6 +193,9 @@ namespace DogFighter
 					gameModeState = 3;
 
 					for (int n = 0; n < numberPlayers; ++n)
+						showScoreboard[n] = false;
+
+					for (int n = 0; n < numberPlayers; ++n)
 						SceneManager.SendMessageToAction(this, "SingleShipControlAction_P" + (n+1), "disable_controls");
 
 					time = 0f;
@@ -180,6 +215,13 @@ namespace DogFighter
 				else
 				{
 					endingState = 3;
+					for (int n = 0; n < numberPlayers; ++n)
+					{
+						if (inputHandlers[n].GetButtonDown("Confirm_Button"))
+						{
+							Application.LoadLevel("MenuScene");
+						}
+					}
 				}
 				break;
 			}
@@ -194,6 +236,7 @@ namespace DogFighter
 		
 		public GUIStyle timeGuiStyle;
 		public GUIStyle scoreboardGuiStyle;
+		public GUIStyle smallerScoreboardGuiStyle;
 		public GUIStyle endingGuiStyle;
 		public GUIStyle continueGuiStyle;
 
@@ -202,6 +245,66 @@ namespace DogFighter
 			if (showScoreboardOverWholeScreen)
 			{
 				GUI.DrawTexture(new Rect(Screen.width / 24, Screen.height / 20, Screen.width - Screen.width / 12, Screen.height - Screen.height / 10), scoreboardBackgroundTexture);
+				GUI.Label(new Rect(Screen.width / 6 + Screen.width / 5, Screen.height / 10, Screen.width / 16, Screen.height / 16), "Kills", scoreboardGuiStyle);
+				GUI.Label(new Rect(Screen.width / 6 + 2 * Screen.width / 5, Screen.height / 10, Screen.width / 16, Screen.height / 16), "Assists", scoreboardGuiStyle);
+				GUI.Label(new Rect(Screen.width / 6 + 3 * Screen.width / 5, Screen.height / 10, Screen.width / 16, Screen.height / 16), "Deaths", scoreboardGuiStyle);
+
+				for (int n = 0; n < numberPlayers; ++n)
+				{
+					GUI.Label(new Rect(Screen.width / 6, Screen.height / 10 + (n + 1) * Screen.height / 7, Screen.width / 16, Screen.height / 16), playerStats[scoreboardDisplayOrder[n]].Name, scoreboardGuiStyle);
+					GUI.Label(new Rect(Screen.width / 6 + Screen.width / 5, Screen.height / 10 + (n + 1) * Screen.height / 7, Screen.width / 16, Screen.height / 16), playerStats[scoreboardDisplayOrder[n]].Kills.ToString(), scoreboardGuiStyle);
+					GUI.Label(new Rect(Screen.width / 6 + 2 * Screen.width / 5, Screen.height / 10 + (n + 1) * Screen.height / 7, Screen.width / 16, Screen.height / 16), playerStats[scoreboardDisplayOrder[n]].Assists.ToString(), scoreboardGuiStyle);
+					GUI.Label(new Rect(Screen.width / 6 + 3 * Screen.width / 5, Screen.height / 10 + (n + 1) * Screen.height / 7, Screen.width / 16, Screen.height / 16), playerStats[scoreboardDisplayOrder[n]].Deaths.ToString(), scoreboardGuiStyle);
+				}
+			}
+			else if (showScoreboardInExtraScreen)
+			{
+				ScoreboardDisplayDataWrapper dataWrapper = extraScoreboardData;
+
+				GUI.DrawTexture(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 24,
+				                         dataWrapper.screenTopStart + dataWrapper.screenHeight / 20,
+				                         dataWrapper.screenWidth - dataWrapper.screenWidth / 12,
+				                         dataWrapper.screenHeight - dataWrapper.screenHeight / 10),
+				                scoreboardBackgroundTexture);
+				GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + dataWrapper.screenWidth / 5,
+				                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10,
+				                   dataWrapper.screenWidth / 16,
+				                   dataWrapper.screenWidth / 16),
+				          "Kills", smallerScoreboardGuiStyle);
+				GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + 2 * dataWrapper.screenWidth / 5,
+				                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10,
+				                   dataWrapper.screenWidth / 16,
+				                   dataWrapper.screenHeight / 16),
+				          "Assists", smallerScoreboardGuiStyle);
+				GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + 3 * dataWrapper.screenWidth / 5,
+				                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10,
+				                   dataWrapper.screenWidth / 16,
+				                   dataWrapper.screenHeight / 16),
+				          "Deaths", smallerScoreboardGuiStyle);
+				
+				for (int n = 0; n < numberPlayers; ++n)
+				{
+					GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6,
+					                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10 + (n + 1) * dataWrapper.screenHeight / 7,
+					                   dataWrapper.screenWidth / 16,
+					                   dataWrapper.screenHeight / 16),
+					          playerStats[scoreboardDisplayOrder[n]].Name, smallerScoreboardGuiStyle);
+					GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + dataWrapper.screenWidth / 5,
+					                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10 + (n + 1) * dataWrapper.screenHeight / 7,
+					                   dataWrapper.screenWidth / 16,
+					                   dataWrapper.screenHeight / 16),
+					          playerStats[scoreboardDisplayOrder[n]].Kills.ToString(), smallerScoreboardGuiStyle);
+					GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + 2 * dataWrapper.screenWidth / 5,
+					                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10 + (n + 1) * dataWrapper.screenHeight / 7,
+					                   dataWrapper.screenWidth / 16,
+					                   dataWrapper.screenHeight / 16),
+					          playerStats[scoreboardDisplayOrder[n]].Assists.ToString(), smallerScoreboardGuiStyle);
+					GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + 3 * dataWrapper.screenWidth / 5,
+					                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10 + (n + 1) * dataWrapper.screenHeight / 7,
+					                   dataWrapper.screenWidth / 16,
+					                   dataWrapper.screenHeight / 16),
+					          playerStats[scoreboardDisplayOrder[n]].Deaths.ToString(), smallerScoreboardGuiStyle);
+				}
 			}
 
 			switch (gameModeState)
@@ -220,7 +323,7 @@ namespace DogFighter
 					GUI.Label(new Rect(0, 0, Screen.width, Screen.height), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
 					break;
 				case 3:
-					GUI.DrawTexture(new Rect(Screen.width / 4 - Screen.width / 20, Screen.height / 2, Screen.width / 10, Screen.height / 16), timeBackgroundTexture, ScaleMode.StretchToFill);
+					GUI.DrawTexture(new Rect(3 * Screen.width / 4 - Screen.width / 20, Screen.height / 2 + Screen.height / 128, Screen.width / 10, Screen.height / 14), timeBackgroundTexture, ScaleMode.StretchToFill);
 					GUI.Label(new Rect(Screen.width / 2, Screen.height / 36 + Screen.height / 2, Screen.width / 2, Screen.height / 36), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
 					break;
 				}
@@ -233,10 +336,63 @@ namespace DogFighter
 					GUI.Label(new Rect(0, 0, Screen.width, Screen.height), "End Match", endingGuiStyle);
 					break;
 				case 3:
-					GUI.Label(new Rect(0, Screen.height - Screen.height / 36, Screen.width / 2, Screen.height / 36), "Press Confirm to continue", continueGuiStyle);
+					GUI.Label(new Rect(0, Screen.height - Screen.height / 6, Screen.width, Screen.height / 6), "Press Confirm to continue", continueGuiStyle);
 					break;
 				}
 				break;
+			}
+
+			for (int playerIndex = 0; playerIndex < numberPlayers; ++playerIndex)
+			{
+				if (showScoreboard[playerIndex])
+				{
+					ScoreboardDisplayDataWrapper dataWrapper = scoreboardDisplayDataWrappers[playerIndex];
+
+					GUI.DrawTexture(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 24,
+					                         dataWrapper.screenTopStart + dataWrapper.screenHeight / 20,
+					                         dataWrapper.screenWidth - dataWrapper.screenWidth / 12,
+					                         dataWrapper.screenHeight - dataWrapper.screenHeight / 10),
+					                scoreboardBackgroundTexture);
+					GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + dataWrapper.screenWidth / 5,
+					                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10,
+					                   dataWrapper.screenWidth / 16,
+					                   dataWrapper.screenWidth / 16),
+					          "Kills", smallerScoreboardGuiStyle);
+					GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + 2 * dataWrapper.screenWidth / 5,
+					                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10,
+					                   dataWrapper.screenWidth / 16,
+					                   dataWrapper.screenHeight / 16),
+					          "Assists", smallerScoreboardGuiStyle);
+					GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + 3 * dataWrapper.screenWidth / 5,
+					                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10,
+					                   dataWrapper.screenWidth / 16,
+					                   dataWrapper.screenHeight / 16),
+					          "Deaths", smallerScoreboardGuiStyle);
+					
+					for (int n = 0; n < numberPlayers; ++n)
+					{
+						GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6,
+						                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10 + (n + 1) * dataWrapper.screenHeight / 7,
+						                   dataWrapper.screenWidth / 16,
+						                   dataWrapper.screenHeight / 16),
+						          playerStats[scoreboardDisplayOrder[n]].Name, smallerScoreboardGuiStyle);
+						GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + dataWrapper.screenWidth / 5,
+						                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10 + (n + 1) * dataWrapper.screenHeight / 7,
+						                   dataWrapper.screenWidth / 16,
+						                   dataWrapper.screenHeight / 16),
+						          playerStats[scoreboardDisplayOrder[n]].Kills.ToString(), smallerScoreboardGuiStyle);
+						GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + 2 * dataWrapper.screenWidth / 5,
+						                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10 + (n + 1) * dataWrapper.screenHeight / 7,
+						                   dataWrapper.screenWidth / 16,
+						                   dataWrapper.screenHeight / 16),
+						          playerStats[scoreboardDisplayOrder[n]].Assists.ToString(), smallerScoreboardGuiStyle);
+						GUI.Label(new Rect(dataWrapper.screenLeftStart + dataWrapper.screenWidth / 6 + 3 * dataWrapper.screenWidth / 5,
+						                   dataWrapper.screenTopStart + dataWrapper.screenHeight / 10 + (n + 1) * dataWrapper.screenHeight / 7,
+						                   dataWrapper.screenWidth / 16,
+						                   dataWrapper.screenHeight / 16),
+						          playerStats[scoreboardDisplayOrder[n]].Deaths.ToString(), smallerScoreboardGuiStyle);
+					}
+				}
 			}
 		}
 		
@@ -278,6 +434,29 @@ namespace DogFighter
 				gameModeState = 1;
 				time = 0f;
 				break;
+			case "show_scoreboard":
+				if (gameModeState == 2)
+					showScoreboard[int.Parse(messageTokens[1]) - 1] = true;
+				break;
+			case "hide_scoreboard":
+				if (gameModeState == 2)
+					showScoreboard[int.Parse(messageTokens[1]) - 1] = false;
+				break;
+			case "kill":
+			{
+				int playerNumber = int.Parse(messageTokens[1]);
+			}
+				break;
+			case "assist":
+			{
+				int playerNumber = int.Parse(messageTokens[1]);
+			}
+				break;
+			case "death":
+			{
+				int playerNumber = int.Parse(messageTokens[1]);
+			}
+				break;
 			}
 		}
 
@@ -289,6 +468,151 @@ namespace DogFighter
 		public void PassCameraTransform(int playerNumber, Transform cameraTransform)
 		{
 			cameraTransforms[playerNumber - 1] = cameraTransform;
+		}
+
+		private sealed class PlayerStatistics
+		{
+			private string playerName;
+			private int kills;
+			private int deaths;
+			private int assists;
+			public PlayerStatistics(string playerName)
+			{
+				this.playerName = playerName;
+				ResetScore();
+			}
+
+			public void ResetScore()
+			{
+				kills = deaths = assists = 0;
+			}
+
+			public void IncrementKills()
+			{
+				++kills;
+			}
+
+			public void IncrementDeaths()
+			{
+				++deaths;
+			}
+
+			public void IncrementAssists()
+			{
+				++assists;
+			}
+
+			public int Kills
+			{
+				get { return kills; }
+			}
+
+			public int Deaths
+			{
+				get { return deaths; }
+			}
+
+			public int Assists
+			{
+				get { return assists; }
+			}
+
+			public string Name
+			{
+				get { return playerName; }
+			}
+		}
+
+		private sealed class ScoreboardDisplayDataWrapper
+		{
+			public int screenWidth = -1;
+			public int screenHeight = -1;
+			public int screenLeftStart = -1;
+			public int screenTopStart = -1;
+//			public int screenHorizontalStep = -1;
+//			public int screenVerticalStep = -1;
+
+			public ScoreboardDisplayDataWrapper(int numberPlayers, int thisPlayerNumber)
+			{
+				CalculateValues(numberPlayers, thisPlayerNumber);
+			}
+
+			public void CalculateValues(int numberPlayers, int thisPlayerNumber)
+			{
+				switch (numberPlayers)
+				{
+				case 1:
+					screenWidth = Screen.width;
+					screenHeight = Screen.height;
+					screenLeftStart = 0;
+					screenTopStart = 0;
+//					screenHorizontalStep = Screen.width / 32;
+//					screenVerticalStep = Screen.height / 24;
+					break;
+				case 2:
+					screenWidth = Screen.width / 2;
+					screenHeight = Screen.height / 2;
+//					screenHorizontalStep = Screen.width / 32;
+//					screenVerticalStep = Screen.height / 16;
+					screenLeftStart = Screen.width / 4;
+					switch (thisPlayerNumber)
+					{
+					case 1:
+						screenTopStart = 0;
+						break;
+					case 2:
+						screenTopStart = screenHeight;
+						break;
+					}
+					break;
+				case 3:
+					screenWidth = Screen.width / 2;
+					screenHeight = Screen.height / 2;
+//					screenHorizontalStep = Screen.width / 24;
+//					screenVerticalStep = Screen.height / 16;
+					switch (thisPlayerNumber)
+					{
+					case 1:
+						screenTopStart = 0;
+						screenLeftStart = 0;
+						break;
+					case 2:
+						screenTopStart = 0;
+						screenLeftStart = screenWidth;
+						break;
+					case 3:
+						screenTopStart = screenHeight;
+						screenLeftStart = 0;
+						break;
+					}
+					break;
+				case 4:
+					screenWidth = Screen.width / 2;
+					screenHeight = Screen.height / 2;
+//					screenHorizontalStep = Screen.width / 24;
+//					screenVerticalStep = Screen.height / 16;
+					switch (thisPlayerNumber)
+					{
+					case 1:
+						screenTopStart = 0;
+						screenLeftStart = 0;
+						break;
+					case 2:
+						screenTopStart = 0;
+						screenLeftStart = screenWidth;
+						break;
+					case 3:
+						screenTopStart = screenHeight;
+						screenLeftStart = 0;
+						break;
+					case 4:
+						screenTopStart = screenHeight;
+						screenLeftStart = screenWidth;
+						break;
+					}
+					break;
+				}
+			}
 		}
 	}
 }
