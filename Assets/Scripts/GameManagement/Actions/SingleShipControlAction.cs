@@ -90,8 +90,10 @@ namespace DogFighter
         private void SpawnShip()
         {
             shipGameObject = Instantiate(shipPrefab, spawnLocation, spawnDirection) as GameObject;
+
             playerShip = shipGameObject.GetComponent<PlayerShip>();
             playerShip.PassControllingActionName(Name);
+
             playerCamera = playerShip.GetComponentInChildren<Camera>();
 
             SetupScreenValues(DataManager.GetNumberPlayers());
