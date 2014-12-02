@@ -46,6 +46,8 @@ namespace DogFighter
         public GUIStyle speedometerGuiStyle;
 
 		public FlareScript flares;
+		public MissileFireScript missiles;
+		public LaserScript lasers;
 
 		public override void ActionStart()
 		{
@@ -251,6 +253,12 @@ namespace DogFighter
 			}
 			if (inputHandler.GetButtonDown ("Left_Bumper")) {
 				flares.Fire(playerShip.transform, playerShip.rigidbody.velocity);
+			}
+			if (inputHandler.GetButtonDown ("Right_Bumper")) {
+				missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
+			}
+			if (inputHandler.GetButtonDown ("Right_Trigger")) {
+				lasers.Fire(playerShip.transform);
 			}
 		}
 		

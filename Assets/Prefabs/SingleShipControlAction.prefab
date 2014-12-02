@@ -10,6 +10,7 @@ GameObject:
   - 4: {fileID: 400000}
   - 114: {fileID: 11400000}
   - 114: {fileID: 11400002}
+  - 114: {fileID: 11400004}
   m_Layer: 0
   m_Name: SingleShipControlAction
   m_TagString: Action
@@ -45,6 +46,9 @@ MonoBehaviour:
   throttleMarker: {fileID: 2800000, guid: 2355adafa4055fc428128afca7002b16, type: 3}
   throttleBackdrop: {fileID: 2800000, guid: 0fd347a0f9b908c448258d43c89d6347, type: 3}
   speedometerTexture: {fileID: 2800000, guid: 62d6b81a65dd7f44a9336106aebbd589, type: 3}
+  crossHairTexture: {fileID: 0}
+  laserLockOnCircleTexture: {fileID: 0}
+  missileLockOnCircleTexture: {fileID: 0}
   throttleAdjustCurve:
     serializedVersion: 2
     m_Curve:
@@ -189,6 +193,7 @@ MonoBehaviour:
     m_StretchWidth: 1
     m_StretchHeight: 0
   flares: {fileID: 11400002}
+  missiles: {fileID: 11400004}
   zoomDistance:
     serializedVersion: 2
     m_Curve:
@@ -219,6 +224,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   coolDown: 7
   flare: {fileID: 100002, guid: 886b6f4c2574465429df9edcc63a8e9b, type: 2}
+--- !u!114 &11400004
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39bc5e831f19984eb2a48cb71e3fe5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coolDown: 5
+  missile: {fileID: 100002, guid: eb43b3d516d3dba48ae359356f7b3f2f, type: 2}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

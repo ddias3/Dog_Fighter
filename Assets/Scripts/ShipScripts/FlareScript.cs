@@ -21,7 +21,6 @@ public class FlareScript : MonoBehaviour {
 	public float Fire(Transform t, Vector3 v) {
 		if(ownTime-lastFired>coolDown){
 			lastFired = ownTime;
-			//also actually fire
 			Vector3 flareLeft = new Vector3(-2,0,-2);
 			flareLeft = t.rotation * flareLeft;
 			flareLeft += t.position;
