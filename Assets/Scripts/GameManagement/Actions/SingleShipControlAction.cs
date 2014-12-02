@@ -12,10 +12,10 @@ namespace DogFighter
 
 		private int playerNumber = 1;
 
-        private float barHeight = 80;
-        private float barWidth = 10;
-        private float barSpace = 9;
-        private float pinch = 0;
+//        private float barHeight = 80;
+//        private float barWidth = 10;
+//        private float barSpace = 9;
+//        private float pinch = 0;
 
         public Texture image;
 
@@ -31,12 +31,16 @@ namespace DogFighter
 		private ListDictionary inputMap;
 		private ControllerDirectInputHandler inputHandler;
 
+        public GUIStyle throttleGuiStyle;
+        public GUIStyle speedometerGuiStyle;
+
 		public override void ActionStart()
 		{
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get player_number");
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
 			shipGameObject = Instantiate(shipPrefab, spawnLocation, spawnDirection) as GameObject;
 			playerShip = shipGameObject.GetComponent<PlayerShip>();
+            playerShip.PassControllingActionName(Name);
 			playerCamera = playerShip.GetComponentInChildren<Camera>();
 			localCameraPosition = new Vector3(playerCamera.transform.localPosition.x,
 			                                  playerCamera.transform.localPosition.y,
@@ -99,84 +103,106 @@ namespace DogFighter
 		private float invertYawScalar = 0f;
 		private float invertRollScalar = 0f;
 
+        private const float DEATH_ANIMATION_LENGTH = 3f;
+        private bool deathAnimation = false;
+        public AnimationCurve zoomDistance;
+        private float deathTime = 0f;
+        private Vector3 collisionPoint;
+        private Vector3 collisionDistancedPoint;
+
+        public GameObject explosionPrefab;
+
 		public override void ActionUpdate()
 		{
 			if (Input.GetKeyDown(KeyCode.Alpha0))
 				controller = false;
+
+            if (deathAnimation)
+            {
+                playerCamera.transform.position = Vector3.Lerp(collisionPoint, collisionDistancedPoint, zoomDistance.Evaluate(deathTime / DEATH_ANIMATION_LENGTH));
+                playerCamera.transform.LookAt(collisionPoint);
+
+                if (deathTime > DEATH_ANIMATION_LENGTH)
+                {
+                    deathAnimation = false;
+                    DestroyObject(playerCamera.gameObject);
+                }
+
+                deathTime += Time.deltaTime;
+            }
+            else if (controlsEnabled)
+            {
+                float pitch;
+                float yaw;
+                float roll;
+                float afterburnerInput;
+                
+                if (controller)
+                {
+                    pitch = invertPitchScalar * inputHandler.GetAxis(inputMap["Pitch"] as string);
+                    yaw = invertYawScalar * inputHandler.GetAxis(inputMap["Yaw"] as string);
+                    roll = invertRollScalar * inputHandler.GetAxis(inputMap["Roll"] as string);
+                    
+                    throttleAdjustInput = inputHandler.GetAxis(inputMap["Throttle"] as string);
+                    afterburnerInput = inputHandler.GetAxis("Left_Trigger");
+                }
+                else
+                {
+                    pitch = Input.GetAxis("Pitch");
+                    roll = -Input.GetAxis("Yaw");
+                    yaw = -Input.GetAxis("Roll");
+                    
+                    throttleAdjustInput = Input.GetAxis("Throttle");
+                    afterburnerInput = Input.GetAxis("Afterburner");
+                }
+                
+                throttleAdjustInputMagnitude = Mathf.Abs(throttleAdjustInput);
+                throttlePrecise += THROTTLE_ADJUST_CONSTANT * Mathf.Sign(throttleAdjustInput) * throttleAdjustCurve.Evaluate(Mathf.Abs(throttleAdjustInput)) * Time.deltaTime;
+                
+                if (throttlePrecise > 1f)
+                    throttlePrecise = 1f;
+                else if (throttlePrecise < -0.3f)
+                    throttlePrecise = -0.3f;
+                
+                if (Mathf.Abs(throttlePrecise) < THROTTLE_DEAD_ZONE)
+                {
+                    if (throttleAdjustInputMagnitude < 0.01f)
+                        throttlePrecise -= (throttlePrecise * THROTTLE_DEAD_ZONE_DECREASE_SCALAR) * Time.deltaTime;
+                    throttleOutput = 0f;
+                }
+                else if (Mathf.Abs(throttlePrecise) > 1f - MAX_THROTTLE_DEAD_ZONE)
+                {
+                    if (throttleAdjustInputMagnitude < 0.01f)
+                        throttlePrecise += ((1f - throttlePrecise) * MAX_THROTTLE_DEAD_ZONE_INCREASE_SCALAR) * Time.deltaTime;
+                    throttleOutput = 1f;
+                }
+                else
+                    throttleOutput = throttlePrecise;
+                
+                if (afterburnerInput > 0.5f)
+                {
+                    playerShip.Afterburner = true;
+                    if (Mathf.Abs(throttlePrecise) > Mathf.Abs(throttleAdjustInput))
+                        playerShip.DirectThrottleSet = throttlePrecise;
+                    else
+                        playerShip.DirectThrottleSet = throttleAdjustInput;
+                }
+                else
+                {
+                    playerShip.Afterburner = false;
+                }
+                
+                playerShip.Throttle = throttleOutput;
+                playerShip.Pitch = -pitch;
+                playerShip.Yaw = yaw;
+                playerShip.Roll = -roll;
+            }
 
 			if (inputHandler.GetButtonDown("Back_Button"))
 				SceneManager.SendMessageToAction(this, "DeathMatchAction", "show_scoreboard " + playerNumber);
 
 			if (inputHandler.GetButtonUp("Back_Button"))
 				SceneManager.SendMessageToAction(this, "DeathMatchAction", "hide_scoreboard " + playerNumber);
-
-			if (controlsEnabled)
-			{
-				float pitch;
-				float yaw;
-				float roll;
-				float afterburnerInput;
-
-				if (controller)
-				{
-					pitch = invertPitchScalar * inputHandler.GetAxis(inputMap["Pitch"] as string);
-					yaw = invertYawScalar * inputHandler.GetAxis(inputMap["Yaw"] as string);
-					roll = invertRollScalar * inputHandler.GetAxis(inputMap["Roll"] as string);
-
-					throttleAdjustInput = inputHandler.GetAxis(inputMap["Throttle"] as string);
-					afterburnerInput = inputHandler.GetAxis("Left_Trigger");
-				}
-				else
-				{
-					pitch = Input.GetAxis("Pitch");
-					roll = -Input.GetAxis("Yaw");
-					yaw = -Input.GetAxis("Roll");
-
-					throttleAdjustInput = Input.GetAxis("Throttle");
-					afterburnerInput = Input.GetAxis("Afterburner");
-				}
-
-				throttleAdjustInputMagnitude = Mathf.Abs(throttleAdjustInput);
-				throttlePrecise += THROTTLE_ADJUST_CONSTANT * Mathf.Sign(throttleAdjustInput) * throttleAdjustCurve.Evaluate(Mathf.Abs(throttleAdjustInput)) * Time.deltaTime;
-
-				if (throttlePrecise > 1f)
-					throttlePrecise = 1f;
-				else if (throttlePrecise < -0.3f)
-					throttlePrecise = -0.3f;
-
-				if (Mathf.Abs(throttlePrecise) < THROTTLE_DEAD_ZONE)
-				{
-					if (throttleAdjustInputMagnitude < 0.01f)
-						throttlePrecise -= (throttlePrecise * THROTTLE_DEAD_ZONE_DECREASE_SCALAR) * Time.deltaTime;
-					throttleOutput = 0f;
-				}
-				else if (Mathf.Abs(throttlePrecise) > 1f - MAX_THROTTLE_DEAD_ZONE)
-				{
-					if (throttleAdjustInputMagnitude < 0.01f)
-						throttlePrecise += ((1f - throttlePrecise) * MAX_THROTTLE_DEAD_ZONE_INCREASE_SCALAR) * Time.deltaTime;
-					throttleOutput = 1f;
-				}
-				else
-					throttleOutput = throttlePrecise;
-
-				if (afterburnerInput > 0.5f)
-				{
-					playerShip.Afterburner = true;
-					if (Mathf.Abs(throttlePrecise) > Mathf.Abs(throttleAdjustInput))
-						playerShip.DirectThrottleSet = throttlePrecise;
-					else
-						playerShip.DirectThrottleSet = throttleAdjustInput;
-				}
-				else
-				{
-					playerShip.Afterburner = false;
-				}
-
-				playerShip.Throttle = throttleOutput;
-				playerShip.Pitch = -pitch;
-				playerShip.Yaw = yaw;
-				playerShip.Roll = -roll;
-			}
 		}
 		
 		public override void ActionFixedUpdate()
@@ -186,13 +212,13 @@ namespace DogFighter
 
 		public override void ActionOnGUI()
 		{
-            for (float i=0; i<playerShip.Speed/50; i++) {
-                if (i > 0 && i < 5) { pinch += 5; }
-                else if (i > 7) { pinch -= 5; }
-                else if (i == 0) { pinch = 0; }
-                else { pinch = 25;}
-                GUI.Box (new Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
-            }
+//            for (float i=0; i<playerShip.Speed/50; i++) {
+//                if (i > 0 && i < 5) { pinch += 5; }
+//                else if (i > 7) { pinch -= 5; }
+//                else if (i == 0) { pinch = 0; }
+//                else { pinch = 25;}
+//                GUI.Box (new Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
+//            }	
 		}
 		
 		public override void ReceiveMessage(Action action, string message)
@@ -231,6 +257,15 @@ namespace DogFighter
 				playerCamera.transform.parent = shipGameObject.transform;
 				playerCamera.transform.localPosition = localCameraPosition;
 				break;
+            case "event":
+                switch (messageTokens[1])
+                {
+                case "crash":
+                    SetupDeathAnimation();
+                    SceneManager.SendMessageToAction(this, "DeathMatchAction", "death " + playerNumber);
+                    break;
+                }
+                break;
 			}
 		}
 
@@ -246,6 +281,17 @@ namespace DogFighter
 			spawnDirection = direction;
 //			Debug.Log(spawnLocation + " | " + spawnDirection);
 		}
+
+        public void SetupDeathAnimation()
+        {
+            playerCamera.transform.parent = null;
+            deathTime = 0f;
+            deathAnimation = true;
+            collisionPoint = playerShip.GetCollisionPoint();
+            collisionDistancedPoint = playerShip.GetCollisionNormal().normalized * 75f + collisionPoint;
+
+            DestroyObject(playerShip.gameObject);
+        }
 
 		private int screenWidth;
 		private int screenHeight;
@@ -342,6 +388,9 @@ namespace DogFighter
 				}
 				break;
 			}
+
+            throttleGuiStyle.fontSize = (int)(screenWidth / 1280f * 12);
+            speedometerGuiStyle.fontSize = (int)(screenWidth / 1280f * 72);
 		}
 	}
 }
