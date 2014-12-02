@@ -54,6 +54,8 @@ MonoBehaviour:
   missileLockOnCircleTexture: {fileID: 2800000, guid: 119a37e5edcc7684994836d5a0f3c51c,
     type: 3}
   playerIconTexture: {fileID: 2800000, guid: 9405b1de7abc5c94091922403c38f2a6, type: 3}
+  playerIconEdgeTexture: {fileID: 2800000, guid: 2ebf1694de446a345bb65a2d9bae92a6,
+    type: 3}
   throttleAdjustCurve:
     serializedVersion: 2
     m_Curve:

@@ -18,6 +18,7 @@ namespace DogFighter
 		public Texture2D missileLockOnCircleTexture;
 
 		public Texture2D playerIconTexture;
+		public Texture2D playerIconEdgeTexture;
 
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
@@ -57,6 +58,9 @@ namespace DogFighter
 		private PlayerShipPosition[] otherShipPositions;
 		private Vector3[] otherShipScreenSpacePositions;
 		private bool[] otherShipDrawIconNormal;
+		private Vector3[] otherShipDrawEdgeIconPositions;
+		private float[] otherShipDrawIconEdgeAngles;
+
 		private string[] shipIconDistanceString;
 		private string[] shipIconNameString;
 
@@ -291,6 +295,30 @@ namespace DogFighter
 				    otherShipScreenSpacePositions[n].y > screenTopStart + screenHeight)
 				{
 					otherShipDrawIconNormal[n] = false;
+					//TODO: FIX THIS SECTION.
+//					if (otherShipScreenSpacePositions[n].z > 0)
+//					{
+//						Vector3 globalDirection = otherShipPositions[n].position - (Vector3.Dot(otherShipPositions[n].position, playerShip.transform.forward) * playerShip.transform.forward);
+//						Vector3 localDirection = playerShip.transform.InverseTransformDirection(globalDirection);
+//						localDirection.Normalize();
+//
+//						otherShipDrawEdgeIconPositions[n] = localDirection * (hudScreenWidth * 0.9f);
+//
+//						otherShipDrawIconEdgeAngles[n] = Mathf.Atan((float)(otherShipDrawEdgeIconPositions[n].y) / otherShipDrawEdgeIconPositions[n].x) * 57.2957795f;
+//					}
+//					else
+//					{
+//						Vector2 direction = new Vector2(otherShipScreenSpacePositions[n].x,
+//						                                otherShipScreenSpacePositions[n].y);
+//						direction.Normalize();
+//						
+//						otherShipDrawEdgeIconPositions[n] = direction * (hudScreenWidth * 0.9f);
+//
+//						otherShipDrawIconEdgeAngles[n] = Mathf.Atan((float)(otherShipDrawEdgeIconPositions[n].y) / otherShipDrawEdgeIconPositions[n].x) * 57.2957795f;
+//
+//						otherShipDrawEdgeIconPositions[n].x += screenLeftStart;
+//						otherShipDrawEdgeIconPositions[n].y += screenTopStart;
+//					}
 				}
 				else
 				{
@@ -334,15 +362,15 @@ namespace DogFighter
 				GUI.Label(new Rect(numEdge, zeroMarker, screenHorizontalStep, screenVerticalStep), "0", throttleGuiStyle);
 				GUI.Label(new Rect(numEdge * 1.001f, zeroMarker - (screenHeight / 8), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
 
-				GUI.DrawTexture(new Rect(screenLeftStart + screenWidth - screenWidth / 8,
-				                         screenTopStart + screenHeight - screenHeight / 8,
-				                         screenWidth / 8,
-				                         screenHeight / 8),
+				GUI.DrawTexture(new Rect(screenLeftStart + screenWidth - hudScreenWidth / 8,
+				                         screenTopStart + screenHeight - hudScreenHeight / 8,
+				                         hudScreenWidth / 8,
+				                         hudScreenHeight / 8),
 				                speedometerTexture, ScaleMode.StretchToFill);
-				GUI.Label(new Rect(screenLeftStart + screenWidth - screenWidth / 8,
-				                   screenTopStart + screenHeight - screenHeight / 8,
-				                   screenWidth / 9,
-				                   screenHeight / 8),
+				GUI.Label(new Rect(screenLeftStart + screenWidth - hudScreenWidth / 8,
+				                   screenTopStart + screenHeight - hudScreenHeight / 8,
+				                   hudScreenWidth / 9,
+				                   hudScreenHeight / 8),
 				          Mathf.RoundToInt(playerShip.Speed).ToString(), speedometerGuiStyle);
 
 				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - crossHairTextureWidth / 2,
@@ -385,11 +413,26 @@ namespace DogFighter
 					}
 					else
 					{
-						GUI.DrawTexture(new Rect(screenLeftStart + otherShipPositions[n].shipNumber * screenWidth / 24,
-						                         screenTopStart + screenHeight / 24,
-						                         playerIconTexture.width,
-						                         playerIconTexture.height),
-						                playerIconTexture, ScaleMode.StretchToFill);
+						//TODO: FIX THIS SECTION.
+//						Matrix4x4 matrixBackup = GUI.matrix;
+//						GUIUtility.RotateAroundPivot(otherShipDrawIconEdgeAngles[n], new Vector2(screenLeftStart + screenWidth / 2, screenTopStart + screenHeight / 2));
+//						GUI.DrawTexture(new Rect(screenWidth + otherShipDrawEdgeIconPositions[n].x - playerIconEdgeTextureWidth,
+//						                         screenHeight + otherShipDrawEdgeIconPositions[n].y - playerIconEdgeTextureHeight,
+//						                         playerIconEdgeTextureWidth,
+//						                         playerIconEdgeTextureHeight),
+//						                playerIconEdgeTexture, ScaleMode.StretchToFill);
+//						GUI.matrix = matrixBackup;
+//
+//						GUI.Label(new Rect(screenWidth + otherShipDrawEdgeIconPositions[n].x - playerIconTextureWidth / 2,
+//						                   screenHeight + otherShipDrawEdgeIconPositions[n].y - 2 * playerIconTextureHeight,
+//						                   screenWidth,
+//						                   screenHeight),
+//						          shipIconNameString[n], shipIconNameGuiStyle);
+//						GUI.Label(new Rect(screenWidth + otherShipDrawEdgeIconPositions[n].x + playerIconTextureWidth,
+//						                   screenHeight + otherShipDrawEdgeIconPositions[n].y,
+//						                   screenWidth,
+//						                   screenHeight),
+//						          shipIconDistanceString[n], shipIconDistanceGuiStyle);
 					}
 				}
 			}
@@ -453,6 +496,8 @@ namespace DogFighter
 					shipIconNameString = new string[otherShipPositions.Length];
 					for (int n = 0; n < shipIconNameString.Length; ++n)
 						shipIconNameString[n] = "P" + otherShipPositions[n].shipNumber;
+					otherShipDrawEdgeIconPositions = new Vector3[otherShipPositions.Length];
+					otherShipDrawIconEdgeAngles = new float[otherShipPositions.Length];
 					break;
 				}
 				break;
@@ -514,6 +559,8 @@ namespace DogFighter
 		private int missileLockOnTextureHeight;
 		private int playerIconTextureWidth;
 		private int playerIconTextureHeight;
+		private int playerIconEdgeTextureWidth;
+		private int playerIconEdgeTextureHeight;
 
 		private float screenPixelWidth;
 		private float screenPixelHeight;
@@ -533,9 +580,8 @@ namespace DogFighter
 				break;
 			case 2:
 				screenWidth = Screen.width;
-				screenHeight = Screen.height / 2;
+				screenHeight = hudScreenHeight = Screen.height / 2;
 				hudScreenWidth = screenWidth / 2;
-				hudScreenHeight = screenHeight;
 				screenHorizontalStep = Screen.width / 28;
 				screenVerticalStep = Screen.height / 8;
 				screenLeftStart = 0;
@@ -631,8 +677,9 @@ namespace DogFighter
 			missileLockOnTextureWidth = (int)(hudScreenWidth / 1280f * 256);
 			missileLockOnTextureHeight = (int)(hudScreenHeight / 720f * 256);
 
-			playerIconTextureWidth = (int)(hudScreenWidth / 1280f * 16);
-			playerIconTextureHeight = (int)(hudScreenHeight / 720f * 16);;
+			playerIconEdgeTextureWidth = playerIconTextureWidth = (int)(hudScreenWidth / 1280f * 16);
+			playerIconEdgeTextureHeight = playerIconTextureHeight = (int)(hudScreenHeight / 720f * 16);
+
 		}
 	}
 }
