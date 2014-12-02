@@ -47,12 +47,18 @@ namespace DogFighter
         public GUIStyle throttleGuiStyle;
         public GUIStyle speedometerGuiStyle;
 
+		public GUIStyle shipIconNameGuiStyle;
+		public GUIStyle shipIconDistanceGuiStyle;
+
 		public FlareScript flares;
 		public MissileFireScript missiles;
 		public LaserScript lasers;
 
 		private PlayerShipPosition[] otherShipPositions;
 		private Vector3[] otherShipScreenSpacePositions;
+		private bool[] otherShipDrawIconNormal;
+		private string[] shipIconDistanceString;
+		private string[] shipIconNameString;
 
 		public override void ActionStart()
 		{
@@ -147,7 +153,7 @@ namespace DogFighter
         private Vector3 collisionDistancedPoint;
 
         public GameObject explosionPrefab;
-        public GameObject explosionGameObject;
+        private GameObject explosionGameObject;
 
 		private bool displayGUI;
 
@@ -267,6 +273,29 @@ namespace DogFighter
 			for (int n = 0; n < otherShipPositions.Length; ++n)
 			{
 				otherShipScreenSpacePositions[n] = playerCamera.WorldToScreenPoint(otherShipPositions[n].position);
+				otherShipScreenSpacePositions[n].y = Screen.height - otherShipScreenSpacePositions[n].y;
+
+				if (null != playerShip)
+				{
+					int distance = (int)((playerShip.transform.position - otherShipPositions[n].position).magnitude);
+					if (distance > 1000)
+						shipIconDistanceString[n] = (distance / 1000).ToString() + "." + (distance % 1000 / 100).ToString() + "km"; 
+					else
+						shipIconDistanceString[n] = distance.ToString() + "m";
+				}
+
+				if (otherShipScreenSpacePositions[n].z < 0 ||
+				    otherShipScreenSpacePositions[n].x < screenLeftStart ||
+				    otherShipScreenSpacePositions[n].x > screenLeftStart + screenWidth ||
+				    otherShipScreenSpacePositions[n].y < screenTopStart ||
+				    otherShipScreenSpacePositions[n].y > screenTopStart + screenHeight)
+				{
+					otherShipDrawIconNormal[n] = false;
+				}
+				else
+				{
+					otherShipDrawIconNormal[n] = true;
+				}
 			}
 
 			if (inputHandler.GetButtonDown ("Right_Bumper")) {
@@ -336,11 +365,32 @@ namespace DogFighter
 
 				for (int n = 0; n < otherShipScreenSpacePositions.Length; ++n)
 				{
-					GUI.DrawTexture(new Rect(/*screenLeftStart + */otherShipScreenSpacePositions[n].x - playerIconTexture.width / 2,
-					                         /*screenTopStart + */Screen.height - otherShipScreenSpacePositions[n].y - playerIconTexture.height / 2,
-					                         playerIconTexture.width / 2,
-					                         playerIconTexture.height / 2),
-					                playerIconTexture, ScaleMode.StretchToFill);
+					if (otherShipDrawIconNormal[n])
+					{
+						GUI.DrawTexture(new Rect(otherShipScreenSpacePositions[n].x - playerIconTextureWidth / 2,
+						                         otherShipScreenSpacePositions[n].y - playerIconTextureHeight / 2,
+						                         playerIconTextureWidth,
+						                         playerIconTextureHeight),
+						                playerIconTexture, ScaleMode.StretchToFill);
+						GUI.Label(new Rect(otherShipScreenSpacePositions[n].x - playerIconTextureWidth / 2,
+						                   otherShipScreenSpacePositions[n].y - 2 * playerIconTextureHeight,
+						                   screenWidth,
+						                   screenHeight),
+						          shipIconNameString[n], shipIconNameGuiStyle);
+						GUI.Label(new Rect(otherShipScreenSpacePositions[n].x + playerIconTextureWidth,
+						                   otherShipScreenSpacePositions[n].y,
+						                   screenWidth,
+						                   screenHeight),
+						          shipIconDistanceString[n], shipIconDistanceGuiStyle);
+					}
+					else
+					{
+						GUI.DrawTexture(new Rect(screenLeftStart + otherShipPositions[n].shipNumber * screenWidth / 24,
+						                         screenTopStart + screenHeight / 24,
+						                         playerIconTexture.width,
+						                         playerIconTexture.height),
+						                playerIconTexture, ScaleMode.StretchToFill);
+					}
 				}
 			}
 		}
@@ -398,6 +448,11 @@ namespace DogFighter
 				case "other_ships":
 					otherShipPositions = ((DeathMatchAction)action).GetOtherShipPositionReferences(playerNumber);
 					otherShipScreenSpacePositions = new Vector3[otherShipPositions.Length];
+					otherShipDrawIconNormal = new bool[otherShipPositions.Length];
+					shipIconDistanceString = new string[otherShipPositions.Length];
+					shipIconNameString = new string[otherShipPositions.Length];
+					for (int n = 0; n < shipIconNameString.Length; ++n)
+						shipIconNameString[n] = "P" + otherShipPositions[n].shipNumber;
 					break;
 				}
 				break;
@@ -563,6 +618,9 @@ namespace DogFighter
 
             throttleGuiStyle.fontSize = (int)(screenHeight / 720f * 28);
             speedometerGuiStyle.fontSize = (int)(screenHeight / 720f * 72);
+
+			shipIconNameGuiStyle.fontSize = (int)(screenHeight / 720f * 24);
+			shipIconDistanceGuiStyle.fontSize = (int)(screenHeight / 720f * 20);
 
 			crossHairTextureWidth = (int)(hudScreenWidth / 1280f * 16);
 			crossHairTextureHeight = (int)(hudScreenHeight / 720f * 16);
