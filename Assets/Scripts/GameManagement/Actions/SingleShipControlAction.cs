@@ -223,11 +223,16 @@ namespace DogFighter
 //                else { pinch = 25;}
 //                GUI.Box (nyew Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
 //            }
-			float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .66) - (float)(throttleOutput * 30);
+			float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .66) - (float)(throttleOutput * (screenHeight/8));
+			float zeroMarker = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .56);
+			float numEdge = (float)screenWidth * .005f + screenLeftStart;
 
 			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleBackdrop);
 			GUI.DrawTexture	(new Rect (screenLeftStart, (int)markerHeight, screenHorizontalStep, screenVerticalStep/24), throttleMarker);
 			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleOverlay);
+
+			GUI.Label (new Rect (numEdge, zeroMarker, screenHorizontalStep, screenVerticalStep), "0", throttleGuiStyle);
+			GUI.Label (new Rect (numEdge*1.001f, zeroMarker - (screenHeight/8), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
 		}
 		
 		public override void ReceiveMessage(Action action, string message)
@@ -398,7 +403,7 @@ namespace DogFighter
 				break;
 			}
 
-            throttleGuiStyle.fontSize = (int)(screenWidth / 1280f * 12);
+            throttleGuiStyle.fontSize = (int)(screenWidth / 1280f * 28);
             speedometerGuiStyle.fontSize = (int)(screenWidth / 1280f * 72);
 		}
 	}
