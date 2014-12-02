@@ -9,6 +9,7 @@ namespace DogFighter
 
 		private int currentPlayers = 4;
 		private bool[] playerActive;
+		private bool[] playerPlaying;
 		private int[] controllerSetups;
 		private int gameMode;
 		private int gameLengthMinutes;
@@ -16,6 +17,8 @@ namespace DogFighter
 		private int[] invertPitches;
 		private int[] invertYaws;
 		private int[] invertRolls;
+
+		private bool returningFromGame;		
 
 		public static int GetNumberPlayers()
 		{
@@ -52,6 +55,10 @@ namespace DogFighter
 				else
 					instance.playerActive[n] = false;
 
+			instance.playerPlaying = new bool[4];
+			for (int n = 0; n < 4; ++n)
+				instance.playerPlaying[n] = false;
+
 			instance.controllerSetups = new int[4];
 			for (int n = 0; n < 4; ++n)
 				instance.controllerSetups[n] = PlayerPrefs.GetInt("ControllerSetup_P" + (n + 1), 0);
@@ -71,6 +78,8 @@ namespace DogFighter
 			instance.gameMode = 0;
 			instance.gameLengthMinutes = PlayerPrefs.GetInt("GameLengthMinutes", 5);
 			instance.mapId = 0;
+
+			instance.returningFromGame = false;
 		}
 
 		public static bool GetPlayerActive(int playerNumber)
@@ -86,6 +95,21 @@ namespace DogFighter
 				InitializeDataManager();
 
 			instance.playerActive[playerNumber - 1] = active;
+		}
+
+		public static bool GetPlayerPlaying(int playerNumber)
+		{
+			if (null == instance)
+				InitializeDataManager();
+			
+			return instance.playerPlaying[playerNumber - 1];
+		}
+		public static void SetPlayerPlaying(int playerNumber, bool active)
+		{
+			if (null == instance)
+				InitializeDataManager();
+			
+			instance.playerPlaying[playerNumber - 1] = active;
 		}
 
 		public static int GetControllerSetup(int playerNumber)
@@ -199,6 +223,22 @@ namespace DogFighter
 
 			instance.gameLengthMinutes = newLength;
 			PlayerPrefs.SetInt("GameLengthMinutes", newLength);
+		}
+
+		public static bool GetReturningFromGame()
+		{
+			if (null == instance)
+				InitializeDataManager();
+
+			return instance.returningFromGame;
+		}
+
+		public static void SetReturningFromGame(bool newValue)
+		{
+			if (null == instance)
+				InitializeDataManager();
+
+			instance.returningFromGame = newValue;
 		}
 	}
 }

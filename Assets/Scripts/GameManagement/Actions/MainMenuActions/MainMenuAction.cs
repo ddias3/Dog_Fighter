@@ -5,8 +5,6 @@ namespace DogFighter
 {
 	public class MainMenuAction : Action
 	{
-		private int numberPlayers;
-
 		private ControllerMenuInputHandler[] inputHandlers;
 		private MenuCursorDataWrapper[] menuCursors;
 
@@ -18,9 +16,9 @@ namespace DogFighter
 
 		public override void ActionStart()
 		{
-			numberPlayers = DataManager.GetNumberPlayers();
+			bool returningFromGame = DataManager.GetReturningFromGame();
 
-			if (null == inputHandlers && null == menuCursors)
+			if (null == inputHandlers || null == menuCursors)
 			{
 				inputHandlers = InputHandlerHolder.GetMenuInputHandlers();
 				menuCursors = new MenuCursorDataWrapper[4];
@@ -37,6 +35,15 @@ namespace DogFighter
 
 			time = 0f;
 			switchingMenu = false;
+
+			if (returningFromGame)
+			{
+				rotatedDirection = Quaternion.Euler(0, -100, 0) * originalDirection;
+				cameraPivot.rotation = rotatedDirection;
+				FindObjectOfType<JoinMenuAction>().ReceiveMessage(null, "reset_up_controllers");
+				SceneManager.SendMessage(this, "run SetupGameMenuAction");
+				SceneManager.SendMessage(this, "remove from_action_list");
+			}
 
 //			PlayerPrefs.DeleteAll();
 //			PlayerPrefs.Save();

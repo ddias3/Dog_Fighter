@@ -69,6 +69,27 @@ namespace DogFighter
 			return instance.directInputHandlers[index];
 		}
 
+		public static ControllerMenuInputHandler GetMenuInputHandler(int playerNumber)
+		{
+			int index = playerNumber - 1;
+
+			if (null == instance)
+				instance = new InputHandlerHolder();
+			
+			if (null == instance.menuInputHandlers)
+			{
+				instance.menuInputHandlers = new ControllerMenuInputHandler[4];
+				
+				for (int n = 0; n < 4; ++n)
+				{
+					instance.menuInputHandlers[n] = ScriptableObject.CreateInstance<ControllerMenuInputHandler>();
+					instance.menuInputHandlers[n].Initialize(n + 1);
+				}
+			}
+
+			return instance.menuInputHandlers[index];
+		}
+
 		public static bool GetInvertAxis(string axisName, int playerNumber)
 		{
 			int index = playerNumber - 1;

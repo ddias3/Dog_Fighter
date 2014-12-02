@@ -5,7 +5,7 @@ namespace DogFighter
 {
 	public class SelectNumberMenuAction : Action, IReceiveControllerMenuInputHandler
 	{
-		private int numberPlayers;
+//		private int numberPlayers;
 		
 		private ControllerMenuInputHandler[] inputHandlers;
 		private MenuCursorDataWrapper[] menuCursors;
@@ -21,7 +21,7 @@ namespace DogFighter
 		
 		public override void ActionStart()
 		{
-			numberPlayers = DataManager.GetNumberPlayers();
+//			numberPlayers = DataManager.GetNumberPlayers();
 
 			if (null == inputHandlers && null == menuCursors)
 			{

@@ -5,8 +5,6 @@ namespace DogFighter
 {
 	public class JoinMenuAction : Action
 	{
-		private int numberPlayers;
-		
 		private ControllerMenuInputHandler[] inputHandlers;
 		private JoinCursorDataWrapper[] menuCursors;
 		
@@ -16,13 +14,9 @@ namespace DogFighter
 		public Quaternion originalDirection;
 		public Quaternion forwardRotatedDirection;
 		public Quaternion backwardRotatedDirection;
-		
-		private int playersPlaying;
-		
+
 		public override void ActionStart()
 		{
-			numberPlayers = DataManager.GetNumberPlayers();
-			
 			if (null == inputHandlers && null == menuCursors)
 			{
 				inputHandlers = InputHandlerHolder.GetMenuInputHandlers();
@@ -41,8 +35,6 @@ namespace DogFighter
 			originalDirection = cameraPivot.rotation;
 			forwardRotatedDirection = Quaternion.Euler(0, -135, 0) * originalDirection;
 			backwardRotatedDirection = Quaternion.Euler(0, -35, 0) * originalDirection;
-			
-			playersPlaying = DataManager.GetNumberPlayers();
 			
 			time = 0f;
 			switchingMenu = 0;
@@ -222,11 +214,17 @@ namespace DogFighter
 							for (int m = 0; m < menuCursors.Length; ++m)
 							{
 								if (menuCursors[m].localState == JoinStates.READY)
+								{
 									++activePlayers;
+									DataManager.SetPlayerPlaying(m + 1, true);
+								}
 								if (menuCursors[m].localState == JoinStates.JOINED)
 									everyoneReady = false;
 								if (menuCursors[m].localState == JoinStates.NOT_JOINED)
+								{
 									DataManager.SetPlayerActive(m + 1, false);
+									DataManager.SetPlayerPlaying(m + 1, false);
+								}
 							}
 
 							if (everyoneReady && activePlayers >= 1)//2)
@@ -367,7 +365,17 @@ namespace DogFighter
 		
 		public override void ReceiveMessage(Action action, string message)
 		{
-			
+			string[] messageTokens = message.Split(' ');
+
+			switch (messageTokens[0])
+			{
+			case "reset_up_controllers":
+				ActionStart();
+				for (int n = 0; n < 4; ++n)
+					if (DataManager.GetPlayerPlaying(n + 1))
+						menuCursors[n].localState = JoinStates.READY;
+				break;
+			}
 		}
 		
 		public void PassControllerMenuInputHandlers(ControllerMenuInputHandler[] inputHandlers)

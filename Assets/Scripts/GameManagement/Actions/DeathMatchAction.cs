@@ -41,6 +41,7 @@ namespace DogFighter
 		private ScoreboardDisplayDataWrapper[] scoreboardDisplayDataWrappers;
 
 		private ControllerMenuInputHandler[] inputHandlers;
+		private int[] controllerMap;
 
 		public override void ActionStart()
 		{
@@ -48,7 +49,21 @@ namespace DogFighter
 
 //			DataManager.SetNumberPlayers(4);
 
-			numberPlayers = DataManager.GetNumberPlayers();
+			numberPlayers = 0;
+			inputHandlers = new ControllerMenuInputHandler[4];
+			controllerMap = new int[4];
+			for (int n = 0; n < 4; ++n)
+			{
+				if (DataManager.GetPlayerPlaying(n + 1))
+				{
+					inputHandlers[numberPlayers] = InputHandlerHolder.GetMenuInputHandler(n + 1);
+					controllerMap[numberPlayers] = n + 1;
+					++numberPlayers;
+				}
+			}
+
+			DataManager.SetNumberPlayers(numberPlayers);
+
 			if (numberPlayers == 3)
 			{
 				extraCamera.enabled = true;
@@ -219,6 +234,7 @@ namespace DogFighter
 					{
 						if (inputHandlers[n].GetButtonDown("Confirm_Button"))
 						{
+							DataManager.SetReturningFromGame(true);
 							Application.LoadLevel("MenuScene");
 						}
 					}
@@ -427,6 +443,9 @@ namespace DogFighter
 						((SingleShipControlAction)action).PlayerNumber = 4;
 						break;
 					}
+					break;
+				case "controller_number":
+					((SingleShipControlAction)action).ControllerNumber = controllerMap[((SingleShipControlAction)action).PlayerNumber - 1];
 					break;
 				}
 				break;

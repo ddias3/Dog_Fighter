@@ -17,6 +17,7 @@ namespace DogFighter
 		private PlayerShip playerShip;
 
 		private int playerNumber = 1;
+		private int controllerNumber = 1;
 
 //        private float barHeight = 80;
 //        private float barWidth = 10;
@@ -45,6 +46,7 @@ namespace DogFighter
 		public override void ActionStart()
 		{
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get player_number");
+			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get controller_number");
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
 
             SpawnShip();
@@ -53,7 +55,7 @@ namespace DogFighter
 			                                  playerCamera.transform.localPosition.y,
 			                                  playerCamera.transform.localPosition.z);
 
-			inputHandler = InputHandlerHolder.GetDirectInputHandler(playerNumber);
+			inputHandler = InputHandlerHolder.GetDirectInputHandler(controllerNumber);
 			inputMap = new ListDictionary();
 			switch (DataManager.GetControllerSetup(playerNumber))
 			{
@@ -324,6 +326,12 @@ namespace DogFighter
 		{
 			get { return playerNumber; }
 			set { playerNumber = value; }
+		}
+
+		public int ControllerNumber
+		{
+			get { return controllerNumber; }
+			set { controllerNumber = value; }
 		}
 
 		public void PassSpawnPoint(Vector3 location, Quaternion direction)
