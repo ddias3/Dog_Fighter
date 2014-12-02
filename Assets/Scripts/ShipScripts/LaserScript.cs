@@ -27,13 +27,13 @@ namespace DogFighter
 		}
 		
 		void Update(){
+			ownTime += Time.deltaTime;
 			if(ownTime-lastFired>timeVisible){
 				laser.enabled = false;
 			}
 		}
 		
 		void FixedUpdate(){
-			ownTime += Time.deltaTime;
 			charge += chargeRate/10f;
 		}
 
