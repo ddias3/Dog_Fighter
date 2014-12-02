@@ -4,24 +4,21 @@ using System.Collections;
 namespace DogFighter
 {
 	public class MissileScript : MonoBehaviour {
-
-		public float coolDown=5f;
-		public GameObject missile;
-		private float lastFired;
 		
-		void Start () {
-			lastFired = -999f;
-		}
+		private GameObject target;
 		
-		float Fire() {
-			if(Time.time-lastFired<coolDown){
-				lastFired = Time.time;
-				//also actually fire
-				return lastFired;
-			}
-			else{
-				return -1f;
+		void Update () {
+			if(target != null){
+				Vector3 heading = target.transform.position - transform.position;
+				Vector3 direction = heading / heading.magnitude;
+				Vector3 currDir = transform.TransformDirection(new Vector3(0,0,1));
+				transform.rotation = Quaternion.LookRotation(Vector3.Slerp(currDir,direction,.5f));
 			}
 		}
+		
+		public void SetTarget(GameObject newTarget){
+			target = newTarget;
+		}
+		
 	}
 }

@@ -23,7 +23,6 @@ namespace DogFighter
 		public float Fire(Transform t, Vector3 v) {
 			if(ownTime-lastFired>coolDown){
 				lastFired = ownTime;
-				//also actually fire
 				Vector3 flareLeft = new Vector3(-2,0,-2);
 				flareLeft = t.rotation * flareLeft;
 				flareLeft += t.position;
@@ -36,11 +35,8 @@ namespace DogFighter
 				fLeft.rigidbody.AddForce(t.rotation*new Vector3(-1,0,-2)*50);
 				fRight.rigidbody.velocity = v;
 				fRight.rigidbody.AddForce(t.rotation*new Vector3(1,0,-2)*50);
-				return lastFired;
 			}
-			else{
-				return -1f;
-			}
+			return lastFired;
 		}
 	}
 }

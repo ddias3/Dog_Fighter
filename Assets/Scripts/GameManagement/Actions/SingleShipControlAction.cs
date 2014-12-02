@@ -48,6 +48,8 @@ namespace DogFighter
         public GUIStyle speedometerGuiStyle;
 
 		public FlareScript flares;
+		public MissileFireScript missiles;
+		public LaserScript lasers;
 
 		private PlayerShipPosition[] otherShipPositions;
 		private Vector3[] otherShipScreenSpacePositions;
@@ -265,6 +267,13 @@ namespace DogFighter
 			for (int n = 0; n < otherShipPositions.Length; ++n)
 			{
 				otherShipScreenSpacePositions[n] = playerCamera.WorldToScreenPoint(otherShipPositions[n].position);
+			}
+
+			if (inputHandler.GetButtonDown ("Right_Bumper")) {
+				missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
+			}
+			if (inputHandler.GetAxis("Right_Trigger") > 0.5f) {
+				lasers.Fire(playerShip.transform);
 			}
 		}
 		
