@@ -5,10 +5,10 @@ namespace DogFighter
 {
 	public class LaserScript : MonoBehaviour {
 
-		public float coolDown = .5f;
+		public float coolDown = .75f;
 		public float timeVisible = .5f;
-		public float shotCost = 10f;
-		public float chargeRate = 5f;
+		public float shotCost = 30f;
+		public float chargeRate = 4f;
 		public LineRenderer laser;
 		private float lastFired;
 		private float ownTime;
@@ -34,12 +34,17 @@ namespace DogFighter
 		}
 		
 		void FixedUpdate(){
-			charge += chargeRate/10f;
+			if(charge<100f){
+				charge += chargeRate/10f;
+			}
 		}
 
 		public float Fire(Transform t) {
 			if (ownTime - lastFired > coolDown && charge >= shotCost)
 			{
+				Vector3 fireFrom = new Vector3(0,-1,5);
+				fireFrom = t.rotation * fireFrom;
+				fireFrom += t.position;
 				Vector3 fireAt;
 				if (target != null)
 				{
@@ -50,11 +55,15 @@ namespace DogFighter
 					fireAt = new Vector3(0, 0, 1000);
 					fireAt = t.rotation * fireAt;
 					fireAt += t.position;
+					RaycastHit hit = new RaycastHit();
+					if(Physics.Raycast(fireFrom,fireAt-fireFrom,out hit)){
+						fireAt = hit.point;
+					}
 				}
 				lastFired = ownTime;
 				charge -= shotCost;
-				laser.SetPosition(1, t.position);
-				//laser.SetPosition(1, fireAt);
+				laser.SetPosition(0,fireFrom);
+				laser.SetPosition(1,fireAt);
 				laser.enabled = true;
 			}
 			return charge;
