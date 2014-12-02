@@ -104,6 +104,12 @@ namespace DogFighter
 			if (Input.GetKeyDown(KeyCode.Alpha0))
 				controller = false;
 
+			if (inputHandler.GetButtonDown("Back_Button"))
+				SceneManager.SendMessageToAction(this, "DeathMatchAction", "show_scoreboard " + playerNumber);
+
+			if (inputHandler.GetButtonUp("Back_Button"))
+				SceneManager.SendMessageToAction(this, "DeathMatchAction", "hide_scoreboard " + playerNumber);
+
 			if (controlsEnabled)
 			{
 				float pitch;
