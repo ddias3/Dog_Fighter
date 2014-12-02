@@ -4,6 +4,7 @@ using System.Collections;
 public class MissileScript : MonoBehaviour {
 
 	public float coolDown=5f;
+	public GameObject missile;
 	private float lastFired;
 	
 	void Start () {

@@ -38,6 +38,8 @@ namespace DogFighter
         public GUIStyle throttleGuiStyle;
         public GUIStyle speedometerGuiStyle;
 
+		public FlareScript flares;
+
 		public override void ActionStart()
 		{
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get player_number");
@@ -207,6 +209,9 @@ namespace DogFighter
 
 			if (inputHandler.GetButtonUp("Back_Button"))
 				SceneManager.SendMessageToAction(this, "DeathMatchAction", "hide_scoreboard " + playerNumber);
+			if (inputHandler.GetButtonDown ("Left_Bumper")) {
+				flares.Fire(playerShip.transform);
+			}
 		}
 		
 		public override void ActionFixedUpdate()
