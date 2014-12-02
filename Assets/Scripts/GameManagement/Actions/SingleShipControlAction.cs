@@ -7,6 +7,10 @@ namespace DogFighter
 	{
 		public GameObject shipPrefab;
 
+		public Texture2D throttleOverlay;
+		public Texture2D throttleMarker;
+		public Texture2D throttleBackdrop;
+
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
 
@@ -217,8 +221,13 @@ namespace DogFighter
 //                else if (i > 7) { pinch -= 5; }
 //                else if (i == 0) { pinch = 0; }
 //                else { pinch = 25;}
-//                GUI.Box (new Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
-//            }	
+//                GUI.Box (nyew Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
+//            }
+			float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .66) - (float)(throttleOutput * 30);
+
+			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleBackdrop);
+			GUI.DrawTexture	(new Rect (screenLeftStart, (int)markerHeight, screenHorizontalStep, screenVerticalStep/24), throttleMarker);
+			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleOverlay);
 		}
 		
 		public override void ReceiveMessage(Action action, string message)
@@ -309,14 +318,14 @@ namespace DogFighter
 				screenHeight = Screen.height;
 				screenLeftStart = 0;
 				screenTopStart = 0;
-				screenHorizontalStep = Screen.width / 32;
-				screenVerticalStep = Screen.height / 24;
+				screenHorizontalStep = Screen.width / 28;
+				screenVerticalStep = Screen.height / 16;
 				break;
 			case 2:
 				screenWidth = Screen.width;
 				screenHeight = Screen.height / 2;
-				screenHorizontalStep = Screen.width / 32;
-				screenVerticalStep = Screen.height / 16;
+				screenHorizontalStep = Screen.width / 28;
+				screenVerticalStep = Screen.height / 8;
 				screenLeftStart = 0;
 				switch (playerNumber)
 				{
@@ -337,8 +346,8 @@ namespace DogFighter
 			case 3:
 				screenWidth = Screen.width / 2;
 				screenHeight = Screen.height / 2;
-				screenHorizontalStep = Screen.width / 24;
-				screenVerticalStep = Screen.height / 16;
+				screenHorizontalStep = Screen.width / 20;
+				screenVerticalStep = Screen.height / 8;
 				switch (playerNumber)
 				{
 				case 1:
@@ -361,8 +370,8 @@ namespace DogFighter
 			case 4:
 				screenWidth = Screen.width / 2;
 				screenHeight = Screen.height / 2;
-				screenHorizontalStep = Screen.width / 24;
-				screenVerticalStep = Screen.height / 16;
+				screenHorizontalStep = Screen.width / 20;
+				screenVerticalStep = Screen.height / 8;
 				switch (playerNumber)
 				{
 				case 1:

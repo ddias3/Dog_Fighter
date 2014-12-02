@@ -4,6 +4,7 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - shipPrefab: {instanceID: 0}
+  - throttleOverlay: {instanceID: 0}
   - image: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
