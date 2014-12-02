@@ -21,7 +21,7 @@ namespace DogFighter
 //        private float barSpace = 9;
 //        private float pinch = 0;
 
-        public Texture image;
+//        public Texture image;
 
 		public AnimationCurve throttleAdjustCurve;
 
@@ -42,10 +42,9 @@ namespace DogFighter
 		{
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get player_number");
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
-			shipGameObject = Instantiate(shipPrefab, spawnLocation, spawnDirection) as GameObject;
-			playerShip = shipGameObject.GetComponent<PlayerShip>();
-            playerShip.PassControllingActionName(Name);
-			playerCamera = playerShip.GetComponentInChildren<Camera>();
+
+            SpawnShip();
+			
 			localCameraPosition = new Vector3(playerCamera.transform.localPosition.x,
 			                                  playerCamera.transform.localPosition.y,
 			                                  playerCamera.transform.localPosition.z);
@@ -85,10 +84,18 @@ namespace DogFighter
 
 			invertPitchScalar = (DataManager.GetInvertPitch(playerNumber) > 0) ? -1 : 1;
 			invertYawScalar = (DataManager.GetInvertYaw(playerNumber) > 0) ? -1 : 1;
-			invertRollScalar = (DataManager.GetInvertRoll(playerNumber) > 0) ? -1 : 1;
-
-			SetupScreenValues(DataManager.GetNumberPlayers());
+			invertRollScalar = (DataManager.GetInvertRoll(playerNumber) > 0) ? -1 : 1;           
 		}
+
+        private void SpawnShip()
+        {
+            shipGameObject = Instantiate(shipPrefab, spawnLocation, spawnDirection) as GameObject;
+            playerShip = shipGameObject.GetComponent<PlayerShip>();
+            playerShip.PassControllingActionName(Name);
+            playerCamera = playerShip.GetComponentInChildren<Camera>();
+
+            SetupScreenValues(DataManager.GetNumberPlayers());
+        }
 
 		private float throttleOutput = 0f;
 		private float throttlePrecise = 0f;
@@ -115,6 +122,7 @@ namespace DogFighter
         private Vector3 collisionDistancedPoint;
 
         public GameObject explosionPrefab;
+        public GameObject explosionGameObject;
 
 		public override void ActionUpdate()
 		{
@@ -130,6 +138,13 @@ namespace DogFighter
                 {
                     deathAnimation = false;
                     DestroyObject(playerCamera.gameObject);
+                    DestroyObject(explosionGameObject);
+
+                    throttleOutput = 0f;
+
+                    SpawnShip();
+
+                    deathAnimation = false;
                 }
 
                 deathTime += Time.deltaTime;
@@ -297,9 +312,10 @@ namespace DogFighter
             deathTime = 0f;
             deathAnimation = true;
             collisionPoint = playerShip.GetCollisionPoint();
-            collisionDistancedPoint = playerShip.GetCollisionNormal().normalized * 75f + collisionPoint;
+            collisionDistancedPoint = playerShip.GetCollisionNormal() * 75f + collisionPoint;
 
             DestroyObject(playerShip.gameObject);
+            explosionGameObject = Instantiate(explosionPrefab, collisionPoint, Quaternion.Euler(playerShip.GetCollisionNormal())) as GameObject;
         }
 
 		private int screenWidth;
