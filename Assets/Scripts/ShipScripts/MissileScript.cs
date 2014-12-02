@@ -7,6 +7,10 @@ namespace DogFighter
 		
 		private GameObject target;
 		
+		void Start() {
+			rigidbody.velocity = transform.rotation * new Vector3(0,0,500);
+		}
+		
 		void Update () {
 			if(target != null){
 				Vector3 heading = target.transform.position - transform.position;
@@ -18,6 +22,10 @@ namespace DogFighter
 		
 		public void SetTarget(GameObject newTarget){
 			target = newTarget;
+		}
+		
+		void OnCollisionEnter(Collision collision) {
+			Destroy(this.gameObject);
 		}
 		
 	}

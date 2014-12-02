@@ -373,10 +373,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c533fc4e5ed51c4d915dfc21198a1b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coolDown: .5
+  coolDown: .75
   timeVisible: .5
-  shotCost: 10
-  chargeRate: 5
+  shotCost: 30
+  chargeRate: 4
   laser: {fileID: 12000000}
 --- !u!120 &12000000
 LineRenderer:
