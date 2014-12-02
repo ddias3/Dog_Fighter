@@ -225,7 +225,8 @@ namespace DogFighter
 			if (inputHandler.GetButtonUp("Back_Button"))
 				SceneManager.SendMessageToAction(this, "DeathMatchAction", "hide_scoreboard " + playerNumber);
 			if (inputHandler.GetButtonDown ("Left_Bumper")) {
-				flares.Fire(playerShip.transform);
+				Debug.Log("Left Bumper pressed");
+				flares.Fire(playerShip.transform, playerShip.rigidbody.velocity);
 			}
 		}
 		

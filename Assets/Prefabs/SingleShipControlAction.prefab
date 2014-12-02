@@ -9,6 +9,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 400000}
   - 114: {fileID: 11400000}
+  - 114: {fileID: 11400002}
   m_Layer: 0
   m_Name: SingleShipControlAction
   m_TagString: Action
@@ -27,7 +28,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -186,6 +186,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
+  flares: {fileID: 11400002}
   zoomDistance:
     serializedVersion: 2
     m_Curve:
@@ -203,6 +204,19 @@ MonoBehaviour:
     m_PostInfinity: 2
   explosionPrefab: {fileID: 100002, guid: 75e639c9941ff1444afde688c16f81ab, type: 2}
   explosionGameObject: {fileID: 0}
+--- !u!114 &11400002
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fc76804301c52d49aea015f236fce90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coolDown: 7
+  flare: {fileID: 100002, guid: 886b6f4c2574465429df9edcc63a8e9b, type: 2}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
