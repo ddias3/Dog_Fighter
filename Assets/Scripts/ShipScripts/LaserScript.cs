@@ -42,6 +42,9 @@ namespace DogFighter
 		public float Fire(Transform t) {
 			if (ownTime - lastFired > coolDown && charge >= shotCost)
 			{
+				Vector3 fireFrom = new Vector3(0,-1,5);
+				fireFrom = t.rotation * fireFrom;
+				fireFrom += t.position;
 				Vector3 fireAt;
 				if (target != null)
 				{
@@ -52,11 +55,15 @@ namespace DogFighter
 					fireAt = new Vector3(0, 0, 1000);
 					fireAt = t.rotation * fireAt;
 					fireAt += t.position;
+					RaycastHit hit = new RaycastHit();
+					if(Physics.Raycast(fireFrom,fireAt-fireFrom,out hit)){
+						fireAt = hit.point;
+					}
 				}
 				lastFired = ownTime;
 				charge -= shotCost;
-				laser.SetPosition(1, t.position);
-				//laser.SetPosition(1, fireAt);
+				laser.SetPosition(0,fireFrom);
+				laser.SetPosition(1,fireAt);
 				laser.enabled = true;
 			}
 			return charge;
