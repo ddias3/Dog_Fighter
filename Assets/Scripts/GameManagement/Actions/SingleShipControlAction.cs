@@ -13,6 +13,10 @@ namespace DogFighter
 
 		public Texture2D speedometerTexture;
 
+		public Texture2D crossHairTexture;
+		public Texture2D laserLockOnCircleTexture;
+		public Texture2D missileLockOnCircleTexture;
+
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
 
@@ -50,7 +54,9 @@ namespace DogFighter
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
 
             SpawnShip();
-			
+
+			displayGUI = false;
+
 			localCameraPosition = new Vector3(playerCamera.transform.localPosition.x,
 			                                  playerCamera.transform.localPosition.y,
 			                                  playerCamera.transform.localPosition.z);
@@ -132,6 +138,8 @@ namespace DogFighter
         public GameObject explosionPrefab;
         public GameObject explosionGameObject;
 
+		private bool displayGUI;
+
 		public override void ActionUpdate()
 		{
 			if (Input.GetKeyDown(KeyCode.Alpha0))
@@ -151,6 +159,9 @@ namespace DogFighter
                     throttleOutput = throttlePrecise = 0f;
 
                     SpawnShip();
+
+					if (controlsEnabled)
+						displayGUI = true;
 
                     deathAnimation = false;
                 }
@@ -226,10 +237,18 @@ namespace DogFighter
             }
 
 			if (inputHandler.GetButtonDown("Back_Button"))
+			{
 				SceneManager.SendMessageToAction(this, "DeathMatchAction", "show_scoreboard " + playerNumber);
+				if (controlsEnabled && !deathAnimation)
+					displayGUI = false;
+			}
 
 			if (inputHandler.GetButtonUp("Back_Button"))
+			{
 				SceneManager.SendMessageToAction(this, "DeathMatchAction", "hide_scoreboard " + playerNumber);
+				if (controlsEnabled && !deathAnimation)
+					displayGUI = true;
+			}
 			if (inputHandler.GetButtonDown ("Left_Bumper")) {
 				flares.Fire(playerShip.transform, playerShip.rigidbody.velocity);
 			}
@@ -249,29 +268,49 @@ namespace DogFighter
 //                else { pinch = 25;}
 //                GUI.Box (nyew Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
 //            }
-			float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * 0.66f) - (float)(throttleOutput * (screenHeight/8));
-			float zeroMarker = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * 0.56f);
-			float numEdge = (float)screenWidth * 0.005f + screenLeftStart;
 
-			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleBackdrop);
-			GUI.DrawTexture	(new Rect (screenLeftStart, (int)markerHeight, screenHorizontalStep, screenVerticalStep/24), throttleMarker);
-			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleOverlay);
+			if (displayGUI)
+			{
+				float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * 0.66f) - (float)(throttleOutput * (screenHeight / 8));
+				float zeroMarker = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * 0.56f);
+				float numEdge = (float)screenWidth * 0.005f + screenLeftStart;
 
-			GUI.Label (new Rect (numEdge, zeroMarker, screenHorizontalStep, screenVerticalStep), "0", throttleGuiStyle);
-			GUI.Label (new Rect (numEdge*1.001f, zeroMarker - (screenHeight/8), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
+				GUI.DrawTexture(new Rect(screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleBackdrop);
+				GUI.DrawTexture(new Rect(screenLeftStart, (int)markerHeight, screenHorizontalStep, screenVerticalStep / 24), throttleMarker);
+				GUI.DrawTexture(new Rect(screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleOverlay);
 
-			GUI.DrawTexture(new Rect(screenLeftStart + screenWidth - screenWidth / 8,
-			                         screenTopStart + screenHeight - screenHeight / 8,
-			                         screenWidth / 8,
-			                         screenHeight / 8),
-			                speedometerTexture, ScaleMode.StretchToFill);
-			GUI.Label(new Rect(screenLeftStart + screenWidth - screenWidth / 8,
-			                   screenTopStart + screenHeight - screenHeight / 8,
-			                   screenWidth / 9,
-			                   screenHeight / 8),
-			          Mathf.RoundToInt(playerShip.Speed).ToString(), speedometerGuiStyle);
+				GUI.Label(new Rect(numEdge, zeroMarker, screenHorizontalStep, screenVerticalStep), "0", throttleGuiStyle);
+				GUI.Label(new Rect(numEdge * 1.001f, zeroMarker - (screenHeight / 8), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
 
+				GUI.DrawTexture(new Rect(screenLeftStart + screenWidth - screenWidth / 8,
+				                         screenTopStart + screenHeight - screenHeight / 8,
+				                         screenWidth / 8,
+				                         screenHeight / 8),
+				                speedometerTexture, ScaleMode.StretchToFill);
+				GUI.Label(new Rect(screenLeftStart + screenWidth - screenWidth / 8,
+				                   screenTopStart + screenHeight - screenHeight / 8,
+				                   screenWidth / 9,
+				                   screenHeight / 8),
+				          Mathf.RoundToInt(playerShip.Speed).ToString(), speedometerGuiStyle);
 
+				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - crossHairTextureWidth / 2,
+				                         screenTopStart + hudScreenHeight / 2 - crossHairTextureHeight / 2,
+				                         crossHairTextureWidth,
+				                         crossHairTextureHeight),
+				                crossHairTexture, ScaleMode.StretchToFill);
+
+				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - laserLockOnTextureWidth / 2,
+				                         screenTopStart + hudScreenHeight / 2 - laserLockOnTextureHeight / 2,
+				                         laserLockOnTextureWidth,
+				                         laserLockOnTextureHeight),
+				                laserLockOnCircleTexture, ScaleMode.StretchToFill);
+
+				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - missileLockOnTextureWidth / 2,
+				                         screenTopStart + hudScreenHeight / 2 - missileLockOnTextureHeight / 2,
+				                         missileLockOnTextureWidth,
+				                         missileLockOnTextureHeight),
+				                missileLockOnCircleTexture, ScaleMode.StretchToFill);
+			}
 		}
 		
 		public override void ReceiveMessage(Action action, string message)
@@ -289,9 +328,11 @@ namespace DogFighter
 				}
 				break;
 			case "enable_controls":
+				displayGUI = true;
 				controlsEnabled = true;
 				break;
 			case "disable_controls":
+				displayGUI = false;
 				controlsEnabled = false;
 				playerShip.Throttle = throttleOutput = 0;
 				playerShip.Pitch = 0;
@@ -346,6 +387,7 @@ namespace DogFighter
             playerCamera.transform.parent = null;
             deathTime = 0f;
             deathAnimation = true;
+			displayGUI = false;
             collisionPoint = playerShip.GetCollisionPoint();
             collisionDistancedPoint = playerShip.GetCollisionNormal() * 75f + collisionPoint;
 
@@ -360,24 +402,38 @@ namespace DogFighter
 		private int screenHorizontalStep;
 		private int screenVerticalStep;
 
+		private int screenWidthInternalOffset;
+		private int hudScreenWidth;
+		private int hudScreenHeight;
+		private int crossHairTextureWidth;
+		private int crossHairTextureHeight;
+		private int laserLockOnTextureWidth;
+		private int laserLockOnTextureHeight;
+		private int missileLockOnTextureWidth;
+		private int missileLockOnTextureHeight;
+
 		private void SetupScreenValues(int numberPlayers)
 		{
 			switch (numberPlayers)
 			{
 			case 1:
-				screenWidth = Screen.width;
-				screenHeight = Screen.height;
+				screenWidth = hudScreenWidth = Screen.width;
+				screenHeight = hudScreenHeight = Screen.height;
 				screenLeftStart = 0;
 				screenTopStart = 0;
 				screenHorizontalStep = Screen.width / 28;
 				screenVerticalStep = Screen.height / 16;
+				screenWidthInternalOffset = 0;
 				break;
 			case 2:
 				screenWidth = Screen.width;
 				screenHeight = Screen.height / 2;
+				hudScreenWidth = screenWidth / 2;
+				hudScreenHeight = screenHeight;
 				screenHorizontalStep = Screen.width / 28;
 				screenVerticalStep = Screen.height / 8;
 				screenLeftStart = 0;
+				screenWidthInternalOffset = Screen.width / 4;
 				switch (playerNumber)
 				{
 				case 1:
@@ -395,10 +451,11 @@ namespace DogFighter
 				}
 				break;
 			case 3:
-				screenWidth = Screen.width / 2;
-				screenHeight = Screen.height / 2;
+				screenWidth = hudScreenWidth = Screen.width / 2;
+				screenHeight = hudScreenHeight = Screen.height / 2;
 				screenHorizontalStep = Screen.width / 20;
 				screenVerticalStep = Screen.height / 8;
+				screenWidthInternalOffset = 0;
 				switch (playerNumber)
 				{
 				case 1:
@@ -419,10 +476,11 @@ namespace DogFighter
 				}
 				break;
 			case 4:
-				screenWidth = Screen.width / 2;
-				screenHeight = Screen.height / 2;
+				screenWidth = hudScreenWidth = Screen.width / 2;
+				screenHeight = hudScreenHeight = Screen.height / 2;
 				screenHorizontalStep = Screen.width / 20;
 				screenVerticalStep = Screen.height / 8;
+				screenWidthInternalOffset = 0;
 				switch (playerNumber)
 				{
 				case 1:
@@ -449,8 +507,17 @@ namespace DogFighter
 				break;
 			}
 
-            throttleGuiStyle.fontSize = (int)(screenWidth / 1280f * 28);
+            throttleGuiStyle.fontSize = (int)(screenHeight / 720f * 28);
             speedometerGuiStyle.fontSize = (int)(screenHeight / 720f * 72);
+
+			crossHairTextureWidth = (int)(hudScreenWidth / 1280f * 16);
+			crossHairTextureHeight = (int)(hudScreenHeight / 720f * 16);
+
+			laserLockOnTextureWidth = (int)(hudScreenWidth / 1280f * 128);
+			laserLockOnTextureHeight = (int)(hudScreenHeight / 720f * 128);
+
+			missileLockOnTextureWidth = (int)(hudScreenWidth / 1280f * 256);
+			missileLockOnTextureHeight = (int)(hudScreenHeight / 720f * 256);
 		}
 	}
 }

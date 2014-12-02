@@ -57,7 +57,10 @@ namespace DogFighter
 
 			instance.playerPlaying = new bool[4];
 			for (int n = 0; n < 4; ++n)
-				instance.playerPlaying[n] = false;
+				if (n == 0)
+					instance.playerPlaying[n] = true;
+				else
+					instance.playerPlaying[n] = false;
 
 			instance.controllerSetups = new int[4];
 			for (int n = 0; n < 4; ++n)
