@@ -57,7 +57,7 @@ namespace DogFighter
 				lTriggers[0] = Input.GetAxisRaw("Left_Trigger_P1");
 				lTriggers[1] = Input.GetAxisRaw("Left_Trigger_P2");
 				lTriggers[2] = Input.GetAxisRaw("Left_Trigger_P3");
-				lTriggers[3] = Input.GetAxisRaw("Left_Trigger_P3");
+				lTriggers[3] = Input.GetAxisRaw("Left_Trigger_P4");
 				
 				rTriggers[0] = Input.GetAxisRaw("Right_Trigger_P1");
 				rTriggers[1] = Input.GetAxisRaw("Right_Trigger_P2");

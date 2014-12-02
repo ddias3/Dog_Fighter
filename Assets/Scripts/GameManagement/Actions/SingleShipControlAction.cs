@@ -11,6 +11,8 @@ namespace DogFighter
 		public Texture2D throttleMarker;
 		public Texture2D throttleBackdrop;
 
+		public Texture2D speedometerTexture;
+
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
 
@@ -144,7 +146,7 @@ namespace DogFighter
                     DestroyObject(playerCamera.gameObject);
                     DestroyObject(explosionGameObject);
 
-                    throttleOutput = 0f;
+                    throttleOutput = throttlePrecise = 0f;
 
                     SpawnShip();
 
@@ -227,7 +229,6 @@ namespace DogFighter
 			if (inputHandler.GetButtonUp("Back_Button"))
 				SceneManager.SendMessageToAction(this, "DeathMatchAction", "hide_scoreboard " + playerNumber);
 			if (inputHandler.GetButtonDown ("Left_Bumper")) {
-				Debug.Log("Left Bumper pressed");
 				flares.Fire(playerShip.transform, playerShip.rigidbody.velocity);
 			}
 		}
@@ -246,9 +247,9 @@ namespace DogFighter
 //                else { pinch = 25;}
 //                GUI.Box (nyew Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
 //            }
-			float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .66) - (float)(throttleOutput * (screenHeight/8));
-			float zeroMarker = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .56);
-			float numEdge = (float)screenWidth * .005f + screenLeftStart;
+			float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * 0.66f) - (float)(throttleOutput * (screenHeight/8));
+			float zeroMarker = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * 0.56f);
+			float numEdge = (float)screenWidth * 0.005f + screenLeftStart;
 
 			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleBackdrop);
 			GUI.DrawTexture	(new Rect (screenLeftStart, (int)markerHeight, screenHorizontalStep, screenVerticalStep/24), throttleMarker);
@@ -256,6 +257,19 @@ namespace DogFighter
 
 			GUI.Label (new Rect (numEdge, zeroMarker, screenHorizontalStep, screenVerticalStep), "0", throttleGuiStyle);
 			GUI.Label (new Rect (numEdge*1.001f, zeroMarker - (screenHeight/8), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
+
+			GUI.DrawTexture(new Rect(screenLeftStart + screenWidth - screenWidth / 8,
+			                         screenTopStart + screenHeight - screenHeight / 8,
+			                         screenWidth / 8,
+			                         screenHeight / 8),
+			                speedometerTexture, ScaleMode.StretchToFill);
+			GUI.Label(new Rect(screenLeftStart + screenWidth - screenWidth / 8,
+			                   screenTopStart + screenHeight - screenHeight / 8,
+			                   screenWidth / 9,
+			                   screenHeight / 8),
+			          Mathf.RoundToInt(playerShip.Speed).ToString(), speedometerGuiStyle);
+
+
 		}
 		
 		public override void ReceiveMessage(Action action, string message)
@@ -428,7 +442,7 @@ namespace DogFighter
 			}
 
             throttleGuiStyle.fontSize = (int)(screenWidth / 1280f * 28);
-            speedometerGuiStyle.fontSize = (int)(screenWidth / 1280f * 72);
+            speedometerGuiStyle.fontSize = (int)(screenHeight / 720f * 72);
 		}
 	}
 }
