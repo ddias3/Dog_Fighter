@@ -24,7 +24,7 @@ namespace DogFighter
 		public float Fire(Transform t, Vector3 v) {
 			if(ownTime-lastFired>coolDown){
 				lastFired = ownTime;
-				Vector3 missileLoc = new Vector3(0,-1,1);
+				Vector3 missileLoc = new Vector3(0,-2,1);
 				missileLoc = t.rotation * missileLoc;
 				missileLoc += t.position;
 				GameObject missileFired = Instantiate(missile,missileLoc,t.rotation) as GameObject;

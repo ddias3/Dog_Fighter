@@ -21,12 +21,13 @@ namespace DogFighter
 			ownTime = 0f;
 			charge = 100f;
 			laser.enabled = false;
-			laser.SetVertexCount(1);
+			laser.SetVertexCount(2);
 			laser.SetWidth(.5f,.5f);
 			laser.SetColors(new Color(0f,1f,0f,.75f),new Color(0f,1f,0f,.75f));
 		}
 		
 		void Update(){
+			ownTime += Time.deltaTime;
 			if(ownTime-lastFired>timeVisible){
 				laser.enabled = false;
 			}
@@ -52,8 +53,8 @@ namespace DogFighter
 				}
 				lastFired = ownTime;
 				charge -= shotCost;
-				laser.SetPosition(0, t.position);
-				laser.SetPosition(1, fireAt);
+				laser.SetPosition(1, t.position);
+				//laser.SetPosition(1, fireAt);
 				laser.enabled = true;
 			}
 			return charge;
