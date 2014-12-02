@@ -21,7 +21,7 @@ namespace DogFighter
 //        private float barSpace = 9;
 //        private float pinch = 0;
 
-        public Texture image;
+//        public Texture image;
 
 		public AnimationCurve throttleAdjustCurve;
 
@@ -44,10 +44,9 @@ namespace DogFighter
 		{
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get player_number");
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
-			shipGameObject = Instantiate(shipPrefab, spawnLocation, spawnDirection) as GameObject;
-			playerShip = shipGameObject.GetComponent<PlayerShip>();
-            playerShip.PassControllingActionName(Name);
-			playerCamera = playerShip.GetComponentInChildren<Camera>();
+
+            SpawnShip();
+			
 			localCameraPosition = new Vector3(playerCamera.transform.localPosition.x,
 			                                  playerCamera.transform.localPosition.y,
 			                                  playerCamera.transform.localPosition.z);
@@ -87,10 +86,18 @@ namespace DogFighter
 
 			invertPitchScalar = (DataManager.GetInvertPitch(playerNumber) > 0) ? -1 : 1;
 			invertYawScalar = (DataManager.GetInvertYaw(playerNumber) > 0) ? -1 : 1;
-			invertRollScalar = (DataManager.GetInvertRoll(playerNumber) > 0) ? -1 : 1;
-
-			SetupScreenValues(DataManager.GetNumberPlayers());
+			invertRollScalar = (DataManager.GetInvertRoll(playerNumber) > 0) ? -1 : 1;           
 		}
+
+        private void SpawnShip()
+        {
+            shipGameObject = Instantiate(shipPrefab, spawnLocation, spawnDirection) as GameObject;
+            playerShip = shipGameObject.GetComponent<PlayerShip>();
+            playerShip.PassControllingActionName(Name);
+            playerCamera = playerShip.GetComponentInChildren<Camera>();
+
+            SetupScreenValues(DataManager.GetNumberPlayers());
+        }
 
 		private float throttleOutput = 0f;
 		private float throttlePrecise = 0f;
@@ -117,6 +124,7 @@ namespace DogFighter
         private Vector3 collisionDistancedPoint;
 
         public GameObject explosionPrefab;
+        public GameObject explosionGameObject;
 
 		public override void ActionUpdate()
 		{
@@ -132,6 +140,13 @@ namespace DogFighter
                 {
                     deathAnimation = false;
                     DestroyObject(playerCamera.gameObject);
+                    DestroyObject(explosionGameObject);
+
+                    throttleOutput = 0f;
+
+                    SpawnShip();
+
+                    deathAnimation = false;
                 }
 
                 deathTime += Time.deltaTime;
@@ -228,11 +243,16 @@ namespace DogFighter
 //                else { pinch = 25;}
 //                GUI.Box (nyew Rect(Screen.width - (barHeight - pinch/2), Screen.height - (barSpace*i + barWidth), barHeight - pinch, barWidth), image);
 //            }
-			float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .66) - (float)(throttleOutput * 30);
+			float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .66) - (float)(throttleOutput * (screenHeight/8));
+			float zeroMarker = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * .56);
+			float numEdge = (float)screenWidth * .005f + screenLeftStart;
 
 			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleBackdrop);
 			GUI.DrawTexture	(new Rect (screenLeftStart, (int)markerHeight, screenHorizontalStep, screenVerticalStep/24), throttleMarker);
 			GUI.DrawTexture (new Rect (screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleOverlay);
+
+			GUI.Label (new Rect (numEdge, zeroMarker, screenHorizontalStep, screenVerticalStep), "0", throttleGuiStyle);
+			GUI.Label (new Rect (numEdge*1.001f, zeroMarker - (screenHeight/8), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
 		}
 		
 		public override void ReceiveMessage(Action action, string message)
@@ -302,9 +322,10 @@ namespace DogFighter
             deathTime = 0f;
             deathAnimation = true;
             collisionPoint = playerShip.GetCollisionPoint();
-            collisionDistancedPoint = playerShip.GetCollisionNormal().normalized * 75f + collisionPoint;
+            collisionDistancedPoint = playerShip.GetCollisionNormal() * 75f + collisionPoint;
 
             DestroyObject(playerShip.gameObject);
+            explosionGameObject = Instantiate(explosionPrefab, collisionPoint, Quaternion.Euler(playerShip.GetCollisionNormal())) as GameObject;
         }
 
 		private int screenWidth;
@@ -403,7 +424,7 @@ namespace DogFighter
 				break;
 			}
 
-            throttleGuiStyle.fontSize = (int)(screenWidth / 1280f * 12);
+            throttleGuiStyle.fontSize = (int)(screenWidth / 1280f * 28);
             speedometerGuiStyle.fontSize = (int)(screenWidth / 1280f * 72);
 		}
 	}

@@ -444,17 +444,27 @@ namespace DogFighter
 				break;
 			case "kill":
 			{
-				int playerNumber = int.Parse(messageTokens[1]);
+                if (gameModeState == 2)
+                {
+				    int playerNumber = int.Parse(messageTokens[1]);
+                }
 			}
 				break;
 			case "assist":
 			{
-				int playerNumber = int.Parse(messageTokens[1]);
+                if (gameModeState == 2)
+                {
+				    int playerNumber = int.Parse(messageTokens[1]);
+                }
 			}
 				break;
 			case "death":
 			{
-				int playerNumber = int.Parse(messageTokens[1]);
+                if (gameModeState == 2)
+                {
+    				int playerNumber = int.Parse(messageTokens[1]);
+                    playerStats[playerNumber - 1].IncrementDeaths();
+                }
 			}
 				break;
 			}
