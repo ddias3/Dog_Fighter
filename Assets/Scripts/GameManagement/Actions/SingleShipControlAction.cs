@@ -407,10 +407,17 @@ namespace DogFighter
                         }
                     }
                 }
+                else
+                {
+                    otherShipLockOnDataWrappers[n].distanceFromMid = 0f;
+                    otherShipLockOnDataWrappers[n].laserLockOn = 0f;
+                    otherShipLockOnDataWrappers[n].laserLockOnReady = false;
+                    otherShipLockOnDataWrappers[n].missileLockOn = 0f;
+                    otherShipLockOnDataWrappers[n].missileLockOnReady = false;
+                }
             }
 
 			if (inputHandler.GetButtonDown ("Right_Bumper")) {
-                GetLockedOnShipTransform();
 				missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
 			}
 			if (inputHandler.GetAxis("Right_Trigger") > 0.5f) {
@@ -799,8 +806,8 @@ namespace DogFighter
 			shipIconNameGuiStyle.fontSize = (int)(screenHeight / 720f * 32);
 			shipIconDistanceGuiStyle.fontSize = (int)(screenHeight / 720f * 28);
 
-			crossHairTextureWidth = (int)(hudScreenWidth / 1280f * 16);
-			crossHairTextureHeight = (int)(hudScreenHeight / 720f * 16);
+			crossHairTextureWidth = (int)(hudScreenWidth / 1280f * 20);
+			crossHairTextureHeight = (int)(hudScreenHeight / 720f * 20);
 
 			laserLockOnTextureWidth = (int)(hudScreenWidth / 1280f * LASER_LOCK_ON_SCREEN_SIZE);
 			laserLockOnTextureHeight = (int)(hudScreenHeight / 720f * LASER_LOCK_ON_SCREEN_SIZE);
@@ -813,22 +820,49 @@ namespace DogFighter
 
 		}
 
+        private Transform laserLockedOnTransform;
+        private Transform missileLockedOnTransform;
         private Transform lockedOnTransform;
-        private Transform GetLockedOnShipTransform()
+        private Transform GetLaserLockedOnShipTransform()
         {
             if (otherShipPositions.Length == 0)
                 return null;
 
-            int outputIndex = 0;
+            int outputIndex = -1;
             float closestDistance = Mathf.Infinity;
             for (int n = 0; n < otherShipPositions.Length; ++n)
             {
-                if (otherShipLockOnDataWrappers[n].distanceFromMid < closestDistance)
+                if (otherShipLockOnDataWrappers[n].laserLockOnReady && 
+                    otherShipLockOnDataWrappers[n].distanceFromMid < closestDistance)
                     outputIndex = n;
             }
 
+            if (outputIndex == -1)
+                return null;
+
             SceneManager.SendMessageToAction(this, "DeathMatchAction", "get transform " + otherShipPositions[outputIndex].shipNumber);
-            return lockedOnTransform;
+            return laserLockedOnTransform = lockedOnTransform;
+        }
+
+        private Transform GetMissileLockedOnShipTransform()
+        {
+            if (otherShipPositions.Length == 0)
+                return null;
+            
+            int outputIndex = -1;
+            float closestDistance = Mathf.Infinity;
+            for (int n = 0; n < otherShipPositions.Length; ++n)
+            {
+                if (otherShipLockOnDataWrappers[n].missileLockOnReady && 
+                    otherShipLockOnDataWrappers[n].distanceFromMid < closestDistance)
+                    outputIndex = n;
+            }
+            
+            if (outputIndex == -1)
+                return null;
+            
+            SceneManager.SendMessageToAction(this, "DeathMatchAction", "get transform " + otherShipPositions[outputIndex].shipNumber);
+            return missileLockedOnTransform = lockedOnTransform;
         }
 
         public void PassTransform(Transform lockedOnTransform)
