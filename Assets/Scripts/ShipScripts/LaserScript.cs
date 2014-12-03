@@ -8,7 +8,7 @@ namespace DogFighter
 		public float coolDown = .75f;
 		public float timeVisible = .5f;
 		public float shotCost = 30f;
-		public float chargeRate = 4f;
+		public float chargeRate = 20f;
 		public LineRenderer laser;
 		private float lastFired;
 		private float ownTime;
@@ -30,6 +30,10 @@ namespace DogFighter
 		void Update(){
 			ownTime += Time.deltaTime;
 			
+			if(charge<100f){
+				charge += Time.deltaTime*chargeRate;
+			}
+			
 			if(ownTime-lastFired>timeVisible){
 				laser.enabled = false;
 			}
@@ -41,12 +45,6 @@ namespace DogFighter
 			}
 			if(target != null){
 				laser.SetPosition(1,target.position);
-			}
-		}
-		
-		void FixedUpdate(){
-			if(charge<100f){
-				charge += chargeRate/10f;
 			}
 		}
 
