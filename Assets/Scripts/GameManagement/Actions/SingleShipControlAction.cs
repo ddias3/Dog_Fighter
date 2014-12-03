@@ -20,6 +20,12 @@ namespace DogFighter
 		public Texture2D playerIconTexture;
 		public Texture2D playerIconEdgeTexture;
 
+		public Texture2D healthBackground;
+		public Texture2D goodHealth;
+		public Texture2D okHealth;
+		public Texture2D badHealth;
+		public Texture2D HealthColor;
+
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
 
@@ -429,17 +435,23 @@ namespace DogFighter
 
 			if (displayGUI)
 			{
-				float markerHeight = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * 0.66f) - (float)(throttleOutput * (screenHeight / 8));
-				float zeroMarker = (float)(screenHeight - screenVerticalStep + screenTopStart) + (float)(screenVerticalStep * 0.56f);
+				//offset valus for throttle gui
+				float markerHeight = (float)(hudScreenHeight - (hudScreenHeight / 5) + screenTopStart) + (((float)hudScreenHeight / 5) * 0.66f) - (float)(throttleOutput * (hudScreenHeight / 10));
+				float zeroMarker = (float)(hudScreenHeight - (hudScreenHeight / 5) + screenTopStart) + (((float)hudScreenHeight / 5) * 0.58f);
 				float numEdge = (float)screenWidth * 0.005f + screenLeftStart;
 
-				GUI.DrawTexture(new Rect(screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleBackdrop);
-				GUI.DrawTexture(new Rect(screenLeftStart, (int)markerHeight, screenHorizontalStep, screenVerticalStep / 24), throttleMarker);
-				GUI.DrawTexture(new Rect(screenLeftStart, screenHeight - screenVerticalStep + screenTopStart, screenHorizontalStep, screenVerticalStep), throttleOverlay);
+				//throttle gui
+				GUI.DrawTexture(new Rect(screenLeftStart, hudScreenHeight - (hudScreenHeight / 5) + screenTopStart, hudScreenWidth / 12, hudScreenHeight / 5),
+				                throttleBackdrop, ScaleMode.StretchToFill);
+				GUI.DrawTexture(new Rect(screenLeftStart, (int)markerHeight, hudScreenWidth / 12, hudScreenHeight / 64),
+				                throttleMarker, ScaleMode.StretchToFill);
+				GUI.DrawTexture(new Rect(screenLeftStart, hudScreenHeight - (hudScreenHeight / 5) + screenTopStart, hudScreenWidth / 12, hudScreenHeight / 5),
+				                throttleOverlay, ScaleMode.StretchToFill);
 
 				GUI.Label(new Rect(numEdge, zeroMarker, screenHorizontalStep, screenVerticalStep), "0", throttleGuiStyle);
-				GUI.Label(new Rect(numEdge * 1.001f, zeroMarker - (screenHeight / 8), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
+				GUI.Label(new Rect(numEdge * 1.001f, zeroMarker - (hudScreenHeight / 10), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
 
+				//speedometer gui
 				GUI.DrawTexture(new Rect(screenLeftStart + screenWidth - hudScreenWidth / 8,
 				                         screenTopStart + screenHeight - hudScreenHeight / 8,
 				                         hudScreenWidth / 8,
@@ -451,6 +463,7 @@ namespace DogFighter
 				                   hudScreenHeight / 8),
 				          Mathf.RoundToInt(playerShip.Speed).ToString(), speedometerGuiStyle);
 
+				//crosshair gui
 				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - crossHairTextureWidth / 2,
 				                         screenTopStart + hudScreenHeight / 2 - crossHairTextureHeight / 2,
 				                         crossHairTextureWidth,
@@ -527,6 +540,25 @@ namespace DogFighter
 //
 //                    GUI.Label(new Rect(screenLeftStart + 80 * n, screenTopStart + 60, 500, 100), "mLoc#: " + otherShipLockOnDataWrappers[n].missileLockOn);
 				}
+
+				//health gui
+				GUI.DrawTexture(new Rect(screenLeftStart, screenTopStart, screenHorizontalStep*5, screenVerticalStep),
+				                healthBackground, ScaleMode.StretchToFill);
+
+				float health = playerShip.ShipHealth;
+				float barOffset = screenVerticalStep/3;
+				float barLength = (((screenHorizontalStep*5) - (barOffset*2))/100) * health;
+
+				if(health > 55)
+					HealthColor = goodHealth;
+				else if (health > 15)
+					HealthColor = okHealth;
+				else
+					HealthColor = badHealth;
+
+				GUI.DrawTexture(new Rect(screenLeftStart + barOffset, screenTopStart + barOffset, barLength, screenVerticalStep/3),
+				                		 HealthColor, ScaleMode.StretchToFill);
+
 			}
 		}
 		

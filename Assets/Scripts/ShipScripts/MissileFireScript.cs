@@ -28,6 +28,7 @@ namespace DogFighter
 				missileLoc = t.rotation * missileLoc;
 				missileLoc += t.position;
 				GameObject missileFired = Instantiate(missile,missileLoc,t.rotation) as GameObject;
+				missileFired.rigidbody.velocity = v;
 				MissileScript mScript = missileFired.GetComponent<MissileScript>();
 				mScript.SetTarget(target);
 				return lastFired;
@@ -39,6 +40,10 @@ namespace DogFighter
 		
 		public void SetTarget(GameObject newTarget){
 			target = newTarget;
+		}
+		
+		public float getCharge(){
+			return Mathf.Clamp01((ownTime - lastFired) / coolDown);
 		}
 		
 	}

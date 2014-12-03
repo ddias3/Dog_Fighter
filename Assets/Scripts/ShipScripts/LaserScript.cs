@@ -15,6 +15,7 @@ namespace DogFighter
 		private float charge;
 		
 		private GameObject target;
+		private Transform ship;
 
 		void Start () {
 			lastFired = -999f;
@@ -31,6 +32,12 @@ namespace DogFighter
 			if(ownTime-lastFired>timeVisible){
 				laser.enabled = false;
 			}
+			else{
+				Vector3 fireFrom = new Vector3(0,-1,5);
+				fireFrom = ship.rotation * fireFrom;
+				fireFrom += ship.position;
+				laser.SetPosition(0,fireFrom);
+			}
 		}
 		
 		void FixedUpdate(){
@@ -42,6 +49,7 @@ namespace DogFighter
 		public float Fire(Transform t) {
 			if (ownTime - lastFired > coolDown && charge >= shotCost)
 			{
+				ship = t;
 				Vector3 fireFrom = new Vector3(0,-1,5);
 				fireFrom = t.rotation * fireFrom;
 				fireFrom += t.position;
@@ -55,10 +63,10 @@ namespace DogFighter
 					fireAt = new Vector3(0, 0, 1000);
 					fireAt = t.rotation * fireAt;
 					fireAt += t.position;
-					RaycastHit hit = new RaycastHit();
-					if(Physics.Raycast(fireFrom,fireAt-fireFrom,out hit)){
-						fireAt = hit.point;
-					}
+				}
+				RaycastHit hit = new RaycastHit();
+				if(Physics.Raycast(fireFrom,fireAt-fireFrom,out hit)){
+					fireAt = hit.point;
 				}
 				lastFired = ownTime;
 				charge -= shotCost;
@@ -82,6 +90,10 @@ namespace DogFighter
 
 		public void SetTarget(GameObject newTarget){
 			target = newTarget;
+		}
+
+		public float getCharge(){
+			return charge / 100f;
 		}
 	}
 }
