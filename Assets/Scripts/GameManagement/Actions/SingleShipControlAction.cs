@@ -26,6 +26,13 @@ namespace DogFighter
 		public Texture2D badHealth;
 		public Texture2D HealthColor;
 
+		public Texture2D weaponBackground;
+		public Texture2D rocketIcon;
+		public Texture2D laserIcon;
+		public Texture2D flareIcon;
+		public Texture2D readyBar;
+		public Texture2D waitBar;
+
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
 
@@ -561,7 +568,35 @@ namespace DogFighter
 
 
 				//weapons gui
+				GUI.DrawTexture(new Rect(screenLeftStart + ((float)hudScreenWidth * 0.875f), screenTopStart, hudScreenWidth/8, hudScreenHeight/8),
+				                weaponBackground, ScaleMode.StretchToFill);
 
+				float segment = (((float)hudScreenHeight)/8)/3;
+				float iconOffset = segment/5;
+				float iconSize = segment - (iconOffset*2);
+				float leftWeaponWall = screenLeftStart + ((float)hudScreenWidth * 0.875f) + iconOffset;
+
+				GUI.DrawTexture(new Rect(leftWeaponWall, screenTopStart + iconOffset, iconSize, iconSize),
+				                rocketIcon, ScaleMode.StretchToFill);
+				GUI.DrawTexture(new Rect(leftWeaponWall, screenTopStart + segment + iconOffset, iconSize, iconSize),
+				                laserIcon, ScaleMode.StretchToFill);
+				GUI.DrawTexture(new Rect(leftWeaponWall, screenTopStart + segment*2 + iconOffset, iconSize, iconSize),
+				                flareIcon, ScaleMode.StretchToFill);
+
+				float leftChargeWall = leftWeaponWall + iconSize + iconOffset;
+				float fullChargeWidth = ((float)hudScreenWidth/8) - (iconOffset*4) - iconSize;
+				float chargeOffset = iconOffset*1.01f;
+				float chargeHeight = iconSize - chargeOffset;
+				float rocketCharge = missiles.getCharge();
+				float laserCharge = lasers.getCharge();
+				float flareCharge = flares.getCharge();
+
+				GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset, fullChargeWidth*rocketCharge, chargeHeight),
+				                readyBar, ScaleMode.StretchToFill);
+				GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset + segment, fullChargeWidth*laserCharge, chargeHeight),
+				                readyBar, ScaleMode.StretchToFill);
+				GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset + segment*2, fullChargeWidth*flareCharge, chargeHeight),
+				                readyBar, ScaleMode.StretchToFill);
 
 			}
 		}
