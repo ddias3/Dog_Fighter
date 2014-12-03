@@ -418,9 +418,11 @@ namespace DogFighter
             }
 
 			if (inputHandler.GetButtonDown ("Right_Bumper")) {
+				missiles.SetTarget(GetMissileLockedOnShipTransform());
 				missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
 			}
 			if (inputHandler.GetAxis("Right_Trigger") > 0.5f) {
+				missiles.SetTarget(GetLaserLockedOnShipTransform());
 				lasers.Fire(playerShip.transform);
 			}
 		}
