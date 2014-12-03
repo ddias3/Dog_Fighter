@@ -5,6 +5,13 @@ namespace DogFighter
 {
     public class SoundPlayerAction : Action
     {
+		public AudioClip explosion;
+		public AudioClip flareLaunch;
+		public AudioClip laserShot;
+		public AudioClip rocketFire;
+		public AudioClip turboBoost;
+		public AudioClip warning;
+
         public override void ActionStart()
         {
             // do nothing
