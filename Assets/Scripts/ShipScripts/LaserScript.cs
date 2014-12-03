@@ -29,17 +29,18 @@ namespace DogFighter
 		
 		void Update(){
 			ownTime += Time.deltaTime;
+			
 			if(ownTime-lastFired>timeVisible){
 				laser.enabled = false;
 			}
-			else if(ship != null){
+			if(ship != null){
 				Vector3 fireFrom = new Vector3(0,-1,5);
 				fireFrom = ship.rotation * fireFrom;
 				fireFrom += ship.position;
 				laser.SetPosition(0,fireFrom);
 			}
-			else{
-				laser.enabled = false;
+			if(target != null){
+				laser.SetPosition(1,target.transform);
 			}
 		}
 		
@@ -76,6 +77,9 @@ namespace DogFighter
 				laser.SetPosition(0,fireFrom);
 				laser.SetPosition(1,fireAt);
 				laser.enabled = true;
+				if(target != null && fireAt == target.position){
+					target.gameObject.GetComponent<Health>() -= 20;
+				}
 			}
 			return charge;
 		}
