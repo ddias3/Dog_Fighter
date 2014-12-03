@@ -32,11 +32,14 @@ namespace DogFighter
 			if(ownTime-lastFired>timeVisible){
 				laser.enabled = false;
 			}
-			else{
+			else if(ship != null){
 				Vector3 fireFrom = new Vector3(0,-1,5);
 				fireFrom = ship.rotation * fireFrom;
 				fireFrom += ship.position;
 				laser.SetPosition(0,fireFrom);
+			}
+			else{
+				laser.enabled = false;
 			}
 		}
 		
