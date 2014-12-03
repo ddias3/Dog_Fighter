@@ -6,9 +6,12 @@ namespace DogFighter
 	public class MissileScript : MonoBehaviour {
 		
 		private Transform target;
-		
+        public int playerNumber;
+
 		void Start() {
 			//rigidbody.velocity += transform.rotation * new Vector3(0,0,300);
+
+            previousFrameRotation = currentFrameRotation = transform.rotation;
 
             SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT = new Vector3(SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_PITCH,
                                                                      SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT_YAW,
@@ -96,7 +99,7 @@ namespace DogFighter
         private float speed;
         private float speedInterpolation;
         
-        private const float FLARE_RANGE=1000f;
+        private const float FLARE_RANGE=1200f;
         
         private float timeOut;
         
@@ -108,18 +111,22 @@ namespace DogFighter
 				Destroy(this.gameObject);
 			}
 			GameObject[] flares = GameObject.FindGameObjectsWithTag("Flare");
-			if(flares.Length>0){
+			if(null != target)
+            {
 				foreach(GameObject f in flares){
 					float distToFlare = Vector3.Distance(transform.position,f.transform.position);
 					float flareToTarget = Vector3.Distance(f.transform.position,target.position);
-					float playerToTarget = Vector3.Distance(transform.position,target.position);
-					if(distToFlare<FLARE_RANGE && flareToTarget<playerToTarget){
+					float distToTarget = Vector3.Distance(transform.position,target.position);
+					if(distToFlare<FLARE_RANGE && flareToTarget<distToTarget && distToTarget>distToFlare){
 						target = f.transform;
 						break;
 					}
 				}
 			}
 		}
+
+        private Quaternion previousFrameRotation;
+        private Quaternion currentFrameRotation;
         
         void FixedUpdate()
         {
@@ -134,36 +141,65 @@ namespace DogFighter
 
             if (null != target)
             {
-                Vector3 directionToTarget = (target.position - transform.position).normalized;
-                float angleToTarget = Vector3.Angle(target.forward, directionToTarget);
-                Vector3 directionToTargetLocal = transform.InverseTransformDirection(directionToTarget);
-                Vector3 pitchYaw = new Vector3(directionToTargetLocal.x, directionToTarget.y, 0f);
+//                Vector3 directionToTarget = (target.position - transform.position).normalized;
+//                float angleToTarget = Vector3.Angle(target.forward, directionToTarget);
+//                Vector3 directionToTargetLocal = transform.InverseTransformDirection(directionToTarget);
+//                Vector3 pitchYaw = new Vector3(directionToTargetLocal.x, directionToTarget.y, 0f);
+//
+//                if (angleToTarget < MAX_TURN_ANGLE)
+//                    angularAcceleration = angleToTarget * pitchYaw +
+//                        Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
+//                                                       (SPIN_DAMPENING_CONSTANT * localRigidbodyAngularVelocity));
+//                else
+//                    angularAcceleration = MAX_TURN_ANGLE * pitchYaw +
+//                    Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
+//                                                   (SPIN_DAMPENING_CONSTANT * localRigidbodyAngularVelocity));
+                transform.LookAt(target);
+                currentFrameRotation = transform.rotation;
 
-                if (angleToTarget < MAX_TURN_ANGLE)
-                    angularAcceleration = angleToTarget * pitchYaw +
-                        Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
-                                                       (SPIN_DAMPENING_CONSTANT * localRigidbodyAngularVelocity));
-                else
-                    angularAcceleration = MAX_TURN_ANGLE * pitchYaw +
-                    Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
-                                                   (SPIN_DAMPENING_CONSTANT * localRigidbodyAngularVelocity));
+                RaycastHit hit = new RaycastHit ();
+                Vector3 dir = rigidbody.velocity / rigidbody.velocity.magnitude;
+                if(Physics.Raycast(transform.position,dir,out hit)){
+                    if(Vector3.Distance(hit.point, transform.position)<rigidbody.velocity.magnitude){
+                        PlayerShip playerShip = hit.collider.gameObject.GetComponent<PlayerShip>();
+                        if (null != playerShip)
+                        {
+                            if (playerShip.DecrementHealth(60))
+                            {
+                                SceneManager.SendMessageToAction(null, "DeathMatchAction", "kill " + playerNumber);
+                            }
+                        }
+                        Destroy(this.gameObject);
+                    }
+                }
+
+                if (Vector3.Distance(transform.position, target.position) < rigidbody.velocity.magnitude)
+                {
+                    PlayerShip playerShip = target.gameObject.GetComponent<PlayerShip>();
+                    if (null != playerShip)
+                    {
+                        if (playerShip.DecrementHealth(60))
+                            SceneManager.SendMessageToAction(null, "DeathMatchAction", "kill " + playerNumber);
+                    }
+                    Destroy(this.gameObject);
+                }
             }
-            else
-            {
-                angularAcceleration = Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
+
+            angularAcceleration = Vector3PointWiseMultiplication((SPIN_DAMPENING_MOVEMENT_TOP_SPEED_CONSTANT * (speedInterpolation) + Vector3.one * (1 - speedInterpolation)),
                                                    (SPIN_DAMPENING_CONSTANT * localRigidbodyAngularVelocity));
-            }
             
             Vector3 sudoDragAcceleration = Vector3PointWiseMultiplication(VELOCITY_DAMPENING_CONSTANT, localRigidbodyVelocity);
+
+//            Vector3 localRotationInTimeStep = Vector3PointWiseMultiplication(localRigidbodyAngularVelocity * Time.fixedDeltaTime, ROTATION_VELOCITY_PRESERVATION); // in radians
+//            Vector3 localRigidbodyVelocityPrime = Quaternion.Euler(localRotationInTimeStep * 57.2957795f) * localRigidbodyVelocity; // in m/s, 57.295... = 180/pi
+//            Vector3 turningAccelerationChange = (localRigidbodyVelocityPrime - localRigidbodyVelocity) / Time.fixedDeltaTime; // in m/s^2
             
-            Vector3 localRotationInTimeStep = Vector3PointWiseMultiplication(localRigidbodyAngularVelocity * Time.fixedDeltaTime, ROTATION_VELOCITY_PRESERVATION); // in radians
-            Vector3 localRigidbodyVelocityPrime = Quaternion.Euler(localRotationInTimeStep * 57.2957795f) * localRigidbodyVelocity; // in m/s, 57.295... = 180/pi
-            Vector3 turningAccelerationChange = (localRigidbodyVelocityPrime - localRigidbodyVelocity) / Time.fixedDeltaTime; // in m/s^2
-            
-            finalAcceleration = forwardAcceleration + sudoDragAcceleration + turningAccelerationChange + brakingAcceleration;
+            finalAcceleration = forwardAcceleration + sudoDragAcceleration;// + turningAccelerationChange + brakingAcceleration;
             
             rigidbody.AddForce(transform.rotation * finalAcceleration, ForceMode.Acceleration);
             rigidbody.AddTorque(transform.rotation * angularAcceleration, ForceMode.Acceleration);
+
+            previousFrameRotation = currentFrameRotation;
         }
 
         private Vector3 Vector3PointWiseMultiplication(Vector3 a, Vector3 b)

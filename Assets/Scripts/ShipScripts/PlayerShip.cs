@@ -377,6 +377,13 @@ namespace DogFighter
 			SceneManager.SendMessageToAction(null, controllingActionName, "event crash");
 		}
 
+        public void KillShip()
+        {
+            collisionPoint = transform.position;
+            collisionNormal = transform.forward;
+            SceneManager.SendMessageToAction(null, controllingActionName, "event crash");
+        }
+
         public Vector3 GetCollisionPoint()
         {
             return collisionPoint;
