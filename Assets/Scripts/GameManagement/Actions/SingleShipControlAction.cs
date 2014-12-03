@@ -608,12 +608,12 @@ namespace DogFighter
 
 				if(health > 50)
 					HealthColor = goodHealth;
-				else if (health > 10)
+				else if (health > 20)
 					HealthColor = okHealth;
 				else
 					HealthColor = badHealth;
 
-				GUI.DrawTexture(new Rect(screenLeftStart + barOffset, screenTopStart + barOffset, barLength, screenVerticalStep/3),
+				GUI.DrawTexture(new Rect(screenLeftStart + barOffset, screenTopStart + barOffset, barLength, barOffset),
 				                		 HealthColor, ScaleMode.StretchToFill);
 
 
