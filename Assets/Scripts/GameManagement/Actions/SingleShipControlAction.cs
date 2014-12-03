@@ -10,6 +10,7 @@ namespace DogFighter
 		public Texture2D throttleOverlay;
 		public Texture2D throttleMarker;
 		public Texture2D throttleBackdrop;
+		public Texture2D throttleBackground;
 
 		public Texture2D speedometerTexture;
 
@@ -474,7 +475,11 @@ namespace DogFighter
 				float zeroMarker = (float)(hudScreenHeight - (hudScreenHeight / 5) + screenTopStart) + (((float)hudScreenHeight / 5) * 0.58f);
 				float numEdge = (float)screenWidth * 0.005f + screenLeftStart;
 
+				float backgroundStart = hudScreenHeight - (hudScreenHeight / 5) - (((float)hudScreenHeight / 5) * 0.19f) + screenTopStart;
+
 				//throttle gui
+				GUI.DrawTexture(new Rect(screenLeftStart, backgroundStart, hudScreenWidth / 11, hudScreenHeight / 4f),
+				                throttleBackground, ScaleMode.StretchToFill);
 				GUI.DrawTexture(new Rect(screenLeftStart, hudScreenHeight - (hudScreenHeight / 5) + screenTopStart, hudScreenWidth / 12, hudScreenHeight / 5),
 				                throttleBackdrop, ScaleMode.StretchToFill);
 				GUI.DrawTexture(new Rect(screenLeftStart, (int)markerHeight, hudScreenWidth / 12, hudScreenHeight / 64),
@@ -490,7 +495,7 @@ namespace DogFighter
 				float burnerBarPinch = ((float)hudScreenHeight / 25) / 4;
 				float burnerBarHeight = hudScreenHeight - (hudScreenHeight / 25) - (hudScreenHeight / 5) + screenTopStart + (burnerBarPinch*1.9f);
 				float burnerBarOffset = ((float)hudScreenWidth / 50) * 1.01f;
-				float burnerBarFullWidth = (hudScreenWidth / 12) - burnerBarOffset;
+				float burnerBarFullWidth = (hudScreenWidth / 13) - burnerBarOffset;
 
 
 				GUI.DrawTexture(new Rect(screenLeftStart, burnerBarHeight * .98f, hudScreenWidth / 50, hudScreenHeight / 25),
