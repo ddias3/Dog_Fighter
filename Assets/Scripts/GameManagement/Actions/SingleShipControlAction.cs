@@ -127,6 +127,10 @@ namespace DogFighter
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get controller_number");
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
 
+			lockedOnByShip = new bool[DataManager.GetNumberPlayers()];
+			lockedOnByMissile = new bool[DataManager.GetNumberPlayers()];
+			launchFlaresWarning = new bool[DataManager.GetNumberPlayers()];
+
             SpawnShip();
 
 			displayGUI = false;
@@ -190,6 +194,13 @@ namespace DogFighter
             lockedOnByMissiles = false;
             launchFlares = false;
 
+			for (int n = 0; n < lockedOnByShip.Length; ++n)
+			{
+				lockedOnByShip[n] = false;
+				lockedOnByMissile[n] = false;
+				launchFlaresWarning[n] = false;
+			}
+
             anyLaserLockOn = false;
             anyMissileLockOn = false;
 
@@ -240,6 +251,9 @@ namespace DogFighter
                 if (deathTime > DEATH_ANIMATION_LENGTH)
                 {
                     deathAnimation = false;
+
+					SceneManager.SendMessageToAction(this, "DeathMatchAction", "get random_spawn_point");
+
                     DestroyObject(playerCamera.gameObject);
                     DestroyObject(explosionGameObject);
 
@@ -328,7 +342,7 @@ namespace DogFighter
 
                 if (inputHandler.GetButtonDown ("Right_Bumper")) {
                     missiles.SetTarget(GetMissileLockedOnShipTransform());
-                    missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
+                    missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity, playerNumber);
                 }
                 if (inputHandler.GetAxis("Right_Trigger") > 0.5f) {
                     lasers.SetTarget(GetLaserLockedOnShipTransform());
@@ -427,8 +441,6 @@ namespace DogFighter
                             otherShipLockOnDataWrappers[n].laserLockOnReady = true;
                             otherShipLockOnDataWrappers[n].laserLockOn = 1f;
                             anyLaserLockOn = true;
-
-                            SceneManager.SendMessageToAction(this, "SingleShipControlAction_P" + otherShipPositions[n].shipNumber, "increment lockon_by_ship");
                         }
                     }
                     else
@@ -469,6 +481,11 @@ namespace DogFighter
                             otherShipLockOnDataWrappers[n].missileLockOn = 0f;
                         }
                     }
+
+					if (otherShipLockOnDataWrappers[n].laserLockOnReady || otherShipLockOnDataWrappers[n].missileLockOnReady)
+						SceneManager.SendMessageToAction(this, "SingleShipControlAction_P" + otherShipPositions[n].shipNumber, "set lockon_by_ship " + playerNumber + " true");
+					else
+						SceneManager.SendMessageToAction(this, "SingleShipControlAction_P" + otherShipPositions[n].shipNumber, "set lockon_by_ship " + playerNumber + " false");
                 }
                 else
                 {
@@ -479,6 +496,27 @@ namespace DogFighter
                     otherShipLockOnDataWrappers[n].missileLockOnReady = false;
                 }
             }
+
+			lockedOnByShips = false;
+			for (int n = 0; n < lockedOnByShip.Length; ++n)
+			{
+				if (true == lockedOnByShip[n])
+					lockedOnByShips = true;
+			}
+
+			lockedOnByMissiles = false;
+			for (int n = 0; n < lockedOnByMissile.Length; ++n)
+			{
+				if (true == lockedOnByMissile[n])
+					lockedOnByMissiles = true;
+			}
+
+			launchFlares = false;
+			for (int n = 0; n < launchFlaresWarning.Length; ++n)
+			{
+				if (true == launchFlaresWarning[n])
+					launchFlares = true;
+			}
 		}
 		
 		public override void ActionFixedUpdate()
@@ -774,54 +812,60 @@ namespace DogFighter
 				case "player_number":
 					playerNumber = int.Parse(messageTokens[2]);
 					break;
-				}
-				break;
-            case "increment":
-                switch (messageTokens[1])
-                {
+//				}
+//				break;
+//            case "increment":
+//                switch (messageTokens[1])
+//                {
                 case "lockon_by_ship":
                 {
-                    ++lockedOnByShips;
+					int shipNumber = int.Parse(messageTokens[2]);
+					bool value = (messageTokens[3] == "true") ? true : false;
+					lockedOnByShip[shipNumber - 1] = value;
                 }
                     break;
                 case "lockon_by_missile":
                 {
-                    ++lockedOnByMissiles;
+					int shipNumber = int.Parse(messageTokens[2]);
+					bool value = (messageTokens[3] == "true") ? true : false;
+                    lockedOnByMissile[shipNumber - 1] = value;
                 }
                     break;
                 case "fire_flares":
                 {
-                    ++launchFlares;
+					int shipNumber = int.Parse(messageTokens[2]);
+					bool value = (messageTokens[3] == "true") ? true : false;
+					launchFlaresWarning[shipNumber - 1] = value;
                 }
                     break;
                 }
                 break;
-            case "decrement":
-                switch (messageTokens[1])
-                {
-                case "lockon_by_ship":
-                {
-                    --lockedOnByShips;
-                    if (lockedOnByShips < 0)
-                        lockedOnByShips = 0;
-                }
-                    break;
-                case "lockon_by_missile":
-                {
-                    --lockedOnByMissiles;
-                    if (lockedOnByMissiles < 0)
-                        lockedOnByMissiles = 0;
-                }
-                    break;
-                case "fire_flares":
-                {
-                    --launchFlares;
-                    if (launchFlares < 0)
-                        launchFlares = 0;
-                }
-                    break;
-                }
-                break;
+//            case "decrement":
+//                switch (messageTokens[1])
+//                {
+//                case "lockon_by_ship":
+//                {
+//                    --lockedOnByShips;
+//                    if (lockedOnByShips < 0)
+//                        lockedOnByShips = 0;
+//                }
+//                    break;
+//                case "lockon_by_missile":
+//                {
+//                    --lockedOnByMissiles;
+//                    if (lockedOnByMissiles < 0)
+//                        lockedOnByMissiles = 0;
+//                }
+//                    break;
+//                case "fire_flares":
+//                {
+//                    --launchFlares;
+//                    if (launchFlares < 0)
+//                        launchFlares = 0;
+//                }
+//                    break;
+//                }
+//                break;
 			case "enable_controls":
 				displayGUI = true;
 				controlsEnabled = true;
@@ -872,13 +916,22 @@ namespace DogFighter
                     otherShipLockOnDataWrappers = new LockOnDataWrapper[otherShipPositions.Length];
                     for (int n = 0; n < otherShipLockOnDataWrappers.Length; ++n)
                         otherShipLockOnDataWrappers[n] = new LockOnDataWrapper(otherShipPositions[n]);
-                    laserLockOnPreviousValues = new bool[otherShipPositions.Length];
-                    missileLockOnPreviousValues = new bool[otherShipPositions.Length];
-                    for (int n = 0; n < otherShipPositions.Length; ++n)
-                    {
-                        laserLockOnPreviousValues[n] = false;
-                        missileLockOnPreviousValues[n] = false;
-                    }
+//                    laserLockOnPreviousValues = new bool[otherShipPositions.Length];
+//                    missileLockOnPreviousValues = new bool[otherShipPositions.Length];
+//                    for (int n = 0; n < otherShipPositions.Length; ++n)
+//                    {
+//                        laserLockOnPreviousValues[n] = false;
+//                        missileLockOnPreviousValues[n] = false;
+//                    }
+//					lockedOnByShip = new bool[otherShipPositions.Length];
+//					lockedOnByMissile = new bool[otherShipPositions.Length];
+//					launchFlaresWarning = new bool[otherShipPositions.Length];
+//					for (int n = 0; n < otherShipPositions.Length; ++n)
+//					{
+//						lockedOnByShip[n] = false;
+//						lockedOnByMissile[n] = false;
+//						launchFlaresWarning[n] = false;
+//					}
 					break;
 				}
 				break;

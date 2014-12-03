@@ -464,6 +464,12 @@ namespace DogFighter
 					((SingleShipControlAction)action).PassSpawnPoint(transform.position, transform.rotation);
 					break;
 				}
+				case "random_spawn_point":
+				{
+					Transform transform = spawnPoints[Random.Range(0, spawnPoints.Length)];
+					((SingleShipControlAction)action).PassSpawnPoint(transform.position, transform.rotation);
+					break;
+				}
 				case "player_number":
 					switch (action.Name)
 					{

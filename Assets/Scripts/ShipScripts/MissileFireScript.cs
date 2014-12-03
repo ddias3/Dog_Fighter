@@ -9,6 +9,8 @@ namespace DogFighter
 		public GameObject missile;
 		private float lastFired;
 		private float ownTime;
+
+		private int playerNumber;
 		
 		private Transform target;
 		
@@ -21,7 +23,8 @@ namespace DogFighter
 			ownTime += Time.deltaTime;
 		}
 		
-		public float Fire(Transform t, Vector3 v) {
+		public float Fire(Transform t, Vector3 v, int playerNumber) {
+			this.playerNumber = playerNumber;
 			if(ownTime-lastFired>coolDown){
                 SceneManager.SendMessageToAction(null, "SoundPlayerAction", "play rocketFire");
 				lastFired = ownTime;
@@ -31,14 +34,19 @@ namespace DogFighter
 				GameObject missileFired = Instantiate(missile,missileLoc,t.rotation) as GameObject;
 				missileFired.rigidbody.velocity = v;
 				MissileScript mScript = missileFired.GetComponent<MissileScript>();
-                mScript.playerNumber = gameObject.GetComponent<SingleShipControlAction>().PlayerNumber;
+				mScript.SetPlayerNumber(playerNumber);
 				mScript.SetTarget(target);
 
                 if (target != null)
                 {
                     PlayerShip playerShip = target.gameObject.GetComponent<PlayerShip>();
-                    SceneManager.SendMessageToAction(null, "SingleShipControlAction_P" + playerShip.PlayerNumber, "increment lockon_by_missile");
+					mScript.SetAimingAtPlayerAndTargetPlayerName(true, playerShip.PlayerNumber);
+					SceneManager.SendMessageToAction(null, "SingleShipControlAction_P" + playerShip.PlayerNumber, "set lockon_by_missile " + playerNumber + " true");
                 }
+				else
+				{
+					mScript.SetAimingAtPlayerAndTargetPlayerName(false, 1);
+				}
 
 				return lastFired;
 			}
