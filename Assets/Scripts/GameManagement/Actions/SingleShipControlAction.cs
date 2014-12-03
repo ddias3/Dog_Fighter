@@ -370,7 +370,9 @@ namespace DogFighter
 
                     otherShipLockOnDataWrappers[n].distanceFromMid = positionToMid.magnitude;
 
-                    if (otherShipLockOnDataWrappers[n].distanceFromMid < laserLockOnTextureWidth * 0.5f)
+                    if (otherShipScreenSpacePositions[n].z > 0 &&
+                        (otherShipPositions[n].position - playerShip.transform.position).sqrMagnitude < (2500 * 2500) &&
+                        otherShipLockOnDataWrappers[n].distanceFromMid < laserLockOnTextureWidth * 0.5f)
                     {
                         otherShipLockOnDataWrappers[n].laserLockOn += INVERSE_LASER_LOCK_ON_TIME * Time.deltaTime;
 
@@ -394,7 +396,9 @@ namespace DogFighter
                         }
                     }
 
-                    if (otherShipLockOnDataWrappers[n].distanceFromMid < missileLockOnTextureWidth * 0.5f)
+                    if (otherShipScreenSpacePositions[n].z > 0 &&
+                        (otherShipPositions[n].position - playerShip.transform.position).sqrMagnitude < (4000 * 4000) &&
+                        otherShipLockOnDataWrappers[n].distanceFromMid < missileLockOnTextureWidth * 0.5f)
                     {
                         otherShipLockOnDataWrappers[n].missileLockOn += INVERSE_MISSILE_LOCK_ON_TIME * Time.deltaTime;
 
