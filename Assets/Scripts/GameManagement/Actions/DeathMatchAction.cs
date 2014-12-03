@@ -16,7 +16,7 @@ namespace DogFighter
 
 		private int gameModeState = 0;
 		public float time;
-		private const float INTRO_LENGTH = 2f;
+		private const float INTRO_LENGTH = 7f;
 		private float inverseIntroLength;
 		private Transform[] cameraTransforms;
 		private Transform[] cameraPivotTransforms;

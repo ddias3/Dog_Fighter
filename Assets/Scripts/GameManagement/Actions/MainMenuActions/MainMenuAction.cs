@@ -38,6 +38,8 @@ namespace DogFighter
 
 			if (returningFromGame)
 			{
+				DataManager.SetReturningFromGame(false);
+
 				rotatedDirection = Quaternion.Euler(0, -100, 0) * originalDirection;
 				cameraPivot.rotation = rotatedDirection;
 				FindObjectOfType<JoinMenuAction>().ReceiveMessage(null, "reset_up_controllers");

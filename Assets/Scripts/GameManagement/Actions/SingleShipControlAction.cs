@@ -238,6 +238,8 @@ namespace DogFighter
 
 		private bool displayGUI;
 
+		private float holdingStartTime;
+
 		public override void ActionUpdate()
 		{
 			if (Input.GetKeyDown(KeyCode.Alpha0))
@@ -348,6 +350,21 @@ namespace DogFighter
                     lasers.SetTarget(GetLaserLockedOnShipTransform());
                     lasers.Fire(playerShip.transform);
                 }
+
+				if (inputHandler.GetButton("Start_Button"))
+				{
+					holdingStartTime += Time.deltaTime;
+
+					if (holdingStartTime > 2f)
+					{
+						DataManager.SetReturningFromGame(true);
+						Application.LoadLevel("MenuScene");
+					}
+				}
+				else
+				{
+					holdingStartTime = 0f;
+				}
             }
 
 			if (inputHandler.GetButtonDown("Back_Button"))
