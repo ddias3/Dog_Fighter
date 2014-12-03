@@ -30,6 +30,7 @@ namespace DogFighter
 				GameObject missileFired = Instantiate(missile,missileLoc,t.rotation) as GameObject;
 				missileFired.rigidbody.velocity = v;
 				MissileScript mScript = missileFired.GetComponent<MissileScript>();
+                mScript.playerNumber = gameObject.GetComponent<SingleShipControlAction>().PlayerNumber;
 				mScript.SetTarget(target);
 				return lastFired;
 			}
