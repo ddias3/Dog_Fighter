@@ -56,6 +56,11 @@ MonoBehaviour:
   playerIconTexture: {fileID: 2800000, guid: 9405b1de7abc5c94091922403c38f2a6, type: 3}
   playerIconEdgeTexture: {fileID: 2800000, guid: 2ebf1694de446a345bb65a2d9bae92a6,
     type: 3}
+  healthBackground: {fileID: 2800000, guid: bc78589528b28cb41ba2d25b2d5daffd, type: 3}
+  goodHealth: {fileID: 2800000, guid: e8c133c709f69814fbd5408d84994e8e, type: 3}
+  okHealth: {fileID: 2800000, guid: 05e54f512ba508a4bb57ddf65a03ab49, type: 3}
+  badHealth: {fileID: 2800000, guid: 0d3ed700ccfb73d488bc443530bc6518, type: 3}
+  HealthColor: {fileID: 0}
   throttleAdjustCurve:
     serializedVersion: 2
     m_Curve:
