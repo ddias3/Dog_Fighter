@@ -5,7 +5,7 @@ namespace DogFighter
 {
 	public class MissileScript : MonoBehaviour {
 		
-		private GameObject target;
+		private Transform target;
 		
 		void Start() {
 			rigidbody.velocity += transform.rotation * new Vector3(0,0,300);
@@ -13,10 +13,11 @@ namespace DogFighter
 
 		void FixedUpdate() {
 			if(target != null){
-				Vector3 heading = target.transform.position - transform.position;
+				Vector3 heading = target.position - transform.position;
 				Vector3 direction = heading / heading.magnitude;
 				Vector3 currDir = transform.TransformDirection(new Vector3(0,0,1));
 				transform.rotation = Quaternion.LookRotation(Vector3.Slerp(currDir,direction,.5f));
+				rigidbody.velocity = transform.rotation * rigidbody.velocity;
 			}
 
 			RaycastHit hit = new RaycastHit ();
@@ -29,7 +30,7 @@ namespace DogFighter
 			}
 		}
 		
-		public void SetTarget(GameObject newTarget){
+		public void SetTarget(Transform newTarget){
 			target = newTarget;
 		}
 	}

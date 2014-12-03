@@ -14,7 +14,7 @@ namespace DogFighter
 		private float ownTime;
 		private float charge;
 		
-		private GameObject target;
+		private Transform target;
 		private Transform ship;
 
 		void Start () {
@@ -59,7 +59,7 @@ namespace DogFighter
 				Vector3 fireAt;
 				if (target != null)
 				{
-					fireAt = target.transform.position;
+					fireAt = target.position;
 				}
 				else
 				{
@@ -91,7 +91,7 @@ namespace DogFighter
 			}
 		}
 
-		public void SetTarget(GameObject newTarget){
+		public void SetTarget(Transform newTarget){
 			target = newTarget;
 		}
 

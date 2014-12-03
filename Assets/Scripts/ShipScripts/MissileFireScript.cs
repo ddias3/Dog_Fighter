@@ -10,7 +10,7 @@ namespace DogFighter
 		private float lastFired;
 		private float ownTime;
 		
-		private GameObject target;
+		private Transform target;
 		
 		void Start () {
 			lastFired = -999f;
@@ -38,7 +38,7 @@ namespace DogFighter
 			}
 		}
 		
-		public void SetTarget(GameObject newTarget){
+		public void SetTarget(Transform newTarget){
 			target = newTarget;
 		}
 		
