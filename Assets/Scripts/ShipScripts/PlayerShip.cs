@@ -27,6 +27,8 @@ namespace DogFighter
 
 		private int playerNumber;
 
+        private const float AFTERBURNER_RECHARGE_RATE = 0.1f;
+
 		void Start()
 		{
 			shipRigidbody = gameObject.GetComponent<Rigidbody>();
@@ -109,8 +111,19 @@ namespace DogFighter
 
 			if (afterburner)
 				afterburnerFuel -= AFTERBURNER_BURN_RATE * Time.deltaTime;
+            else
+            {
+                afterburnerFuel += AFTERBURNER_RECHARGE_RATE * Time.deltaTime;
 
-			if (afterburnerFuel < 0f)
+                if (afterburnerFuel > 0.2f)
+                    afterburnerAvailable = true;
+            }
+
+            if (afterburnerFuel > 1f)
+            {
+                afterburnerFuel = 1f;
+            }
+            else if (afterburnerFuel < 0f)
 			{
 				afterburnerFuel = 0f;
 				afterburnerAvailable = false;
@@ -282,7 +295,7 @@ namespace DogFighter
 			set
 			{
 				afterburnerFuel = value;
-				afterburnerAvailable = true;
+                afterburnerAvailable = true;
 				if (afterburnerFuel > 1f)
 				{
 					afterburnerFuel = 1f;
