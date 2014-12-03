@@ -23,6 +23,7 @@ namespace DogFighter
 		
 		public float Fire(Transform t, Vector3 v) {
 			if(ownTime-lastFired>coolDown){
+                SceneManager.SendMessageToAction(null, "SoundPlayerAction", "play rocketFire");
 				lastFired = ownTime;
 				Vector3 missileLoc = new Vector3(0,-4,9);
 				missileLoc = t.rotation * missileLoc;

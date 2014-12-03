@@ -810,6 +810,7 @@ namespace DogFighter
                 {
                 case "crash":
                     SetupDeathAnimation();
+                    SceneManager.SendMessageToAction(this, "SoundPlayerAction", "play explosion");
                     SceneManager.SendMessageToAction(this, "DeathMatchAction", "death " + playerNumber);
                     break;
                 }

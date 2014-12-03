@@ -22,6 +22,7 @@ namespace DogFighter
 
 		public float Fire(Transform t, Vector3 v) {
 			if(ownTime-lastFired>coolDown){
+                SceneManager.SendMessageToAction(null, "SoundPlayerAction", "play flareLaunch");
 				lastFired = ownTime;
 				Vector3 flareLeft = new Vector3(-2,0,-2);
 				flareLeft = t.rotation * flareLeft;

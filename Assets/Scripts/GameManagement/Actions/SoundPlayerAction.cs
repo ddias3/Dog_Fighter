@@ -39,9 +39,27 @@ namespace DogFighter
             switch (messageTokens[0])
             {
             case "play":
-                    switch (messageTokens[1])
-                    {
-                    }
+                switch (messageTokens[1])
+                {
+                case "explosion":
+                    AudioSource.PlayClipAtPoint(explosion, Vector3.zero);
+                    break;
+                case "flareLaunch":
+                    AudioSource.PlayClipAtPoint(flareLaunch, Vector3.zero);
+                    break;
+                case "laserShot":
+                    AudioSource.PlayClipAtPoint(laserShot, Vector3.zero);
+                    break;
+                case "rocketFire":
+                    AudioSource.PlayClipAtPoint(rocketFire, Vector3.zero);
+                    break;
+                case "turboBoost":
+                    AudioSource.PlayClipAtPoint(turboBoost, Vector3.zero);
+                    break;
+                case "warning":
+                    AudioSource.PlayClipAtPoint(warning, Vector3.zero);
+                    break;
+                }
                 break;
             }
         }
