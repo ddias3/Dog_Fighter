@@ -66,12 +66,30 @@ namespace DogFighter
 		private bool[] otherShipDrawIconNormal;
 		private Vector3[] otherShipDrawEdgeIconPositions;
 		private float[] otherShipDrawIconEdgeAngles;
+        private LockOnDataWrapper[] otherShipLockOnDataWrappers;
 
 		private string[] shipIconDistanceString;
 		private string[] shipIconNameString;
 
+        private const int MISSILE_LOCK_ON_SCREEN_SIZE = 256;
+        private const int LASER_LOCK_ON_SCREEN_SIZE = 128;
+
+        private const float LASER_LOCK_ON_TIME = 0.5f;
+        private const float MISSILE_LOCK_ON_TIME = 1.5f;
+        private const float LASER_LOSE_LOCK_COMPLETE_TIME = 1f;
+        private const float MISSILE_LOSE_LOCK_COMPLETE_TIME = 3f;
+        private float INVERSE_LASER_LOCK_ON_TIME;
+        private float INVERSE_MISSILE_LOCK_ON_TIME;
+        private float INVERSE_LASER_LOSE_LOCK_COMPLETE_TIME;
+        private float INVERSE_MISSILE_LOSE_LOCK_COMPLETE_TIME;
+
 		public override void ActionStart()
 		{
+            INVERSE_LASER_LOCK_ON_TIME = 1f / LASER_LOCK_ON_TIME;
+            INVERSE_MISSILE_LOCK_ON_TIME = 1f / MISSILE_LOCK_ON_TIME;
+            INVERSE_LASER_LOSE_LOCK_COMPLETE_TIME = 1f / LASER_LOSE_LOCK_COMPLETE_TIME;
+            INVERSE_MISSILE_LOSE_LOCK_COMPLETE_TIME = 1f / MISSILE_LOSE_LOCK_COMPLETE_TIME;
+
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get player_number");
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get controller_number");
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "get spawn_point");
@@ -332,7 +350,67 @@ namespace DogFighter
 				}
 			}
 
+            for (int n = 0; n < otherShipScreenSpacePositions.Length; ++n)
+            {
+                if (otherShipPositions[n].active)
+                {
+                    Vector2 localScreenMid = new Vector2(screenLeftStart + screenWidth / 2, screenTopStart + screenHeight / 2);
+
+                    Vector2 positionToMid = new Vector2(otherShipScreenSpacePositions[n].x - localScreenMid.x,
+                                                          otherShipScreenSpacePositions[n].y - localScreenMid.y);
+
+                    otherShipLockOnDataWrappers[n].distanceFromMid = positionToMid.magnitude;
+
+                    if (otherShipLockOnDataWrappers[n].distanceFromMid < laserLockOnTextureWidth * 0.5f)
+                    {
+                        otherShipLockOnDataWrappers[n].laserLockOn += INVERSE_LASER_LOCK_ON_TIME * Time.deltaTime;
+
+                        if (otherShipLockOnDataWrappers[n].laserLockOn >= 1f)
+                        {
+                            otherShipLockOnDataWrappers[n].laserLockOnReady = true;
+                            otherShipLockOnDataWrappers[n].laserLockOn = 1f;
+                        }
+                    }
+                    else
+                    {
+                        otherShipLockOnDataWrappers[n].laserLockOnReady = false;
+
+                        otherShipLockOnDataWrappers[n].laserLockOn -= INVERSE_LASER_LOSE_LOCK_COMPLETE_TIME * Time.deltaTime;
+
+                        if (otherShipLockOnDataWrappers[n].laserLockOn <= 0f)
+                        {
+                            otherShipLockOnDataWrappers[n].laserLockOnReady = false;
+                            otherShipLockOnDataWrappers[n].laserLockOn = 0f;
+                        }
+                    }
+
+                    if (otherShipLockOnDataWrappers[n].distanceFromMid < missileLockOnTextureWidth * 0.5f)
+                    {
+                        otherShipLockOnDataWrappers[n].missileLockOn += INVERSE_MISSILE_LOCK_ON_TIME * Time.deltaTime;
+
+                        if (otherShipLockOnDataWrappers[n].missileLockOn >= 1f)
+                        {
+                            otherShipLockOnDataWrappers[n].missileLockOnReady = true;
+                            otherShipLockOnDataWrappers[n].missileLockOn = 1f;
+                        }
+                    }
+                    else
+                    {
+                        otherShipLockOnDataWrappers[n].missileLockOnReady = false;
+                        
+                        otherShipLockOnDataWrappers[n].missileLockOn -= INVERSE_MISSILE_LOSE_LOCK_COMPLETE_TIME * Time.deltaTime;
+                        
+                        if (otherShipLockOnDataWrappers[n].missileLockOn <= 0f)
+                        {
+                            otherShipLockOnDataWrappers[n].missileLockOnReady = false;
+                            otherShipLockOnDataWrappers[n].missileLockOn = 0f;
+                        }
+                    }
+                }
+            }
+
 			if (inputHandler.GetButtonDown ("Right_Bumper")) {
+                GetLockedOnShipTransform();
 				missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
 			}
 			if (inputHandler.GetAxis("Right_Trigger") > 0.5f) {
@@ -414,7 +492,7 @@ namespace DogFighter
 						                         playerIconTextureHeight),
 						                playerIconTexture, ScaleMode.StretchToFill);
 						GUI.Label(new Rect(otherShipScreenSpacePositions[n].x - playerIconTextureWidth / 2,
-						                   otherShipScreenSpacePositions[n].y - 2 * playerIconTextureHeight,
+						                   otherShipScreenSpacePositions[n].y - 1.5f * playerIconTextureHeight,
 						                   screenWidth,
 						                   screenHeight),
 						          shipIconNameString[n], shipIconNameGuiStyle);
@@ -448,6 +526,19 @@ namespace DogFighter
 //						          shipIconDistanceString[n], shipIconDistanceGuiStyle);
 					}
 
+//                    if (otherShipLockOnDataWrappers[n].laserLockOnReady)
+//                        GUI.Label(new Rect(screenLeftStart + 80 * n, screenTopStart, 500, 100), "lLoc: On");
+//                    else
+//                        GUI.Label(new Rect(screenLeftStart + 80 * n, screenTopStart, 500, 100), "lLoc: Off");
+//
+//                    GUI.Label(new Rect(screenLeftStart + 80 * n, screenTopStart + 20, 500, 100), "lLoc#: " + otherShipLockOnDataWrappers[n].laserLockOn);
+//
+//                    if (otherShipLockOnDataWrappers[n].missileLockOnReady)
+//                        GUI.Label(new Rect(screenLeftStart + 80 * n, screenTopStart + 40, 500, 100), "mLoc: On");
+//                    else
+//                        GUI.Label(new Rect(screenLeftStart + 80 * n, screenTopStart + 40, 500, 100), "mLoc: Off");
+//
+//                    GUI.Label(new Rect(screenLeftStart + 80 * n, screenTopStart + 60, 500, 100), "mLoc#: " + otherShipLockOnDataWrappers[n].missileLockOn);
 				}
 
 				//health gui
@@ -535,6 +626,9 @@ namespace DogFighter
 						shipIconNameString[n] = "P" + otherShipPositions[n].shipNumber;
 					otherShipDrawEdgeIconPositions = new Vector3[otherShipPositions.Length];
 					otherShipDrawIconEdgeAngles = new float[otherShipPositions.Length];
+                    otherShipLockOnDataWrappers = new LockOnDataWrapper[otherShipPositions.Length];
+                    for (int n = 0; n < otherShipLockOnDataWrappers.Length; ++n)
+                        otherShipLockOnDataWrappers[n] = new LockOnDataWrapper(otherShipPositions[n]);
 					break;
 				}
 				break;
@@ -702,21 +796,64 @@ namespace DogFighter
             throttleGuiStyle.fontSize = (int)(screenHeight / 720f * 28);
             speedometerGuiStyle.fontSize = (int)(screenHeight / 720f * 72);
 
-			shipIconNameGuiStyle.fontSize = (int)(screenHeight / 720f * 24);
-			shipIconDistanceGuiStyle.fontSize = (int)(screenHeight / 720f * 20);
+			shipIconNameGuiStyle.fontSize = (int)(screenHeight / 720f * 32);
+			shipIconDistanceGuiStyle.fontSize = (int)(screenHeight / 720f * 28);
 
 			crossHairTextureWidth = (int)(hudScreenWidth / 1280f * 16);
 			crossHairTextureHeight = (int)(hudScreenHeight / 720f * 16);
 
-			laserLockOnTextureWidth = (int)(hudScreenWidth / 1280f * 128);
-			laserLockOnTextureHeight = (int)(hudScreenHeight / 720f * 128);
+			laserLockOnTextureWidth = (int)(hudScreenWidth / 1280f * LASER_LOCK_ON_SCREEN_SIZE);
+			laserLockOnTextureHeight = (int)(hudScreenHeight / 720f * LASER_LOCK_ON_SCREEN_SIZE);
 
-			missileLockOnTextureWidth = (int)(hudScreenWidth / 1280f * 256);
-			missileLockOnTextureHeight = (int)(hudScreenHeight / 720f * 256);
+			missileLockOnTextureWidth = (int)(hudScreenWidth / 1280f * MISSILE_LOCK_ON_SCREEN_SIZE);
+			missileLockOnTextureHeight = (int)(hudScreenHeight / 720f * MISSILE_LOCK_ON_SCREEN_SIZE);
 
-			playerIconEdgeTextureWidth = playerIconTextureWidth = (int)(hudScreenWidth / 1280f * 16);
-			playerIconEdgeTextureHeight = playerIconTextureHeight = (int)(hudScreenHeight / 720f * 16);
+			playerIconEdgeTextureWidth = playerIconTextureWidth = (int)(hudScreenWidth / 1280f * 32);
+			playerIconEdgeTextureHeight = playerIconTextureHeight = (int)(hudScreenHeight / 720f * 32);
 
 		}
+
+        private Transform lockedOnTransform;
+        private Transform GetLockedOnShipTransform()
+        {
+            if (otherShipPositions.Length == 0)
+                return null;
+
+            int outputIndex = 0;
+            float closestDistance = Mathf.Infinity;
+            for (int n = 0; n < otherShipPositions.Length; ++n)
+            {
+                if (otherShipLockOnDataWrappers[n].distanceFromMid < closestDistance)
+                    outputIndex = n;
+            }
+
+            SceneManager.SendMessageToAction(this, "DeathMatchAction", "get transform " + otherShipPositions[outputIndex].shipNumber);
+            return lockedOnTransform;
+        }
+
+        public void PassTransform(Transform lockedOnTransform)
+        {
+            this.lockedOnTransform = lockedOnTransform;
+        }
+        
+        private sealed class LockOnDataWrapper
+        {
+            public PlayerShipPosition lockedOnShip;
+
+            public float distanceFromMid;
+
+            public float laserLockOn;
+            public float missileLockOn;
+
+            public bool laserLockOnReady;
+            public bool missileLockOnReady;
+
+            public LockOnDataWrapper(PlayerShipPosition shipPositionReference)
+            {
+                lockedOnShip = shipPositionReference;
+                laserLockOn = missileLockOn = 0f;
+                laserLockOnReady = missileLockOnReady = false;
+            }
+        }
 	}
 }
