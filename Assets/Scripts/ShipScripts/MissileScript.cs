@@ -99,7 +99,7 @@ namespace DogFighter
         private float speed;
         private float speedInterpolation;
         
-        private const float FLARE_RANGE=1000f;
+        private const float FLARE_RANGE=1200f;
         
         private float timeOut;
         
@@ -116,8 +116,8 @@ namespace DogFighter
 				foreach(GameObject f in flares){
 					float distToFlare = Vector3.Distance(transform.position,f.transform.position);
 					float flareToTarget = Vector3.Distance(f.transform.position,target.position);
-					float playerToTarget = Vector3.Distance(transform.position,target.position);
-					if(distToFlare<FLARE_RANGE && flareToTarget<playerToTarget){
+					float distToTarget = Vector3.Distance(transform.position,target.position);
+					if(distToFlare<FLARE_RANGE && flareToTarget<distToTarget && distToTarget>distToFlare){
 						target = f.transform;
 						break;
 					}
