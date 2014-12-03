@@ -117,7 +117,7 @@ namespace DogFighter
 					float distToFlare = Vector3.Distance(transform.position,f.transform.position);
 					float flareToTarget = Vector3.Distance(f.transform.position,target.position);
 					float distToTarget = Vector3.Distance(transform.position,target.position);
-					if(distToFlare<FLARE_RANGE && flareToTarget<distToTarget && distToTarget<distToFlare){
+					if(distToFlare<FLARE_RANGE && flareToTarget<distToTarget && distToTarget>distToFlare){
 						target = f.transform;
 						break;
 					}
