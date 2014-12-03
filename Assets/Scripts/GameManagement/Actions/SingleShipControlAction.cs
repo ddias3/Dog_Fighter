@@ -40,9 +40,9 @@ namespace DogFighter
 
 		public Texture2D afterburnerIcon;
 
-        public Texture2D warningLockOn;
-        public Texture2D warningMissileLockOn;
-        public Texture2D warningFireFlares;
+        public Texture2D warningLockOnTexture;
+        public Texture2D warningMissileLockOnTexture;
+        public Texture2D warningFireFlaresTexture;
         public GUIStyle warningGuiStyle;
 
 		private GameObject shipGameObject;
@@ -182,6 +182,8 @@ namespace DogFighter
             lockedOn = false;
             lockedOnByMissile = false;
             launchFlares = false;
+
+//            lockedOn = lockedOnByMissile = launchFlares = true;
 
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "spawn " + playerNumber);
         }
@@ -701,6 +703,49 @@ namespace DogFighter
 				else
 					GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset + segment*2, fullChargeWidth*flareCharge, chargeHeight),
 					                waitBar, ScaleMode.StretchToFill);
+
+                //warnings
+                if (lockedOn)
+                {
+                    GUI.DrawTexture(new Rect(screenLeftStart + hudScreenWidth / 16,
+                                             screenTopStart + hudScreenHeight / 6,
+                                             hudScreenWidth / 12,
+                                             hudScreenHeight / 8),
+                                    warningLockOnTexture, ScaleMode.StretchToFill);
+                    GUI.Label(new Rect(screenLeftStart + hudScreenWidth / 16,
+                                       screenTopStart + hudScreenHeight / 6,
+                                       hudScreenWidth / 12,
+                                       hudScreenHeight / 8),
+                              "LOCKED ON", warningGuiStyle);
+                }
+
+                if (lockedOnByMissile)
+                {
+                    GUI.DrawTexture(new Rect(screenLeftStart + hudScreenWidth / 16,
+                                             screenTopStart + 2 * hudScreenHeight / 6,
+                                             hudScreenWidth / 12,
+                                             hudScreenHeight / 8),
+                                    warningMissileLockOnTexture, ScaleMode.StretchToFill);
+                    GUI.Label(new Rect(screenLeftStart + hudScreenWidth / 16,
+                                       screenTopStart + 2 * hudScreenHeight / 6,
+                                       hudScreenWidth / 12,
+                                       hudScreenHeight / 8),
+                              "MISSILE LOCKED", warningGuiStyle);
+                }
+
+                if (launchFlares)
+                {
+                    GUI.DrawTexture(new Rect(screenLeftStart + hudScreenWidth / 16,
+                                             screenTopStart + 3 * hudScreenHeight / 6,
+                                             hudScreenWidth / 12,
+                                             hudScreenHeight / 8),
+                                    warningFireFlaresTexture, ScaleMode.StretchToFill);
+                    GUI.Label(new Rect(screenLeftStart + hudScreenWidth / 16,
+                                       screenTopStart + 3 * hudScreenHeight / 6,
+                                       hudScreenWidth / 12,
+                                       hudScreenHeight / 8),
+                              "FIRE FLARES", warningGuiStyle);
+                }
 			}
 		}
 		
@@ -955,7 +1000,7 @@ namespace DogFighter
 			shipIconNameGuiStyle.fontSize = (int)(screenHeight / 720f * 32);
 			shipIconDistanceGuiStyle.fontSize = (int)(screenHeight / 720f * 28);
 
-            warningGuiStyle.fontSize = (int)(screenHeight / 720f * 64);
+            warningGuiStyle.fontSize = (int)(screenHeight / 720f * 50);
 
 			crossHairTextureWidth = (int)(hudScreenWidth / 1280f * 20);
 			crossHairTextureHeight = (int)(hudScreenHeight / 720f * 20);
