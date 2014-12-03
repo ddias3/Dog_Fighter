@@ -99,7 +99,7 @@ namespace DogFighter
         private float speed;
         private float speedInterpolation;
         
-        private const float FLARE_RANGE=1000f;
+        private const float FLARE_RANGE=1200f;
         
         private float timeOut;
         
