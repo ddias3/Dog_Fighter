@@ -293,18 +293,6 @@ namespace DogFighter
                 playerShip.Pitch = -pitch;
                 playerShip.Yaw = yaw;
                 playerShip.Roll = -roll;
-
-                if (inputHandler.GetButtonDown ("Left_Bumper")) {
-                    flares.Fire(playerShip.transform, playerShip.rigidbody.velocity);
-                }
-                if (inputHandler.GetButtonDown ("Right_Bumper")) {
-                    missiles.SetTarget(GetMissileLockedOnShipTransform());
-                    missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
-                }
-                if (inputHandler.GetAxis("Right_Trigger") > 0.5f) {
-                    lasers.SetTarget(GetLaserLockedOnShipTransform());
-                    lasers.Fire(playerShip.transform);
-                }
             }
 
 			if (inputHandler.GetButtonDown("Back_Button"))
@@ -320,7 +308,10 @@ namespace DogFighter
 				if (controlsEnabled && !deathAnimation)
 					displayGUI = true;
 			}
-			
+			if (inputHandler.GetButtonDown ("Left_Bumper")) {
+				flares.Fire(playerShip.transform, playerShip.rigidbody.velocity);
+			}
+
 			for (int n = 0; n < otherShipPositions.Length; ++n)
 			{
 				otherShipScreenSpacePositions[n] = playerCamera.WorldToScreenPoint(otherShipPositions[n].position);
@@ -377,7 +368,7 @@ namespace DogFighter
             anyMissileLockOn = false;
             for (int n = 0; n < otherShipScreenSpacePositions.Length; ++n)
             {
-                if (otherShipPositions[n].active && null != playerShip)
+                if (otherShipPositions[n].active)
                 {
                     Vector2 localScreenMid = new Vector2(screenLeftStart + screenWidth / 2, screenTopStart + screenHeight / 2);
 
@@ -447,6 +438,15 @@ namespace DogFighter
                     otherShipLockOnDataWrappers[n].missileLockOnReady = false;
                 }
             }
+
+			if (inputHandler.GetButtonDown ("Right_Bumper")) {
+				missiles.SetTarget(GetMissileLockedOnShipTransform());
+				missiles.Fire(playerShip.transform, playerShip.rigidbody.velocity);
+			}
+			if (inputHandler.GetAxis("Right_Trigger") > 0.5f) {
+				lasers.SetTarget(GetLaserLockedOnShipTransform());
+				lasers.Fire(playerShip.transform);
+			}
 		}
 		
 		public override void ActionFixedUpdate()
@@ -624,7 +624,7 @@ namespace DogFighter
 				float segment = (((float)hudScreenHeight)/8)/3;
 				float iconOffset = segment/5;
 				float iconSize = segment - (iconOffset*2);
-				float leftWeaponWall = screenLeftStart + ((float)hudScreenWidth * 0.875f) + iconOffset;
+				float leftWeaponWall = screenLeftStart + ((float)screenWidth * 0.875f) + iconOffset;
 
 				GUI.DrawTexture(new Rect(leftWeaponWall, screenTopStart + iconOffset, iconSize, iconSize),
 				                rocketIcon, ScaleMode.StretchToFill);
