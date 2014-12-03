@@ -542,12 +542,12 @@ namespace DogFighter
 				}
 
 				//health gui
-				GUI.DrawTexture(new Rect(screenLeftStart, screenTopStart, screenHorizontalStep*5, screenVerticalStep),
+				GUI.DrawTexture(new Rect(screenLeftStart, screenTopStart, hudScreenWidth/5, hudScreenHeight/15),
 				                healthBackground, ScaleMode.StretchToFill);
 
 				float health = playerShip.ShipHealth;
-				float barOffset = screenVerticalStep/3;
-				float barLength = (((screenHorizontalStep*5) - (barOffset*2))/100) * health;
+				float barOffset = hudScreenHeight/45;
+				float barLength = (((hudScreenWidth/5) - (barOffset*2))/100) * health;
 
 				if(health > 50)
 					HealthColor = goodHealth;
