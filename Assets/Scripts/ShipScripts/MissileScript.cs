@@ -41,6 +41,7 @@ namespace DogFighter
             
             MAX_SPEED = -MAX_FORWARD_ACCELERATION / VELOCITY_DAMPENING_CONSTANT_FORWARD;
             INVERSE_MAX_SPEED = 1f / MAX_SPEED;
+            timeOut = 5f;
 		}
 
         private const float MAX_PITCH = 3f;
@@ -97,7 +98,15 @@ namespace DogFighter
         
         private const float FLARE_RANGE=1000f;
         
+        private float timeOut;
+        
 		void Update() {
+			if(target == null){
+				timeOut-= Time.deltaTime;
+			}
+			if(timeOut <= 0){
+				Destroy(this.gameObject);
+			}
 			GameObject[] flares = GameObject.FindGameObjectsWithTag("Flare");
 			if(flares.Length>0){
 				foreach(GameObject f in flares){
