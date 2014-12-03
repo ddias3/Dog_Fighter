@@ -53,7 +53,13 @@ MonoBehaviour:
     type: 3}
   missileLockOnCircleTexture: {fileID: 2800000, guid: 119a37e5edcc7684994836d5a0f3c51c,
     type: 3}
+  laserLockOnCircleRedTexture: {fileID: 2800000, guid: 2b8612ff2572e0646a72e158e15b83f0,
+    type: 3}
+  missileLockOnCircleRedTexture: {fileID: 2800000, guid: 5a8a7a1392743d843a5ead2d8d2d3355,
+    type: 3}
   playerIconTexture: {fileID: 2800000, guid: 9405b1de7abc5c94091922403c38f2a6, type: 3}
+  playerIconRedTexture: {fileID: 2800000, guid: a4a02ef921467cd4aa53fcf298c19d68,
+    type: 3}
   playerIconEdgeTexture: {fileID: 2800000, guid: 2ebf1694de446a345bb65a2d9bae92a6,
     type: 3}
   healthBackground: {fileID: 2800000, guid: bc78589528b28cb41ba2d25b2d5daffd, type: 3}

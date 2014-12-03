@@ -17,7 +17,11 @@ namespace DogFighter
 		public Texture2D laserLockOnCircleTexture;
 		public Texture2D missileLockOnCircleTexture;
 
+        public Texture2D laserLockOnCircleRedTexture;
+        public Texture2D missileLockOnCircleRedTexture;
+
 		public Texture2D playerIconTexture;
+        public Texture2D playerIconRedTexture;
 		public Texture2D playerIconEdgeTexture;
 
 		public Texture2D healthBackground;
@@ -67,6 +71,9 @@ namespace DogFighter
 		private Vector3[] otherShipDrawEdgeIconPositions;
 		private float[] otherShipDrawIconEdgeAngles;
         private LockOnDataWrapper[] otherShipLockOnDataWrappers;
+
+        private bool anyLaserLockOn = false;
+        private bool anyMissileLockOn = false;
 
 		private string[] shipIconDistanceString;
 		private string[] shipIconNameString;
@@ -350,6 +357,8 @@ namespace DogFighter
 				}
 			}
 
+            anyLaserLockOn = false;
+            anyMissileLockOn = false;
             for (int n = 0; n < otherShipScreenSpacePositions.Length; ++n)
             {
                 if (otherShipPositions[n].active)
@@ -369,6 +378,7 @@ namespace DogFighter
                         {
                             otherShipLockOnDataWrappers[n].laserLockOnReady = true;
                             otherShipLockOnDataWrappers[n].laserLockOn = 1f;
+                            anyLaserLockOn = true;
                         }
                     }
                     else
@@ -392,6 +402,7 @@ namespace DogFighter
                         {
                             otherShipLockOnDataWrappers[n].missileLockOnReady = true;
                             otherShipLockOnDataWrappers[n].missileLockOn = 1f;
+                            anyMissileLockOn = true;
                         }
                     }
                     else
@@ -479,27 +490,53 @@ namespace DogFighter
 				                         crossHairTextureHeight),
 				                crossHairTexture, ScaleMode.StretchToFill);
 
-				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - laserLockOnTextureWidth / 2,
-				                         screenTopStart + hudScreenHeight / 2 - laserLockOnTextureHeight / 2,
-				                         laserLockOnTextureWidth,
-				                         laserLockOnTextureHeight),
-				                laserLockOnCircleTexture, ScaleMode.StretchToFill);
+                if (anyLaserLockOn)
+                    GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - laserLockOnTextureWidth / 2,
+                                             screenTopStart + hudScreenHeight / 2 - laserLockOnTextureHeight / 2,
+                                             laserLockOnTextureWidth,
+                                             laserLockOnTextureHeight),
+                                    laserLockOnCircleRedTexture, ScaleMode.StretchToFill);
+                else
+    				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - laserLockOnTextureWidth / 2,
+    				                         screenTopStart + hudScreenHeight / 2 - laserLockOnTextureHeight / 2,
+    				                         laserLockOnTextureWidth,
+    				                         laserLockOnTextureHeight),
+    				                laserLockOnCircleTexture, ScaleMode.StretchToFill);
 
-				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - missileLockOnTextureWidth / 2,
-				                         screenTopStart + hudScreenHeight / 2 - missileLockOnTextureHeight / 2,
-				                         missileLockOnTextureWidth,
-				                         missileLockOnTextureHeight),
-				                missileLockOnCircleTexture, ScaleMode.StretchToFill);
+                if (anyMissileLockOn)
+    				GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - missileLockOnTextureWidth / 2,
+    				                         screenTopStart + hudScreenHeight / 2 - missileLockOnTextureHeight / 2,
+    				                         missileLockOnTextureWidth,
+    				                         missileLockOnTextureHeight),
+    				                missileLockOnCircleRedTexture, ScaleMode.StretchToFill);
+                else
+                    GUI.DrawTexture(new Rect(screenLeftStart + screenWidthInternalOffset + hudScreenWidth / 2 - missileLockOnTextureWidth / 2,
+                                             screenTopStart + hudScreenHeight / 2 - missileLockOnTextureHeight / 2,
+                                             missileLockOnTextureWidth,
+                                             missileLockOnTextureHeight),
+                                    missileLockOnCircleTexture, ScaleMode.StretchToFill);
 
 				for (int n = 0; n < otherShipScreenSpacePositions.Length; ++n)
 				{
 					if (otherShipDrawIconNormal[n])
 					{
-						GUI.DrawTexture(new Rect(otherShipScreenSpacePositions[n].x - playerIconTextureWidth / 2,
-						                         otherShipScreenSpacePositions[n].y - playerIconTextureHeight / 2,
-						                         playerIconTextureWidth,
-						                         playerIconTextureHeight),
-						                playerIconTexture, ScaleMode.StretchToFill);
+                        if (otherShipLockOnDataWrappers[n].laserLockOnReady || otherShipLockOnDataWrappers[n].missileLockOnReady)
+                        {
+    						GUI.DrawTexture(new Rect(otherShipScreenSpacePositions[n].x - playerIconTextureWidth / 2,
+    						                         otherShipScreenSpacePositions[n].y - playerIconTextureHeight / 2,
+    						                         playerIconTextureWidth,
+    						                         playerIconTextureHeight),
+    						                playerIconRedTexture, ScaleMode.StretchToFill);
+                        }
+                        else
+                        {
+                            GUI.DrawTexture(new Rect(otherShipScreenSpacePositions[n].x - playerIconTextureWidth / 2,
+                                                     otherShipScreenSpacePositions[n].y - playerIconTextureHeight / 2,
+                                                     playerIconTextureWidth,
+                                                     playerIconTextureHeight),
+                                            playerIconTexture, ScaleMode.StretchToFill);
+                        }
+
 						GUI.Label(new Rect(otherShipScreenSpacePositions[n].x - playerIconTextureWidth / 2,
 						                   otherShipScreenSpacePositions[n].y - 1.5f * playerIconTextureHeight,
 						                   screenWidth,
