@@ -102,7 +102,9 @@ namespace DogFighter
         private const float FLARE_RANGE=1200f;
         
         private float timeOut;
-        
+
+        private bool previousFrameSend = false;
+        private bool currentFrameSend = false;
 		void Update() {
 			if(target == null){
 				timeOut-= Time.deltaTime;
@@ -113,15 +115,32 @@ namespace DogFighter
 			GameObject[] flares = GameObject.FindGameObjectsWithTag("Flare");
 			if(null != target)
             {
+                float distToTarget = Vector3.Distance(transform.position,target.position);
+
 				foreach(GameObject f in flares){
 					float distToFlare = Vector3.Distance(transform.position,f.transform.position);
 					float flareToTarget = Vector3.Distance(f.transform.position,target.position);
-					float distToTarget = Vector3.Distance(transform.position,target.position);
 					if(distToFlare<FLARE_RANGE && flareToTarget<distToTarget && distToTarget>distToFlare){
 						target = f.transform;
 						break;
 					}
 				}
+
+                if (distToTarget < 2000f)
+                    currentFrameSend = true;
+                else
+                    currentFrameSend = false;
+
+                PlayerShip playerShip = target.gameObject.GetComponent<PlayerShip>();
+                if (null != playerShip)
+                {
+                    if (!previousFrameSend && currentFrameSend)
+                        SceneManager.SendMessageToAction(null, "SingleShipControlAction_P" + playerShip.PlayerNumber, "increment fire_flares");
+                    else if (previousFrameSend && !currentFrameSend)
+                        SceneManager.SendMessageToAction(null, "SingleShipControlAction_P" + playerShip.PlayerNumber, "decrement fire_flares");
+                }
+
+                previousFrameSend = currentFrameSend;
 			}
 		}
 
@@ -168,6 +187,7 @@ namespace DogFighter
                             {
                                 SceneManager.SendMessageToAction(null, "DeathMatchAction", "kill " + playerNumber);
                             }
+                            SceneManager.SendMessageToAction(null, "SingleShipControlAction_P" + playerShip.PlayerNumber, "decrement lockon_by_missile");
                         }
                         Destroy(this.gameObject);
                     }
@@ -180,6 +200,7 @@ namespace DogFighter
                     {
                         if (playerShip.DecrementHealth(60))
                             SceneManager.SendMessageToAction(null, "DeathMatchAction", "kill " + playerNumber);
+                        SceneManager.SendMessageToAction(null, "SingleShipControlAction_P" + playerShip.PlayerNumber, "decrement lockon_by_missile");
                     }
                     Destroy(this.gameObject);
                 }
@@ -227,6 +248,9 @@ namespace DogFighter
 //		}
 		
 		public void SetTarget(Transform newTarget){
+            if (newTarget != null && newTarget.tag == "Flare")
+                SceneManager.SendMessageToAction(null, "SingleShipControlAction_P" + target.gameObject.GetComponent<PlayerShip>().PlayerNumber, "decrement fire_flares");
+
 			target = newTarget;
 		}
 	}

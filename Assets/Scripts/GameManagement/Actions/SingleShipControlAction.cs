@@ -105,9 +105,16 @@ namespace DogFighter
         private float INVERSE_LASER_LOSE_LOCK_COMPLETE_TIME;
         private float INVERSE_MISSILE_LOSE_LOCK_COMPLETE_TIME;
 
-        private bool lockedOn;
-        private bool lockedOnByMissile;
+//        private bool lockedOn;
+//        private bool lockedOnByMissile;
+//        private bool launchFlares;
+
+        private bool lockedOnByShips;
+        private bool lockedOnByMissiles;
         private bool launchFlares;
+        private bool[] lockedOnByShip;
+        private bool[] lockedOnByMissile;
+        private bool[] launchFlaresWarning;
 
 		public override void ActionStart()
 		{
@@ -179,9 +186,12 @@ namespace DogFighter
 
             SetupScreenValues(DataManager.GetNumberPlayers());
 
-            lockedOn = false;
-            lockedOnByMissile = false;
+            lockedOnByShips = false;
+            lockedOnByMissiles = false;
             launchFlares = false;
+
+            anyLaserLockOn = false;
+            anyMissileLockOn = false;
 
 //            lockedOn = lockedOnByMissile = launchFlares = true;
 
@@ -392,6 +402,7 @@ namespace DogFighter
 				}
 			}
 
+
             anyLaserLockOn = false;
             anyMissileLockOn = false;
             for (int n = 0; n < otherShipScreenSpacePositions.Length; ++n)
@@ -416,6 +427,8 @@ namespace DogFighter
                             otherShipLockOnDataWrappers[n].laserLockOnReady = true;
                             otherShipLockOnDataWrappers[n].laserLockOn = 1f;
                             anyLaserLockOn = true;
+
+                            SceneManager.SendMessageToAction(this, "SingleShipControlAction_P" + otherShipPositions[n].shipNumber, "increment lockon_by_ship");
                         }
                     }
                     else
@@ -705,7 +718,7 @@ namespace DogFighter
 					                waitBar, ScaleMode.StretchToFill);
 
                 //warnings
-                if (lockedOn)
+                if (lockedOnByShips)
                 {
                     GUI.DrawTexture(new Rect(screenLeftStart + hudScreenWidth / 16,
                                              screenTopStart + hudScreenHeight / 6,
@@ -719,7 +732,7 @@ namespace DogFighter
                               "LOCKED ON", warningGuiStyle);
                 }
 
-                if (lockedOnByMissile)
+                if (lockedOnByMissiles)
                 {
                     GUI.DrawTexture(new Rect(screenLeftStart + hudScreenWidth / 16,
                                              screenTopStart + 2 * hudScreenHeight / 6,
@@ -761,26 +774,54 @@ namespace DogFighter
 				case "player_number":
 					playerNumber = int.Parse(messageTokens[2]);
 					break;
-                case "lockon":
-                    {
-                        int value = int.Parse(messageTokens[2]);
-                        lockedOn = (value == 1) ? true : false;
-                    }
-                    break;
-                case "lockon_by_missile":
-                    {
-                        int value = int.Parse(messageTokens[2]);
-                        lockedOnByMissile = (value == 1) ? true : false;
-                    }
-                    break;
-                case "fire_flares":
-                    {
-                        int value = int.Parse(messageTokens[2]);
-                        launchFlares = (value == 1) ? true : false;
-                    }
-                    break;
 				}
 				break;
+            case "increment":
+                switch (messageTokens[1])
+                {
+                case "lockon_by_ship":
+                {
+                    ++lockedOnByShips;
+                }
+                    break;
+                case "lockon_by_missile":
+                {
+                    ++lockedOnByMissiles;
+                }
+                    break;
+                case "fire_flares":
+                {
+                    ++launchFlares;
+                }
+                    break;
+                }
+                break;
+            case "decrement":
+                switch (messageTokens[1])
+                {
+                case "lockon_by_ship":
+                {
+                    --lockedOnByShips;
+                    if (lockedOnByShips < 0)
+                        lockedOnByShips = 0;
+                }
+                    break;
+                case "lockon_by_missile":
+                {
+                    --lockedOnByMissiles;
+                    if (lockedOnByMissiles < 0)
+                        lockedOnByMissiles = 0;
+                }
+                    break;
+                case "fire_flares":
+                {
+                    --launchFlares;
+                    if (launchFlares < 0)
+                        launchFlares = 0;
+                }
+                    break;
+                }
+                break;
 			case "enable_controls":
 				displayGUI = true;
 				controlsEnabled = true;
@@ -831,6 +872,13 @@ namespace DogFighter
                     otherShipLockOnDataWrappers = new LockOnDataWrapper[otherShipPositions.Length];
                     for (int n = 0; n < otherShipLockOnDataWrappers.Length; ++n)
                         otherShipLockOnDataWrappers[n] = new LockOnDataWrapper(otherShipPositions[n]);
+                    laserLockOnPreviousValues = new bool[otherShipPositions.Length];
+                    missileLockOnPreviousValues = new bool[otherShipPositions.Length];
+                    for (int n = 0; n < otherShipPositions.Length; ++n)
+                    {
+                        laserLockOnPreviousValues[n] = false;
+                        missileLockOnPreviousValues[n] = false;
+                    }
 					break;
 				}
 				break;

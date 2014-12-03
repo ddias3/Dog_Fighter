@@ -33,6 +33,13 @@ namespace DogFighter
 				MissileScript mScript = missileFired.GetComponent<MissileScript>();
                 mScript.playerNumber = gameObject.GetComponent<SingleShipControlAction>().PlayerNumber;
 				mScript.SetTarget(target);
+
+                if (target != null)
+                {
+                    PlayerShip playerShip = target.gameObject.GetComponent<PlayerShip>();
+                    SceneManager.SendMessageToAction(null, "SingleShipControlAction_P" + playerShip.PlayerNumber, "increment lockon_by_missile");
+                }
+
 				return lastFired;
 			}
 			else{

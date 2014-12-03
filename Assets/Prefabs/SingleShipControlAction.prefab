@@ -75,15 +75,17 @@ MonoBehaviour:
   readyBar: {fileID: 2800000, guid: e8c133c709f69814fbd5408d84994e8e, type: 3}
   waitBar: {fileID: 2800000, guid: 0d3ed700ccfb73d488bc443530bc6518, type: 3}
   afterburnerIcon: {fileID: 2800000, guid: 8cbbd7d61b3370149883da06090a867a, type: 3}
-  warningLockOn: {fileID: 2800000, guid: 5a8a7a1392743d843a5ead2d8d2d3355, type: 3}
-  warningMissileLockOn: {fileID: 2800000, guid: 1f6cc29b796c93b43b716902607380a2,
+  warningLockOnTexture: {fileID: 2800000, guid: 5a8a7a1392743d843a5ead2d8d2d3355,
     type: 3}
-  warningFireFlares: {fileID: 2800000, guid: 507b09442466371499f0213dd43fb551, type: 3}
+  warningMissileLockOnTexture: {fileID: 2800000, guid: 1f6cc29b796c93b43b716902607380a2,
+    type: 3}
+  warningFireFlaresTexture: {fileID: 2800000, guid: 507b09442466371499f0213dd43fb551,
+    type: 3}
   warningGuiStyle:
     m_Name: 
     m_Normal:
       m_Background: {fileID: 0}
-      m_TextColor: {r: .852941155, g: 0, b: 0, a: 1}
+      m_TextColor: {r: .639705896, g: 0, b: 0, a: 1}
     m_Hover:
       m_Background: {fileID: 0}
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
