@@ -482,6 +482,18 @@ namespace DogFighter
 				case "controller_number":
 					((SingleShipControlAction)action).ControllerNumber = controllerMap[((SingleShipControlAction)action).PlayerNumber - 1];
 					break;
+                case "transform":
+                {
+                    int shipNumber = int.Parse(messageTokens[2]);
+                    int index = 0;
+                    for (; index < allShipPositions.Length; ++index)
+                    {
+                        if (allShipPositions[index].shipNumber == shipNumber)
+                            break;
+                    }
+                    ((SingleShipControlAction)action).PassTransform(allShipTransforms[index]);
+                }
+                    break;
 				}
 				break;
 			case "start_intro":
