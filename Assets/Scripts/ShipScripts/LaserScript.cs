@@ -40,7 +40,7 @@ namespace DogFighter
 				laser.SetPosition(0,fireFrom);
 			}
 			if(target != null){
-				laser.SetPosition(1,target.transform);
+				laser.SetPosition(1,target.position);
 			}
 		}
 		
@@ -77,8 +77,9 @@ namespace DogFighter
 				laser.SetPosition(0,fireFrom);
 				laser.SetPosition(1,fireAt);
 				laser.enabled = true;
-				if(target != null && fireAt == target.position){
-					target.gameObject.GetComponent<Health>() -= 20;
+				if(target != null && hit.collider.gameObject.tag == "PlayerShip"){
+                    PlayerShip playerShip = target.gameObject.GetComponent<PlayerShip>();
+					playerShip.ShipHealth = playerShip.ShipHealth - 20;
 				}
 			}
 			return charge;
