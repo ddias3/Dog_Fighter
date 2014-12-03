@@ -322,6 +322,7 @@ namespace DogFighter
 		public float ShipHealth
 		{
 			get { return shipHealth; }
+			set { shipHealth = value; }
 		}
 
 		public float ShieldHealth
