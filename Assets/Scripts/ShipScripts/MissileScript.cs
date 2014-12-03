@@ -8,7 +8,7 @@ namespace DogFighter
 		private GameObject target;
 		
 		void Start() {
-			rigidbody.velocity = transform.rotation * new Vector3(0,0,500);
+			rigidbody.velocity += transform.rotation * new Vector3(0,0,300);
 		}
 
 		void FixedUpdate() {
