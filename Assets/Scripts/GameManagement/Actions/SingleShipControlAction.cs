@@ -493,19 +493,19 @@ namespace DogFighter
 
 				//afterburner gui
 				float burnerBarPinch = ((float)hudScreenHeight / 25) / 4;
-				float burnerBarHeight = hudScreenHeight - (hudScreenHeight / 25) - (hudScreenHeight / 5) + screenTopStart + (burnerBarPinch*1.9f);
-				float burnerBarOffset = ((float)hudScreenWidth / 50) * 1.01f;
-				float burnerBarFullWidth = (hudScreenWidth / 13) - burnerBarOffset;
+				float burnerBarHeight = screenHeight - (hudScreenHeight / 25) - (hudScreenHeight / 5) + (burnerBarPinch*1.9f);
+				float burnerBarOffset = screenLeftStart + ((float)hudScreenWidth / 50) * 1.01f;
+				float burnerBarFullWidth = (hudScreenWidth / 18);
 
 
-				GUI.DrawTexture(new Rect(screenLeftStart, burnerBarHeight * .98f, hudScreenWidth / 50, hudScreenHeight / 25),
+                GUI.DrawTexture(new Rect(screenLeftStart, screenTopStart + burnerBarHeight * .98f, hudScreenWidth / 50, hudScreenHeight / 25),
 				                afterburnerIcon, ScaleMode.StretchToFill);
 
 				if(playerShip.AfterburnerAvailable)
-					GUI.DrawTexture(new Rect(burnerBarOffset, burnerBarHeight, burnerBarFullWidth * playerShip.AfterburnerFuel, (hudScreenHeight / 25) - burnerBarPinch*2),
+                    GUI.DrawTexture(new Rect(burnerBarOffset, screenTopStart + burnerBarHeight, burnerBarFullWidth * playerShip.AfterburnerFuel, (hudScreenHeight / 25) - burnerBarPinch*2),
 				                	readyBar, ScaleMode.StretchToFill);
 				else
-					GUI.DrawTexture(new Rect(burnerBarOffset, burnerBarHeight, burnerBarFullWidth * playerShip.AfterburnerFuel, (hudScreenHeight / 25) - burnerBarPinch*2),
+                    GUI.DrawTexture(new Rect(burnerBarOffset, screenTopStart + burnerBarHeight, burnerBarFullWidth * playerShip.AfterburnerFuel, (hudScreenHeight / 25) - burnerBarPinch*2),
 					                waitBar, ScaleMode.StretchToFill);
 
 
