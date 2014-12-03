@@ -95,6 +95,23 @@ namespace DogFighter
         private float speed;
         private float speedInterpolation;
         
+        private const float FLARE_RANGE=1000f;
+        
+		void Update() {
+			GameObject[] flares = GameObject.FindGameObjectsWithTag("Flare");
+			if(flares.Length>0){
+				foreach(GameObject f in flares){
+					float distToFlare = Vector3.Distance(transform.position,f.transform.position);
+					float flareToTarget = Vector3.Distance(f.transform.position,target.position);
+					float playerToTarget = Vector3.Distance(transform.position,target.position);
+					if(distToFlare<FLARE_RANGE && flareToTarget<playerToTarget){
+						target = f.transform;
+						break;
+					}
+				}
+			}
+		}
+        
         void FixedUpdate()
         {
             speed = rigidbody.velocity.magnitude;
