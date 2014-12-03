@@ -686,7 +686,7 @@ namespace DogFighter
 					GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset + segment*2, fullChargeWidth*flareCharge, chargeHeight),
 				    	            readyBar, ScaleMode.StretchToFill);
 				else
-					GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset, fullChargeWidth*rocketCharge, chargeHeight),
+					GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset, fullChargeWidth*flareCharge, chargeHeight),
 					                waitBar, ScaleMode.StretchToFill);
 			}
 		}
