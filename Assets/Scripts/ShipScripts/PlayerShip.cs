@@ -322,8 +322,22 @@ namespace DogFighter
 		public float ShipHealth
 		{
 			get { return shipHealth; }
-			set { shipHealth = value; }
 		}
+
+        public bool DecrementHealth(float amount)
+        {
+            shipHealth -= amount;
+            if (shipHealth <= 0f)
+            {
+                collisionPoint = transform.position;
+                collisionNormal = -transform.forward;
+                SceneManager.SendMessageToAction(null, controllingActionName, "event crash");
+
+                return true;
+            }
+            else
+                return false;
+        }
 
 		public float ShieldHealth
 		{

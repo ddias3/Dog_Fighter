@@ -513,6 +513,8 @@ namespace DogFighter
                 if (gameModeState == 2)
                 {
 				    int playerNumber = int.Parse(messageTokens[1]);
+                    
+                    playerStats[playerNumber - 1].IncrementKills();
                 }
 			}
 				break;
@@ -521,6 +523,8 @@ namespace DogFighter
                 if (gameModeState == 2)
                 {
 				    int playerNumber = int.Parse(messageTokens[1]);
+
+                    playerStats[playerNumber - 1].IncrementAssists();
                 }
 			}
 				break;

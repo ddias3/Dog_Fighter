@@ -79,7 +79,8 @@ namespace DogFighter
 				laser.enabled = true;
 				if(target != null && hit.collider.gameObject.tag == "PlayerShip"){
                     PlayerShip playerShip = target.gameObject.GetComponent<PlayerShip>();
-					playerShip.ShipHealth = playerShip.ShipHealth - 20;
+					if (playerShip.DecrementHealth(20))
+                        SceneManager.SendMessageToAction(null, "DeathMatchAction", "kill " + gameObject.GetComponent<SingleShipControlAction>().PlayerNumber);
 				}
 			}
 			return charge;
