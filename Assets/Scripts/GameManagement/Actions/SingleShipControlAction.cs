@@ -10,6 +10,7 @@ namespace DogFighter
 		public Texture2D throttleOverlay;
 		public Texture2D throttleMarker;
 		public Texture2D throttleBackdrop;
+		public Texture2D throttleBackground;
 
 		public Texture2D speedometerTexture;
 
@@ -36,6 +37,8 @@ namespace DogFighter
 		public Texture2D flareIcon;
 		public Texture2D readyBar;
 		public Texture2D waitBar;
+
+		public Texture2D afterburnerIcon;
 
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
@@ -472,7 +475,11 @@ namespace DogFighter
 				float zeroMarker = (float)(hudScreenHeight - (hudScreenHeight / 5) + screenTopStart) + (((float)hudScreenHeight / 5) * 0.58f);
 				float numEdge = (float)screenWidth * 0.005f + screenLeftStart;
 
+				float backgroundStart = hudScreenHeight - (hudScreenHeight / 5) - (((float)hudScreenHeight / 5) * 0.19f) + screenTopStart;
+
 				//throttle gui
+				GUI.DrawTexture(new Rect(screenLeftStart, backgroundStart, hudScreenWidth / 11, hudScreenHeight / 4f),
+				                throttleBackground, ScaleMode.StretchToFill);
 				GUI.DrawTexture(new Rect(screenLeftStart, hudScreenHeight - (hudScreenHeight / 5) + screenTopStart, hudScreenWidth / 12, hudScreenHeight / 5),
 				                throttleBackdrop, ScaleMode.StretchToFill);
 				GUI.DrawTexture(new Rect(screenLeftStart, (int)markerHeight, hudScreenWidth / 12, hudScreenHeight / 64),
@@ -482,6 +489,27 @@ namespace DogFighter
 
 				GUI.Label(new Rect(numEdge, zeroMarker, screenHorizontalStep, screenVerticalStep), "0", throttleGuiStyle);
 				GUI.Label(new Rect(numEdge * 1.001f, zeroMarker - (hudScreenHeight / 10), screenHorizontalStep, screenVerticalStep), "1", throttleGuiStyle);
+
+
+				//afterburner gui
+				float burnerBarPinch = ((float)hudScreenHeight / 25) / 4;
+				float burnerBarHeight = hudScreenHeight - (hudScreenHeight / 25) - (hudScreenHeight / 5) + screenTopStart + (burnerBarPinch*1.9f);
+				float burnerBarOffset = ((float)hudScreenWidth / 50) * 1.01f;
+				float burnerBarFullWidth = (hudScreenWidth / 13) - burnerBarOffset;
+
+
+				GUI.DrawTexture(new Rect(screenLeftStart, burnerBarHeight * .98f, hudScreenWidth / 50, hudScreenHeight / 25),
+				                afterburnerIcon, ScaleMode.StretchToFill);
+
+				if(playerShip.AfterburnerAvailable)
+					GUI.DrawTexture(new Rect(burnerBarOffset, burnerBarHeight, burnerBarFullWidth * playerShip.AfterburnerFuel, (hudScreenHeight / 25) - burnerBarPinch*2),
+				                	readyBar, ScaleMode.StretchToFill);
+				else
+					GUI.DrawTexture(new Rect(burnerBarOffset, burnerBarHeight, burnerBarFullWidth * playerShip.AfterburnerFuel, (hudScreenHeight / 25) - burnerBarPinch*2),
+					                waitBar, ScaleMode.StretchToFill);
+
+
+
 
 				//speedometer gui
 				GUI.DrawTexture(new Rect(screenLeftStart + screenWidth - hudScreenWidth / 8,
@@ -642,13 +670,24 @@ namespace DogFighter
 				float laserCharge = lasers.getCharge();
 				float flareCharge = flares.getCharge();
 
-				GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset, fullChargeWidth*rocketCharge, chargeHeight),
-				                readyBar, ScaleMode.StretchToFill);
+				//rocket charge
+				if (rocketCharge == 1)
+					GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset, fullChargeWidth*rocketCharge, chargeHeight),
+				                	readyBar, ScaleMode.StretchToFill);
+				else
+					GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset, fullChargeWidth*rocketCharge, chargeHeight),
+					                waitBar, ScaleMode.StretchToFill);
+				//laser charge
 				GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset + segment, fullChargeWidth*laserCharge, chargeHeight),
 				                readyBar, ScaleMode.StretchToFill);
-				GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset + segment*2, fullChargeWidth*flareCharge, chargeHeight),
-				                readyBar, ScaleMode.StretchToFill);
 
+				//flare charge
+				if (flareCharge == 1)
+					GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset + segment*2, fullChargeWidth*flareCharge, chargeHeight),
+				    	            readyBar, ScaleMode.StretchToFill);
+				else
+					GUI.DrawTexture(new Rect(leftChargeWall, screenTopStart + chargeOffset, fullChargeWidth*rocketCharge, chargeHeight),
+					                waitBar, ScaleMode.StretchToFill);
 			}
 		}
 		
