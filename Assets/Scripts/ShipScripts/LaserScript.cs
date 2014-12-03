@@ -91,5 +91,9 @@ namespace DogFighter
 		public void SetTarget(GameObject newTarget){
 			target = newTarget;
 		}
+
+		public float getCharge(){
+			return charge / 100f;
+		}
 	}
 }

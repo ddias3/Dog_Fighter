@@ -41,5 +41,9 @@ namespace DogFighter
 			target = newTarget;
 		}
 		
+		public float getCharge(){
+			return Mathf.Clamp01((ownTime - lastFired) / coolDown);
+		}
+		
 	}
 }
