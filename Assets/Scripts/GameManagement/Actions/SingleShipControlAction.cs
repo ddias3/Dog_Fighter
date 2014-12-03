@@ -40,6 +40,11 @@ namespace DogFighter
 
 		public Texture2D afterburnerIcon;
 
+        public Texture2D warningLockOn;
+        public Texture2D warningMissileLockOn;
+        public Texture2D warningFireFlares;
+        public GUIStyle warningGuiStyle;
+
 		private GameObject shipGameObject;
 		private PlayerShip playerShip;
 
@@ -99,6 +104,10 @@ namespace DogFighter
         private float INVERSE_MISSILE_LOCK_ON_TIME;
         private float INVERSE_LASER_LOSE_LOCK_COMPLETE_TIME;
         private float INVERSE_MISSILE_LOSE_LOCK_COMPLETE_TIME;
+
+        private bool lockedOn;
+        private bool lockedOnByMissile;
+        private bool launchFlares;
 
 		public override void ActionStart()
 		{
@@ -169,6 +178,10 @@ namespace DogFighter
 			playerShip.PlayerNumber = playerNumber;
 
             SetupScreenValues(DataManager.GetNumberPlayers());
+
+            lockedOn = false;
+            lockedOnByMissile = false;
+            launchFlares = false;
 
 			SceneManager.SendMessageToAction(this, "DeathMatchAction", "spawn " + playerNumber);
         }
@@ -703,6 +716,24 @@ namespace DogFighter
 				case "player_number":
 					playerNumber = int.Parse(messageTokens[2]);
 					break;
+                case "lockon":
+                    {
+                        int value = int.Parse(messageTokens[2]);
+                        lockedOn = (value == 1) ? true : false;
+                    }
+                    break;
+                case "lockon_by_missile":
+                    {
+                        int value = int.Parse(messageTokens[2]);
+                        lockedOnByMissile = (value == 1) ? true : false;
+                    }
+                    break;
+                case "fire_flares":
+                    {
+                        int value = int.Parse(messageTokens[2]);
+                        launchFlares = (value == 1) ? true : false;
+                    }
+                    break;
 				}
 				break;
 			case "enable_controls":
@@ -923,6 +954,8 @@ namespace DogFighter
 
 			shipIconNameGuiStyle.fontSize = (int)(screenHeight / 720f * 32);
 			shipIconDistanceGuiStyle.fontSize = (int)(screenHeight / 720f * 28);
+
+            warningGuiStyle.fontSize = (int)(screenHeight / 720f * 64);
 
 			crossHairTextureWidth = (int)(hudScreenWidth / 1280f * 20);
 			crossHairTextureHeight = (int)(hudScreenHeight / 720f * 20);

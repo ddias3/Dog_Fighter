@@ -50,6 +50,8 @@ namespace DogFighter
 		{
 			showScoreboardInExtraScreen = false;
 
+            SceneManager.SendMessage(this, "run SoundPlayerAction");
+
 //			DataManager.SetNumberPlayers(4);
 
 			numberPlayers = 0;

@@ -29,6 +29,9 @@ namespace DogFighter
 			case "SetupGameMenuAction":
 				action = MonoBehaviour.FindObjectOfType<SetupGameMenuAction>();
 				break;
+            case "SoundPlayerAction":
+                action = MonoBehaviour.FindObjectOfType<SoundPlayerAction>();
+                break;
 			default:
 				Debug.LogError(actionName + " does not exist");
 				throw new MissingComponentException();
