@@ -458,15 +458,19 @@ namespace DogFighter
 				float barOffset = screenVerticalStep/3;
 				float barLength = (((screenHorizontalStep*5) - (barOffset*2))/100) * health;
 
-				if(health > 55)
+				if(health > 50)
 					HealthColor = goodHealth;
-				else if (health > 15)
+				else if (health > 10)
 					HealthColor = okHealth;
 				else
 					HealthColor = badHealth;
 
 				GUI.DrawTexture(new Rect(screenLeftStart + barOffset, screenTopStart + barOffset, barLength, screenVerticalStep/3),
 				                		 HealthColor, ScaleMode.StretchToFill);
+
+
+				//weapons gui
+
 
 			}
 		}
