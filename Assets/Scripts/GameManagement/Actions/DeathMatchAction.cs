@@ -371,13 +371,16 @@ namespace DogFighter
 					GUI.Label(new Rect(0, Screen.height / 72, Screen.width, Screen.height / 36), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
 					break;
 				case 2:
-				case 4:
 					GUI.DrawTexture(new Rect(Screen.width / 2 - Screen.width / 20, Screen.height / 2 - Screen.height / 32, Screen.width / 10, Screen.height / 16), timeBackgroundTexture, ScaleMode.StretchToFill);
 					GUI.Label(new Rect(0, 0, Screen.width, Screen.height), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
 					break;
 				case 3:
 					GUI.DrawTexture(new Rect(3 * Screen.width / 4 - Screen.width / 20, Screen.height / 2 + Screen.height / 128, Screen.width / 10, Screen.height / 14), timeBackgroundTexture, ScaleMode.StretchToFill);
 					GUI.Label(new Rect(Screen.width / 2, Screen.height / 36 + Screen.height / 2, Screen.width / 2, Screen.height / 36), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
+					break;
+				case 4:
+					GUI.DrawTexture(new Rect(3 * Screen.width / 4 - Screen.width / 20, Screen.height / 2 - Screen.height / 32, Screen.width / 10, Screen.height / 16), timeBackgroundTexture, ScaleMode.StretchToFill);
+					GUI.Label(new Rect(Screen.width / 2, 0, Screen.width, Screen.height), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
 					break;
 				}
 				break;
