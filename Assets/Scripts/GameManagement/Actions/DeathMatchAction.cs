@@ -53,6 +53,8 @@ namespace DogFighter
             SceneManager.SendMessage(this, "run SoundPlayerAction");
 
 //			DataManager.SetNumberPlayers(4);
+//			for (int n = 0; n < 4; ++n)
+//				DataManager.SetPlayerPlaying(n + 1, true);
 
 			numberPlayers = 0;
 			inputHandlers = new ControllerMenuInputHandler[4];
@@ -380,7 +382,7 @@ namespace DogFighter
 					break;
 				case 4:
 					GUI.DrawTexture(new Rect(3 * Screen.width / 4 - Screen.width / 20, Screen.height / 2 - Screen.height / 32, Screen.width / 10, Screen.height / 16), timeBackgroundTexture, ScaleMode.StretchToFill);
-					GUI.Label(new Rect(Screen.width / 2, 0, Screen.width, Screen.height), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
+					GUI.Label(new Rect(Screen.width / 2, 0, Screen.width/2, Screen.height), minutesLeft.ToString() + ":" + secondsDisplay, timeGuiStyle);
 					break;
 				}
 				break;

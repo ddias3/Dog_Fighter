@@ -23,6 +23,9 @@ namespace DogFighter
 			case "OptionsMenuAction":
 				action = MonoBehaviour.FindObjectOfType<OptionsMenuAction>();
 				break;
+			case "CreditsMenuAction":
+				action = MonoBehaviour.FindObjectOfType<CreditsMenuAction>();
+				break;
 			case "JoinMenuAction":
 				action = MonoBehaviour.FindObjectOfType<JoinMenuAction>();
 				break;
